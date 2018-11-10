@@ -16,11 +16,8 @@
         "noUnusedParameters": false,
         "noImplicitAny": false,
         "noImplicitThis": false,
-        "lib": [
-            "es6"
-        ]
+        "lib": ["es6", "dom"],
+        "jsx": "react"
     },
-    "include": [
-        "src/**/*.ts"
-    ]
+    "include": ["src/**/*.ts", "setup.js"]
 }
