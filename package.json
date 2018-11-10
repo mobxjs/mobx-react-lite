@@ -17,7 +17,8 @@
     "test:ts": "tsc -p test/ts",
     "test:travis": "npm run build && jest && npm run test:ts",
     "build": "node build-rollup.js && shx cp src/index.d.ts index.d.ts && shx cp src/index.d.ts native.d.ts && shx cp src/index.d.ts custom.d.ts",
-    "watch": "jest --watch"
+    "watch": "jest --watch",
+    "lint": "tslint --project ."
   },
   "author": "Michel Weststrate",
   "license": "MIT",
@@ -65,6 +66,9 @@
     "rollup-plugin-uglify": "^6.0.0",
     "shelljs": "^0.8.2",
     "shx": "^0.3.2",
+    "ts-jest": "^23.10.4",
+    "tslint": "^5.11.0",
+    "tslint-config-prettier": "^1.15.0",
     "typescript": "^3.1.6"
   },
   "keywords": [
