@@ -1,0 +1,16 @@
+{
+	"version": "1.7.5",
+	"compilerOptions": {
+		"target": "es5",
+		"strict": true,
+		"experimentalDecorators": true,
+		"jsx": "react",
+		"noEmit": true,
+		"rootDir": "../../",
+		"module": "commonjs",
+		"lib": ["es5", "dom"]
+	},
+	"exclude": [
+
+	]
+}

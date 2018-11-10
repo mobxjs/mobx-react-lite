@@ -1,0 +1,11 @@
+/node_modules
+/test/node_modules
+/npm-debug.log
+/.idea
+/*.iml
+/*.ipr
+/*.iws
+/test/browser/test_bundle.js
+/.source.*
+yarn-error.log
+.DS_Store
