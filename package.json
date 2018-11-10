@@ -15,7 +15,7 @@
     "prettier": "prettier --write \"**/*.js\" \"**/*.ts\"",
     "test": "jest && npm run test:ts",
     "test:ts": "tsc -p test/ts",
-    "test:travis": "npm run build && jest && npm run test:ts",
+    "test:travis": "jest",
     "build": "node build-rollup.js && shx cp src/index.d.ts index.d.ts && shx cp src/index.d.ts native.d.ts && shx cp src/index.d.ts custom.d.ts",
     "watch": "jest --watch",
     "lint": "tslint --project ."
