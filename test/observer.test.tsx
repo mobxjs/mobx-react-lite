@@ -1,54 +1,63 @@
 import * as mobx from 'mobx'
 import * as React from 'react'
-import { render } from 'react-testing-library'
+import { cleanup, fireEvent, render } from 'react-testing-library'
 
-import { observer } from '../src'
+import { observer, useStaticRendering } from '../src'
 
 const getDNode = (obj, prop) => mobx._getAdministration(obj, prop)
 
+afterEach(cleanup)
+
 describe("nestedRendering", () => {
-    // init element
-    const store = mobx.observable({
-        todos: [
-            {
-                completed: false,
-                title: "a"
-            }
-        ]
-    })
+    const execute = () => {
+        // init element
+        const store = mobx.observable({
+            todos: [
+                {
+                    completed: false,
+                    title: "a"
+                }
+            ]
+        })
 
-    let todoItemRenderings = 0
-    const TodoItem = observer(({ todo }: { todo: typeof store.todos[0] }) => {
-        todoItemRenderings++
-        return <li>|{todo.title}</li>
-    })
+        const renderings = {
+            item: 0,
+            list: 0
+        }
 
-    let todoListRenderings = 0
-    const TodoList = observer(() => {
-        todoListRenderings++
-        return (
-            <div>
-                <span>{store.todos.length}</span>
-                {store.todos.map((todo, idx) => (
-                    <TodoItem key={idx} todo={todo} />
-                ))}
-            </div>
-        )
-    })
+        const TodoItem = observer(({ todo }: { todo: typeof store.todos[0] }) => {
+            renderings.item++
+            return <li>|{todo.title}</li>
+        })
 
-    const { container, getAllByText } = render(<TodoList />)
+        const TodoList = observer(() => {
+            renderings.list++
+            return (
+                <div>
+                    <span>{store.todos.length}</span>
+                    {store.todos.map((todo, idx) => (
+                        <TodoItem key={idx} todo={todo} />
+                    ))}
+                </div>
+            )
+        })
+        const rendered = render(<TodoList />)
+        return { ...rendered, store, renderings }
+    }
 
     test("first rendering", () => {
-        expect(todoListRenderings).toBe(1)
-        expect(todoItemRenderings).toBe(1)
+        const { getAllByText, renderings } = execute()
+        expect(renderings.list).toBe(1)
+        expect(renderings.item).toBe(1)
         expect(getAllByText("1")).toHaveLength(1)
         expect(getAllByText("|a")).toHaveLength(1)
     })
 
-    test("second rendering with inner store changed", () => {
+    test("inner store changed", () => {
+        const { store, getAllByText, renderings } = execute()
         store.todos[0].title += "a"
-        expect(todoListRenderings).toBe(1)
-        expect(todoItemRenderings).toBe(2)
+        expect(renderings.list).toBe(1)
+        expect(renderings.item).toBe(2)
         expect(getAllByText("1")).toHaveLength(1)
         expect(getAllByText("|aa")).toHaveLength(1)
         expect(getDNode(store, "todos").observers.size).toBe(1)
@@ -56,414 +65,307 @@ describe("nestedRendering", () => {
     })
 
     test("rerendering with outer store added", () => {
+        const { store, container, getAllByText, renderings } = execute()
         store.todos.push({
             completed: true,
             title: "b"
         })
         expect(container.querySelectorAll("li").length).toBe(2)
         expect(getAllByText("2")).toHaveLength(1)
-        expect(getAllByText("|aa")).toHaveLength(1)
         expect(getAllByText("|b")).toHaveLength(1)
-        expect(todoListRenderings).toBe(2)
-        expect(todoItemRenderings).toBe(3)
+        expect(renderings.list).toBe(2)
+        expect(renderings.item).toBe(2)
         expect(getDNode(store.todos[1], "title").observers.size).toBe(1)
         expect(getDNode(store.todos[1], "completed").observers.size).toBe(0)
     })
 
     test("rerendering with outer store pop", () => {
+        const { store, container, renderings } = execute()
         const oldTodo = store.todos.pop()
-        expect(todoListRenderings).toBe(3)
-        expect(todoItemRenderings).toBe(3)
-        expect(container.querySelectorAll("li").length).toBe(1)
+        expect(renderings.list).toBe(2)
+        expect(renderings.item).toBe(1)
+        expect(container.querySelectorAll("li").length).toBe(0)
         expect(getDNode(oldTodo, "title").observers.size).toBe(0)
         expect(getDNode(oldTodo, "completed").observers.size).toBe(0)
     })
 })
 
-// describe("isObjectShallowModified detects when React will update the component", () => {
-//     const store = mobx.observable({ count: 0 })
-//     let counterRenderings = 0
-//     const Counter = observer(function TodoItem() {
-//         counterRenderings++
-//         return <div>{store.count}</div>
-//     })
+describe("isObjectShallowModified detects when React will update the component", () => {
+    const store = mobx.observable({ count: 0 })
+    let counterRenderings = 0
+    const Counter = observer(function TodoItem() {
+        counterRenderings++
+        return <div>{store.count}</div>
+    })
 
-//     beforeAll(done => {
-//         useStaticRendering(false)
-//         done()
-//     })
+    test("does not assume React will update due to NaN prop", () => {
+        // @ts-ignore Not sure what this test does, the value is not used
+        render(<Counter value={NaN} />)
+        store.count++
+        expect(counterRenderings).toBe(2)
+    })
+})
 
-//     test("does not assume React will update due to NaN prop", async done => {
-//         await asyncReactDOMRender(<Counter value={NaN} />, testRoot)
-//         store.count++
-//         expect(counterRenderings).toBe(2)
-//         done()
-//     })
-// })
+describe("keep views alive", () => {
+    const execute = () => {
+        const data = mobx.observable({
+            x: 3,
+            yCalcCount: 0,
+            get y() {
+                this.yCalcCount++
+                return this.x * 2
+            },
+            z: "hi"
+        })
+        const TestComponent = observer(() => {
+            return (
+                <div>
+                    {data.z}
+                    {data.y}
+                </div>
+            )
+        })
+        return { ...render(<TestComponent />), data }
+    }
 
-// describe("keep views alive", () => {
-//     let yCalcCount = 0
-//     const data = mobx.observable({
-//         x: 3,
-//         get y() {
-//             yCalcCount++
-//             return this.x * 2
-//         },
-//         z: "hi"
-//     })
-//     const TestComponent = observer(function testComponent() {
-//         return (
-//             <div>
-//                 {data.z}
-//                 {data.y}
-//             </div>
-//         )
-//     })
-//     const { queryByText } = TestingLibrary.render(<TestComponent />)
+    test("init state", () => {
+        const { data, queryByText } = execute()
+        expect(data.yCalcCount).toBe(1)
+        expect(queryByText("hi6")).toBeTruthy()
+    })
 
-//     test("init state", () => {
-//         expect(yCalcCount).toBe(1)
-//         expect(queryByText("hi6")).toBeTruthy()
-//     })
+    test("rerender should not need a recomputation of data.y", () => {
+        const { data, queryByText } = execute()
+        data.z = "hello"
+        expect(data.yCalcCount).toBe(1)
+        expect(queryByText("hello6")).toBeTruthy()
+    })
+})
 
-//     test("rerender should not need a recomputation of data.y", () => {
-//         data.z = "hello"
-//         expect(yCalcCount).toBe(1)
-//         expect(queryByText("hello6")).toBeTruthy()
-//     })
+describe("does not keep views alive when using static rendering", () => {
+    const execute = () => {
+        useStaticRendering(true)
+        let renderCount = 0
+        const data = mobx.observable({
+            z: "hi"
+        })
 
-//     afterAll(TestingLibrary.cleanup)
-// })
+        const TestComponent = observer(() => {
+            renderCount++
+            return <div>{data.z}</div>
+        })
 
-// describe("does not views alive when using static rendering", () => {
-//     useStaticRendering(true)
-//     let renderCount = 0
-//     const data = mobx.observable({
-//         z: "hi"
-//     })
+        return { ...render(<TestComponent />), data, getRenderCount: () => renderCount }
+    }
 
-//     const TestComponent = observer(function testComponent() {
-//         renderCount++
-//         return <div>{data.z}</div>
-//     })
-//     const element = TestUtils.renderIntoDocument(<TestComponent />)
+    afterEach(() => {
+        useStaticRendering(false)
+    })
 
-//     afterAll(() => {
-//         useStaticRendering(false)
-//     })
+    test("init state is correct", () => {
+        const { getRenderCount, getByText } = execute()
+        expect(getRenderCount()).toBe(1)
+        expect(getByText("hi")).toBeTruthy()
+    })
 
-//     test("init state is correct", () => {
-//         console.log(element.innerHTML)
-//         expect(renderCount).toBe(1)
-//         expect(TestUtils.findRenderedDOMComponentWithTag(element, "div").innerHTML).toBe("hi")
-//     })
+    test("no re-rendering on static rendering", () => {
+        const { getRenderCount, getByText, data } = execute()
+        data.z = "hello"
+        expect(getRenderCount()).toBe(1)
+        expect(getByText("hi")).toBeTruthy()
+        expect(getDNode(data, "z").observers.size).toBe(0)
+    })
+})
 
-//     test("no re-rendering on static rendering", () => {
-//         data.z = "hello"
-//         expect(renderCount).toBe(1)
-//         expect(TestUtils.findRenderedDOMComponentWithTag(element, "div").innerHTML).toBe("hi")
-//         expect(getDNode(data, "z").observers.size).toBe(0)
-//     })
-// })
+describe("issue 12", () => {
+    const createData = () =>
+        mobx.observable({
+            selected: "coffee",
+            items: [
+                {
+                    name: "coffee"
+                },
+                {
+                    name: "tea"
+                }
+            ]
+        })
 
-// describe("issue 12", () => {
-//     const data = mobx.observable({
-//         selected: "coffee",
-//         items: [
-//             {
-//                 name: "coffee"
-//             },
-//             {
-//                 name: "tea"
+    const Row: React.FC<{ item: { name: string }; selected: string }> = props => {
+        return (
+            <span>
+                {props.item.name}
+                {props.selected === props.item.name ? "!" : ""}
+            </span>
+        )
+    }
+    /** table stateles component */
+    const Table: React.FC<{ data: any }> = observer(props => {
+        return (
+            <div>
+                {props.data.items.map(item => (
+                    <Row key={item.name} item={item} selected={props.data.selected} />
+                ))}
+            </div>
+        )
+    })
+
+    test("init state is correct", () => {
+        const data = createData()
+        const { container } = render(<Table data={data} />)
+        expect(container).toMatchInlineSnapshot(`
+<div>
+  <div>
+    <span>
+      coffee
+      !
+    </span>
+    <span>
+      tea
+      
+    </span>
+  </div>
+</div>
+`)
+    })
+
+    test("run transaction", () => {
+        const data = createData()
+        const { container } = render(<Table data={data} />)
+        mobx.transaction(() => {
+            data.items[1].name = "boe"
+            data.items.splice(0, 2, { name: "soup" })
+            data.selected = "tea"
+        })
+        expect(container).toMatchInlineSnapshot(`
+<div>
+  <div>
+    <span>
+      soup
+      
+    </span>
+  </div>
+</div>
+`)
+    })
+})
+
+test("changing state in render should fail", () => {
+    // This test is most likely obsolete ... exception is not thrown
+    const data = mobx.observable.box(2)
+    const Comp = observer(() => {
+        if (data.get() === 3) {
+            try {
+                data.set(4) // wouldn't throw first time for lack of observers.. (could we tighten this?)
+            } catch (err) {
+                expect(
+                    /Side effects like changing state are not allowed at this point/.test(err)
+                ).toBeTruthy()
+            }
+        }
+        return <div>{data.get()}</div>
+    })
+    const { container } = render(<Comp />)
+    data.set(3)
+    expect(container).toMatchInlineSnapshot(`
+<div>
+  <div>
+    4
+  </div>
+</div>
+`)
+    mobx._resetGlobalState()
+})
+
+describe("should render component even if setState called with exactly the same props", () => {
+    const execute = () => {
+        let renderCount = 0
+        const Component = observer(() => {
+            const [, setState] = React.useState({})
+            const onClick = () => {
+                setState({})
+            }
+            renderCount++
+            return <div onClick={onClick} data-testid="clickableDiv" />
+        })
+        return { ...render(<Component />), getCount: () => renderCount }
+    }
+
+    test("renderCount === 1", () => {
+        const { getCount } = execute()
+        expect(getCount()).toBe(1)
+    })
+
+    test("after click once renderCount === 2", async () => {
+        const { getCount, getByTestId } = execute()
+        fireEvent.click(getByTestId("clickableDiv"))
+        expect(getCount()).toBe(2)
+    })
+
+    test("after click twice renderCount === 3", async () => {
+        const { getCount, getByTestId } = execute()
+        fireEvent.click(getByTestId("clickableDiv"))
+        fireEvent.click(getByTestId("clickableDiv"))
+        expect(getCount()).toBe(3)
+    })
+})
+
+// describe.only("it rerenders correctly if some props are non-observables - 1", () => {
+//     const execute = () => {
+//         let renderCount = 0
+//         const createProps = () => {
+//             const odata = mobx.observable({ x: 1 })
+//             const data = { y: 1 }
+//             function doStuff() {
+//                 data.y++
+//                 odata.x++
 //             }
-//         ]
-//     })
-
-//     /** Row Class */
-//     class Row extends Component {
-//         constructor(props) {
-//             super(props)
+//             return { odata, data, doStuff }
 //         }
 
-//         render() {
-//             return (
-//                 <span>
-//                     {this.props.item.name}
-//                     {data.selected === this.props.item.name ? "!" : ""}
-//                 </span>
-//             )
-//         }
-//     }
-//     /** table stateles component */
-//     const Table = observer(function table() {
-//         return (
-//             <div>
-//                 {data.items.map(item => (
-//                     <Row key={item.name} item={item} />
-//                 ))}
-//             </div>
-//         )
-//     })
+//         const Component = props => {
+//             const computed = useObservable(() => props.odata.x)
 
-//     beforeAll(async done => {
-//         await asyncReactDOMRender(<Table />, testRoot)
-//         done()
-//     })
-
-//     test("init state is correct", () => {
-//         expect([].map.call(testRoot.querySelectorAll("span"), tag => tag.innerHTML).sort()).toEqual(
-//             ["coffee!", "tea"].sort()
-//         )
-//     })
-
-//     test("run transaction", () => {
-//         mobx.transaction(() => {
-//             data.items[1].name = "boe"
-//             data.items.splice(0, 2, { name: "soup" })
-//             data.selected = "tea"
-//         })
-//         expect([].map.call(testRoot.querySelectorAll("span"), tag => tag.innerHTML).sort()).toEqual(
-//             ["soup"]
-//         )
-//     })
-// })
-
-// test("changing state in render should fail", () => {
-//     const data = mobx.observable.box(2)
-//     const Comp = observer(() => {
-//         if (data.get() === 3) {
-//             try {
-//                 data.set(4) // wouldn't throw first time for lack of observers.. (could we tighten this?)
-//             } catch (err) {
-//                 expect(
-//                     /Side effects like changing state are not allowed at this point/.test(err)
-//                 ).toBeTruthy()
-//             }
-//         }
-//         return <div>{data.get()}</div>
-//     })
-//     TestUtils.renderIntoDocument(<Comp />)
-
-//     data.set(3)
-//     mobx._resetGlobalState()
-// })
-
-// test("component should not be inject", () => {
-//     const msg = []
-//     const baseWarn = console.warn
-//     console.warn = m => msg.push(m)
-
-//     observer(
-//         inject("foo")(
-//             createClass({
-//                 render() {
-//                     return (
-//                         <div>
-//                             context:
-//                             {this.props.foo}
-//                         </div>
-//                     )
-//                 }
-//             })
-//         )
-//     )
-
-//     expect(msg.length).toBe(2)
-//     console.warn = baseWarn
-// })
-
-// test("observer component can be injected", () => {
-//     const msg = []
-//     const baseWarn = console.warn
-//     console.warn = m => msg.push(m)
-
-//     inject("foo")(
-//         observer(
-//             createClass({
-//                 render: () => null
-//             })
-//         )
-//     )
-
-//     // N.B, the injected component will be observer since mobx-react 4.0!
-//     inject(() => {})(
-//         observer(
-//             createClass({
-//                 render: () => null
-//             })
-//         )
-//     )
-
-//     expect(msg.length).toBe(0)
-//     console.warn = baseWarn
-// })
-
-// describe("124 - react to changes in this.props via computed", () => {
-//     const Comp = observer(
-//         createClass({
-//             componentWillMount() {
-//                 mobx.extendObservable(this, {
-//                     get computedProp() {
-//                         return this.props.x
-//                     }
-//                 })
-//             },
-//             render() {
-//                 return (
-//                     <span>
-//                         x:
-//                         {this.computedProp}
-//                     </span>
-//                 )
-//             }
-//         })
-//     )
-
-//     const Parent = createClass({
-//         getInitialState() {
-//             return { v: 1 }
-//         },
-//         render() {
-//             return (
-//                 <div onClick={() => this.setState({ v: 2 })}>
-//                     <Comp x={this.state.v} />
-//                 </div>
-//             )
-//         }
-//     })
-
-//     beforeAll(async done => {
-//         await asyncReactDOMRender(<Parent />, testRoot)
-//         done()
-//     })
-
-//     test("init state is correct", () => {
-//         expect(testRoot.querySelector("span").innerHTML).toBe("x:1")
-//     })
-
-//     test("change after click", async () => {
-//         testRoot.querySelector("div").click()
-//         await sleepHelper(100)
-//         expect(testRoot.querySelector("span").innerHTML).toBe("x:2")
-//     })
-// })
-
-// // Test on skip: since all reactions are now run in batched updates, the original issues can no longer be reproduced
-// //this test case should be deprecated?
-// test.skip("should stop updating if error was thrown in render (#134)", () => {
-//     const data = mobx.observable.box(0)
-//     let renderingsCount = 0
-
-//     const Comp = observer(function() {
-//         renderingsCount += 1
-//         if (data.get() === 2) {
-//             throw new Error("Hello")
-//         }
-//         return <div />
-//     })
-
-//     TestUtils.renderIntoDocument(<Comp />)
-//     expect(data.observers.size).toBe(1)
-//     data.set(1)
-//     expect(data.set(2)).toThrow("Hello")
-//     expect(data.observers.size).toBe(0)
-//     data.set(3)
-//     data.set(4)
-//     data.set(5)
-//     expect(renderingsCount).toBe(3)
-// })
-
-// describe("should render component even if setState called with exactly the same props", () => {
-//     let renderCount = 0
-//     const Component = observer(
-//         createClass({
-//             onClick() {
-//                 this.setState({})
-//             },
-//             render() {
-//                 renderCount++
-//                 return <div onClick={this.onClick} id="clickableDiv" />
-//             }
-//         })
-//     )
-
-//     beforeAll(async done => {
-//         await asyncReactDOMRender(<Component />, testRoot)
-//         done()
-//     })
-
-//     test("renderCount === 1", () => {
-//         expect(renderCount).toBe(1)
-//     })
-
-//     test("after click once renderCount === 2", async () => {
-//         testRoot.querySelector("#clickableDiv").click()
-//         sleepHelper(10)
-//         expect(renderCount).toBe(2)
-//     })
-
-//     test("after click twice renderCount === 3", async () => {
-//         testRoot.querySelector("#clickableDiv").click()
-//         sleepHelper(10)
-//         expect(renderCount).toBe(3)
-//     })
-// })
-
-// describe("it rerenders correctly if some props are non-observables - 1", () => {
-//     let renderCount = 0
-//     let odata = mobx.observable({ x: 1 })
-//     let data = { y: 1 }
-
-//     @observer
-//     class Component extends React.Component {
-//         @mobx.computed
-//         get computed() {
-//             // n.b: data.y would not rerender! shallowly new equal props are not stored
-//             return this.props.odata.x
-//         }
-//         render() {
 //             renderCount++
 //             return (
-//                 <span onClick={stuff}>
-//                     {this.props.odata.x}-{this.props.data.y}-{this.computed}
+//                 <span onClick={props.doStuff}>
+//                     {props.odata.x}-{props.data.y}-{computed}
 //                 </span>
 //             )
 //         }
-//     }
 
-//     const Parent = observer(
-//         createClass({
-//             render() {
-//                 // this.props.odata.x;
-//                 return <Component data={this.props.data} odata={this.props.odata} />
-//             }
+//         const Parent = observer((props: any) => {
+//             // @ts-ignore props
+//             return <Component {...props} />
 //         })
-//     )
 
-//     function stuff() {
-//         data.y++
-//         odata.x++
+//         const rendered = render(<Parent {...createProps()} />)
+//         return {
+//             ...rendered,
+//             getCount: () => renderCount,
+//             span: rendered.container.querySelector("span")!
+//         }
 //     }
-
-//     beforeAll(async done => {
-//         await asyncReactDOMRender(<Parent odata={odata} data={data} />, testRoot)
-//         done()
-//     })
 
 //     test("init renderCount === 1", () => {
-//         expect(testRoot.querySelector("span").innerHTML).toBe("1-1-1")
+//         const { span, getCount } = execute()
+//         expect(getCount()).toBe(1)
+//         expect(span.innerHTML).toBe("1-1-1")
 //     })
 
 //     test("after click renderCount === 2", async () => {
-//         testRoot.querySelector("span").click()
-//         await sleepHelper(10)
-//         expect(testRoot.querySelector("span").innerHTML).toBe("2-2-2")
+//         const { span, getCount } = execute()
+//         fireEvent.click(span)
+//         expect(getCount()).toBe(2)
+//         expect(span.innerHTML).toBe("2-2-2")
 //     })
 
 //     test("after click twice renderCount === 3", async () => {
-//         testRoot.querySelector("span").click()
-//         await sleepHelper(10)
-//         expect(testRoot.querySelector("span").innerHTML).toBe("3-3-3")
+//         const { span, getCount } = execute()
+//         fireEvent.click(span)
+//         fireEvent.click(span)
+//         expect(getCount()).toBe(3)
+//         expect(span.innerHTML).toBe("3-3-3")
 //     })
 // })
 
