@@ -28,7 +28,7 @@
   "homepage": "https://mobxjs.github.io/mobx",
   "peerDependencies": {
     "mobx": "^4.0.0 || ^5.0.0",
-    "react": "^16.7.alpha.0"
+    "react": "^16.7.0-alpha.0"
   },
   "devDependencies": {
     "@babel/core": "^7.1.5",
