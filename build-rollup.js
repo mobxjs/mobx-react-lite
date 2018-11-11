@@ -1,6 +1,6 @@
 var path = require("path")
 var filesize = require("rollup-plugin-filesize")
-var babel = require("rollup-plugin-babel")
+var typescript = require("rollup-plugin-typescript2")
 var commonjs = require("rollup-plugin-commonjs")
 var resolve = require("rollup-plugin-node-resolve")
 var uglify = require("rollup-plugin-uglify").uglify
@@ -40,14 +40,12 @@ function build(target, mode, filename) {
             "process.env.NODE_ENV": JSON.stringify("production")
         }),
         alias(getAliases(target)),
-        babel({
-            exclude: "node_modules/**"
-        }),
-        resolve({
-            module: true,
-            main: true
-        }),
-        commonjs()
+        typescript()
+        // resolve({
+        //     module: true,
+        //     main: true
+        // }),
+        // commonjs()
     ]
 
     if (mode.endsWith(".min")) {
@@ -62,13 +60,13 @@ function build(target, mode, filename) {
     plugins.push(filesize())
 
     return rollup({
-        input: "src/index.js",
+        input: "src/index.ts",
         external: getExternals(target),
         plugins: plugins
     })
         .then(function(bundle) {
             var options = {
-                file: path.resolve(__dirname, filename),
+                file: path.resolve(__dirname, "dist", filename),
                 format: mode.endsWith(".min") ? mode.slice(0, -".min".length) : mode,
                 globals: {
                     react: "React",
@@ -88,11 +86,13 @@ function build(target, mode, filename) {
         })
 }
 
-Promise.all([
-    build("browser", "umd", "index.js"),
-    build("browser", "umd.min", "index.min.js"),
-    build("browser", "es", "index.module.js"),
-    build("native", "cjs", "native.js"),
-    build("custom", "umd", "custom.js"),
-    build("custom", "es", "custom.module.js")
-])
+const main = async () => {
+    await build("browser", "umd", "index.js")
+    // await build("browser", "umd.min", "index.min.js")
+    await build("browser", "es", "index.module.js")
+    await build("native", "cjs", "native.js")
+    await build("custom", "umd", "custom.js")
+    await build("custom", "es", "custom.module.js")
+}
+
+main()

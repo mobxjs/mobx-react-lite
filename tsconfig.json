@@ -1,12 +1,13 @@
 {
     "version": "2.0.10",
     "compilerOptions": {
+        "outDir": "dist",
         "target": "es6",
-        "module": "commonjs",
+        "module": "esnext",
         "moduleResolution": "node",
         "downlevelIteration": true,
+        "esModuleInterop": true,
         "alwaysStrict": true,
-        "outDir": "lib",
         "sourceMap": false,
         "declaration": true,
         "removeComments": false,
