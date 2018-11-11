@@ -3,7 +3,7 @@ var filesize = require("rollup-plugin-filesize")
 var typescript = require("rollup-plugin-typescript2")
 var commonjs = require("rollup-plugin-commonjs")
 var resolve = require("rollup-plugin-node-resolve")
-var uglify = require("rollup-plugin-uglify").uglify
+var terser = require("rollup-plugin-terser").terser
 var alias = require("rollup-plugin-alias")
 var replace = require("rollup-plugin-replace")
 
@@ -49,12 +49,7 @@ function build(target, mode, filename) {
     ]
 
     if (mode.endsWith(".min")) {
-        plugins.push(
-            uglify({
-                ie8: false,
-                warnings: false
-            })
-        )
+        plugins.push(terser())
     }
 
     plugins.push(filesize())
@@ -88,7 +83,7 @@ function build(target, mode, filename) {
 
 const main = async () => {
     await build("browser", "umd", "index.js")
-    // await build("browser", "umd.min", "index.min.js")
+    await build("browser", "umd.min", "index.min.js")
     await build("browser", "es", "index.module.js")
     await build("native", "cjs", "native.js")
     await build("custom", "umd", "custom.js")
