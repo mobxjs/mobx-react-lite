@@ -7,4 +7,6 @@ webpack.config.js
 *.html
 build-rollup.js
 .vscode
-.babelrc
+.rpt2_cache
+dist
+coverage
