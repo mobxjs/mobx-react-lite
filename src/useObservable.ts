@@ -1,9 +1,6 @@
 import { observable } from "mobx"
-import { useState } from "react"
+import { useRef } from "react"
 
-export function useObservable(initialValue) {
-    if (typeof initialValue === "function") {
-        return useState(() => observable(initialValue()))[0]
-    }
-    return useState(observable(initialValue))[0]
+export function useObservable<T extends object>(initialValue: T): T {
+    return useRef(observable(initialValue)).current
 }

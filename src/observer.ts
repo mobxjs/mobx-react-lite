@@ -1,5 +1,5 @@
 import { Reaction } from "mobx"
-import { memo, useEffect, useMemo, useState } from "react"
+import { FunctionComponent, memo, useEffect, useMemo, useState } from "react"
 
 let isUsingStaticRendering = false
 
@@ -7,7 +7,7 @@ export function useStaticRendering(enable: boolean) {
     isUsingStaticRendering = enable
 }
 
-export function observer<P>(baseComponent: React.FunctionComponent<P>): React.FunctionComponent<P> {
+export function observer<P>(baseComponent: FunctionComponent<P>): FunctionComponent<P> {
     if (isUsingStaticRendering) {
         return baseComponent
     }

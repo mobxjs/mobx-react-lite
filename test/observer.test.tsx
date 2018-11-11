@@ -310,188 +310,97 @@ describe("should render component even if setState called with exactly the same 
     })
 })
 
-// describe.only("it rerenders correctly if some props are non-observables - 1", () => {
-//     const execute = () => {
-//         let renderCount = 0
-//         const createProps = () => {
-//             const odata = mobx.observable({ x: 1 })
-//             const data = { y: 1 }
-//             function doStuff() {
-//                 data.y++
-//                 odata.x++
-//             }
-//             return { odata, data, doStuff }
-//         }
+describe("it rerenders correctly when useMemo is wrapping observable", () => {
+    const execute = () => {
+        let renderCount = 0
+        const createProps = () => {
+            const odata = mobx.observable({ x: 1 })
+            const data = { y: 1 }
+            function doStuff() {
+                data.y++
+                odata.x++
+            }
+            return { odata, data, doStuff }
+        }
 
-//         const Component = props => {
-//             const computed = useObservable(() => props.odata.x)
+        const Component = observer((props: any) => {
+            const computed = React.useMemo(() => props.odata.x, [props.odata.x])
 
-//             renderCount++
-//             return (
-//                 <span onClick={props.doStuff}>
-//                     {props.odata.x}-{props.data.y}-{computed}
-//                 </span>
-//             )
-//         }
+            renderCount++
+            return (
+                <span onClick={props.doStuff}>
+                    {props.odata.x}-{props.data.y}-{computed}
+                </span>
+            )
+        })
 
-//         const Parent = observer((props: any) => {
-//             // @ts-ignore props
-//             return <Component {...props} />
-//         })
+        const rendered = render(<Component {...createProps()} />)
+        return {
+            ...rendered,
+            getCount: () => renderCount,
+            span: rendered.container.querySelector("span")!
+        }
+    }
 
-//         const rendered = render(<Parent {...createProps()} />)
-//         return {
-//             ...rendered,
-//             getCount: () => renderCount,
-//             span: rendered.container.querySelector("span")!
-//         }
-//     }
+    test("init renderCount === 1", () => {
+        const { span, getCount } = execute()
+        expect(getCount()).toBe(1)
+        expect(span.innerHTML).toBe("1-1-1")
+    })
 
-//     test("init renderCount === 1", () => {
-//         const { span, getCount } = execute()
-//         expect(getCount()).toBe(1)
-//         expect(span.innerHTML).toBe("1-1-1")
-//     })
+    test("after click renderCount === 2", async () => {
+        const { span, getCount } = execute()
+        fireEvent.click(span)
+        expect(getCount()).toBe(2)
+        expect(span.innerHTML).toBe("2-2-2")
+    })
 
-//     test("after click renderCount === 2", async () => {
-//         const { span, getCount } = execute()
-//         fireEvent.click(span)
-//         expect(getCount()).toBe(2)
-//         expect(span.innerHTML).toBe("2-2-2")
-//     })
+    test("after click twice renderCount === 3", async () => {
+        const { span, getCount } = execute()
+        fireEvent.click(span)
+        fireEvent.click(span)
+        expect(getCount()).toBe(3)
+        expect(span.innerHTML).toBe("3-3-3")
+    })
+})
 
-//     test("after click twice renderCount === 3", async () => {
-//         const { span, getCount } = execute()
-//         fireEvent.click(span)
-//         fireEvent.click(span)
-//         expect(getCount()).toBe(3)
-//         expect(span.innerHTML).toBe("3-3-3")
-//     })
-// })
+describe("should not re-render on shallow equal new props", () => {
+    const execute = () => {
+        const renderings = {
+            child: 0,
+            parent: 0
+        }
+        const data = { x: 1 }
+        const odata = mobx.observable({ y: 1 })
 
-// describe("it rerenders correctly if some props are non-observables - 2", () => {
-//     let renderCount = 0
-//     let odata = mobx.observable({ x: 1 })
+        const Child = observer((props: any) => {
+            renderings.child++
+            return <span>{props.data.x}</span>
+        })
+        const Parent = observer(() => {
+            renderings.parent++
+            // tslint:disable-next-line no-unused-expression
+            odata.y /// depend
+            return <Child data={data} />
+        })
+        return { ...render(<Parent />), renderings, odata }
+    }
 
-//     @observer
-//     class Component extends React.Component {
-//         @mobx.computed
-//         get computed() {
-//             return this.props.data.y // should recompute, since props.data is changed
-//         }
+    test("init state is correct", () => {
+        const { container, renderings } = execute()
+        expect(renderings.parent).toBe(1)
+        expect(renderings.child).toBe(1)
+        expect(container.querySelector("span")!.innerHTML).toBe("1")
+    })
 
-//         render() {
-//             renderCount++
-//             return (
-//                 <span onClick={stuff}>
-//                     {this.props.data.y}-{this.computed}
-//                 </span>
-//             )
-//         }
-//     }
-
-//     const Parent = observer(props => {
-//         let data = { y: props.odata.x }
-//         return <Component data={data} odata={props.odata} />
-//     })
-
-//     function stuff() {
-//         odata.x++
-//     }
-
-//     mobx.reaction(
-//         () => odata.x,
-//         v => {
-//             // console.log(v)
-//         }
-//     )
-
-//     beforeAll(async done => {
-//         await asyncReactDOMRender(<Parent odata={odata} />, testRoot)
-//         done()
-//     })
-
-//     test("init renderCount === 1", () => {
-//         expect(renderCount).toBe(1)
-//         expect(testRoot.querySelector("span").innerHTML).toBe("1-1")
-//     })
-
-//     test("after click renderCount === 2", async () => {
-//         testRoot.querySelector("span").click()
-//         await sleepHelper(100)
-//         expect(renderCount).toBe(2)
-//         expect(testRoot.querySelector("span").innerHTML).toBe("2-2")
-//     })
-
-//     test("after click renderCount === 3", async () => {
-//         testRoot.querySelector("span").click()
-//         await sleepHelper(10)
-//         expect(renderCount).toBe(3)
-//         expect(testRoot.querySelector("span").innerHTML).toBe("3-3")
-//     })
-// })
-
-// describe("Observer regions should react", () => {
-//     const data = mobx.observable.box("hi")
-//     const Comp = () => (
-//         <div>
-//             <Observer>{() => <span>{data.get()}</span>}</Observer>
-//             <li>{data.get()}</li>
-//         </div>
-//     )
-
-//     beforeAll(async done => {
-//         await asyncReactDOMRender(<Comp />, testRoot)
-//         done()
-//     })
-
-//     test("init state is correct", () => {
-//         expect(testRoot.querySelector("span").innerHTML).toBe("hi")
-//         expect(testRoot.querySelector("li").innerHTML).toBe("hi")
-//     })
-
-//     test("set the data to hello", async () => {
-//         data.set("hello")
-//         await sleepHelper(10)
-//         expect(testRoot.querySelector("span").innerHTML).toBe("hello")
-//         expect(testRoot.querySelector("li").innerHTML).toBe("hi")
-//     })
-// })
-
-// describe("Observer should not re-render on shallow equal new props", () => {
-//     let childRendering = 0
-//     let parentRendering = 0
-//     const data = { x: 1 }
-//     const odata = mobx.observable({ y: 1 })
-
-//     const Child = observer(({ data }) => {
-//         childRendering++
-//         return <span>{data.x}</span>
-//     })
-//     const Parent = observer(() => {
-//         parentRendering++
-//         odata.y /// depend
-//         return <Child data={data} />
-//     })
-
-//     beforeAll(async () => {
-//         await asyncReactDOMRender(<Parent />, testRoot)
-//     })
-
-//     test("init state is correct", () => {
-//         expect(parentRendering).toBe(1)
-//         expect(childRendering).toBe(1)
-//         expect(testRoot.querySelector("span").innerHTML).toBe("1")
-//     })
-
-//     test("after odata change", async () => {
-//         odata.y++
-//         sleepHelper(10)
-//         expect(parentRendering).toBe(2)
-//         expect(childRendering).toBe(1)
-//         expect(testRoot.querySelector("span").innerHTML).toBe("1")
-//     })
-// })
+    test("after odata change", async () => {
+        const { container, renderings, odata } = execute()
+        odata.y++
+        expect(renderings.parent).toBe(2)
+        expect(renderings.child).toBe(1)
+        expect(container.querySelector("span")!.innerHTML).toBe("1")
+    })
+})
 
 // test("parent / childs render in the right order", done => {
 //     // See: https://jsfiddle.net/gkaemmer/q1kv7hbL/13/
@@ -638,74 +547,4 @@ describe("should render component even if setState called with exactly the same 
 //     expect(TestUtils.renderIntoDocument(<WillMount />)).toThrow(
 //         /Cannot assign to read only property 'componentWillMount'/
 //     )
-// })
-
-// describe("use Observer inject and render sugar should work  ", () => {
-//     test("use render without inject should be correct", async () => {
-//         const Comp = () => (
-//             <div>
-//                 <Observer render={props => <span>{123}</span>} />
-//             </div>
-//         )
-//         await asyncReactDOMRender(<Comp />, testRoot)
-//         expect(testRoot.querySelector("span").innerHTML).toBe("123")
-//     })
-
-//     test("use children without inject should be correct", async () => {
-//         const Comp = () => (
-//             <div>
-//                 <Observer>{props => <span>{123}</span>}</Observer>
-//             </div>
-//         )
-//         await asyncReactDOMRender(<Comp />, testRoot)
-//         expect(testRoot.querySelector("span").innerHTML).toBe("123")
-//     })
-
-//     test("show error when using children and render at same time ", async () => {
-//         const msg = []
-//         const baseError = console.error
-//         console.error = m => msg.push(m)
-
-//         const Comp = () => (
-//             <div>
-//                 <Observer render={() => <span>{123}</span>}>{() => <span>{123}</span>}</Observer>
-//             </div>
-//         )
-
-//         await asyncReactDOMRender(<Comp />, testRoot)
-//         expect(msg.length).toBe(1)
-//         console.error = baseError
-//     })
-// })
-
-// test("don't use PureComponent", () => {
-//     const msg = []
-//     const baseWarn = console.warn
-//     console.warn = m => msg.push(m)
-
-//     try {
-//         debugger
-//         observer(
-//             class X extends React.PureComponent {
-//                 return() {
-//                     return <div />
-//                 }
-//             }
-//         )
-
-//         expect(msg).toEqual([
-//             "Mobx observer: You are using 'observer' on React.PureComponent. These two achieve two opposite goals and should not be used together"
-//         ])
-//     } finally {
-//         console.warn = baseWarn
-//     }
-// })
-
-// test("static on function components are hoisted", () => {
-//     const Comp = () => <div />
-//     Comp.foo = 3
-
-//     const Comp2 = observer(Comp)
-
-//     expect(Comp2.foo).toBe(3)
 // })
