@@ -12,3 +12,40 @@ This is a next iteration of [mobx-react](https://github.com/mobxjs/mobx-react) c
 The more detailed documentation will be coming later. For now you can just use `observer` & `Observer` same way as before. There is no `Provider/inject` anymore as these can be handled by `React.createContext` without extra hassle. There might be bugs, as tests are not covering all scenarios just yet. No devtools & SSR support.
 
 Note that class based components are not supported except using `<Observer>` directly in its `render` method.
+
+New addition to this package is a hook `useObservable`. In its essence you can use it as an replacement for `useReducer`.
+
+```tsx
+const FriendlyComponent = observer(() => {
+    const friendNameRef = React.useRef()
+    const data = useObservable({
+        friends: [],
+        addFriend(favorite: boolean = false) {
+            if (favorite === true) {
+                data.friends.unshift(friendNameRef.current.value + " * ")
+            } else {
+                data.friends.push(friendNameRef.current.value)
+            }
+            friendNameRef.current.value = ""
+        },
+        get friendsCount() {
+            return data.friends.length
+        }
+    })
+
+    return (
+        <div>
+            <b>Count of friends: {data.friendsCount} </b>
+            {data.friends.map(friend => (
+                <div>{friend}</div>
+            ))}
+            <hr />
+            <input ref={friendNameRef} />
+            <button onClick={data.addFriend}>Add friend </button>
+            <button onClick={() => data.addFriend(true)}>Add favorite friend</button>
+        </div>
+    )
+})
+```
+
+[![Edit Friendly MobX](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/jzj48v2xry?module=%2Fsrc%2FFriendlyComponent.tsx)
