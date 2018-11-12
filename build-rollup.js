@@ -39,13 +39,16 @@ function build(target, mode, filename) {
             // for depencencies such as react-is
             "process.env.NODE_ENV": JSON.stringify("production")
         }),
-        alias(getAliases(target)),
-        typescript()
-        // resolve({
-        //     module: true,
-        //     main: true
-        // }),
-        // commonjs()
+        alias({ "react-native": emptyModulePath }),
+        typescript({
+            clean: true,
+            check: false
+        }),
+        resolve({
+            module: true,
+            main: true
+        }),
+        commonjs()
     ]
 
     if (mode.endsWith(".min")) {

@@ -1,5 +1,4 @@
 import "./assertEnvironment"
-import "./configureScheduler"
 
 export { useObservable } from "./useObservable"
 export { useComputed } from "./useComputed"
