@@ -165,6 +165,8 @@ const Calculator = observer(({ hasExploded }: { hasExploded: boolean }) => {
 
 Notice that since the computation depends on non-observable value, it has to be passed as a second argument to `useComputed`. There is [React `useMemo`](https://reactjs.org/docs/hooks-reference.html#usememo) behind the scenes and all rules applies here as well except you don't need to specify dependency on observable values.
 
+[![Edit Calculator](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/jzj48v2xry?module=%2Fsrc%2FCalculator.tsx)
+
 ### Server Side Rendering with `useStaticRendering`
 
 When using server side rendering, the components are rendered only once.
