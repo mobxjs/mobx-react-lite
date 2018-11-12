@@ -4,13 +4,7 @@ import { render } from 'react-testing-library'
 
 import { observer } from '../src'
 
-function sleepHelper(time) {
-    return new Promise(resolve => {
-        setTimeout(resolve, time)
-    })
-}
-
-test("mobx issue 50", async () => {
+test("mobx issue 50", done => {
     const foo = {
         a: mobx.observable.box(true),
         b: mobx.observable.box(false),
@@ -35,63 +29,36 @@ test("mobx issue 50", async () => {
 
     render(<Test />)
 
-    // In 3 seconds, flip a and b. This will change c.
-    await sleepHelper(200)
-    flipStuff()
-
-    await sleepHelper(400)
-    expect(asText).toBe("false:true:true")
-    // console.log(document.getElementById("x").innerHTML)
-    expect(document.getElementById("x")!.innerHTML).toBe("false,true,true")
-    expect(willReactCount).toBe(2)
+    setImmediate(() => {
+        flipStuff()
+        expect(asText).toBe("false:true:true")
+        expect(document.getElementById("x")!.innerHTML).toBe("false,true,true")
+        expect(willReactCount).toBe(2)
+        done()
+    })
 })
 
-// test("React.render should respect transaction", async () => {
-//     const testRoot = createTestRoot()
-//     const a = mobx.observable.box(2)
-//     const loaded = mobx.observable.box(false)
-//     const valuesSeen = []
+it("should respect transaction", async () => {
+    const a = mobx.observable.box(2)
+    const loaded = mobx.observable.box(false)
+    const valuesSeen = [] as number[]
 
-//     const Component = mobxReact.observer(() => {
-//         valuesSeen.push(a.get())
-//         if (loaded.get()) return <div>{a.get()}</div>
-//         else return <div>loading</div>
-//     })
+    const Component = observer(() => {
+        valuesSeen.push(a.get())
+        if (loaded.get()) {
+            return <div>{a.get()}</div>
+        }
+        return <div>loading</div>
+    })
 
-//     await asyncReactDOMRender(<Component />, testRoot)
+    const { container } = render(<Component />)
 
-//     mobx.transaction(() => {
-//         a.set(3)
-//         a.set(4)
-//         loaded.set(true)
-//     })
+    mobx.transaction(() => {
+        a.set(3)
+        a.set(4)
+        loaded.set(true)
+    })
 
-//     await sleepHelper(400)
-//     expect(testRoot.textContent.replace(/\s+/g, "")).toBe("4")
-//     expect(valuesSeen.sort()).toEqual([2, 4].sort())
-//     testRoot.parentNode.removeChild(testRoot)
-// })
-
-// test("React.render in transaction should succeed", async () => {
-//     const testRoot = createTestRoot()
-//     const a = mobx.observable.box(2)
-//     const loaded = mobx.observable.box(false)
-//     const valuesSeen = []
-//     const Component = mobxReact.observer(() => {
-//         valuesSeen.push(a.get())
-//         if (loaded.get()) return <div>{a.get()}</div>
-//         else return <div>loading</div>
-//     })
-
-//     mobx.transaction(() => {
-//         a.set(3)
-//         ReactDOM.render(<Component />, testRoot)
-//         a.set(4)
-//         loaded.set(true)
-//     })
-
-//     await sleepHelper(400)
-//     expect(testRoot.textContent.replace(/\s+/g, "")).toBe("4")
-//     expect(valuesSeen.sort()).toEqual([3, 4].sort())
-//     testRoot.parentNode.removeChild(testRoot)
-// })
+    expect(container.textContent!.replace(/\s+/g, "")).toBe("4")
+    expect(valuesSeen.sort()).toEqual([2, 4].sort())
+})

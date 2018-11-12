@@ -22,7 +22,7 @@ describe("is used to keep observable within component body", () => {
         const div = container.querySelector("div")!
         expect(div.textContent).toBe("1-2")
         fireEvent.click(div)
-        // observer not usd, need to render from outside
+        // observer not used, need to render from outside
         rerender(<TestComponent />)
         expect(div.textContent).toBe("2-2")
     })
