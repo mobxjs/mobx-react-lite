@@ -99,7 +99,9 @@ function ObservePerson(props) {
 
 ### useObservable
 
-React hook that allows creating observable object within a component body and keeps track of it over renders. Gets all the benefits from [observable objects](https://mobx.js.org/refguide/object.html) including computed properties and methods to mutate the state. You can also use arrays and Map which are useful to track dynamic list/table of information. The Set is not supported (see https://github.com/mobxjs/mobx/issues/69).
+React hook that allows creating observable object within a component body and keeps track of it over renders. Gets all the benefits from [observable objects](https://mobx.js.org/refguide/object.html) including computed properties and methods. You can also use arrays and Map which are useful to track dynamic list/table of information. The Set is not supported (see https://github.com/mobxjs/mobx/issues/69).
+
+Warning: With current implementation you also need to wrap your component to `observer` otherwise the rerender on update won't happen.
 
 ```tsx
 import { observer, useObservable } from "mobx-react-lite"
@@ -133,6 +135,35 @@ const TodoList = observer(() => {
 [![Edit TodoList](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/jzj48v2xry?module=%2Fsrc%2FTodoList.tsx)
 
 Note that if you want to track a single scalar value (string, number, boolean), you would need [a boxed value](https://mobx.js.org/refguide/boxed.html) which is not recognized by `useObservable`. However, we recommend to just `useState` instead which gives you almost same result (with slightly different API).
+
+### useComputed
+
+Another React hook that simplifies computational logic. It's just a tiny wrapper around [MobX computed](https://mobx.js.org/refguide/computed-decorator.html#-computed-expression-as-function) function that runs computation whenever observable values change. In conjuction with `observer` the component will rerender based on such a change.
+
+```tsx
+const Calculator = observer(({ hasExploded }: { hasExploded: boolean }) => {
+    const inputRef = React.useRef()
+    const inputs = useObservable([1, 3, 5])
+    const result = useComputed(
+        () => (hasExploded ? "💣" : inputs.reduce(multiply, 1) * Number(!hasExploded)),
+        [hasExploded]
+    )
+
+    return (
+        <div>
+            <input ref={inputRef} />
+            <button onClick={() => inputs.push(parseInt(inputRef.current.value) | 1)}>
+                Multiply
+            </button>
+            <div>
+                {inputs.join(" * ")} = {result}
+            </div>
+        </div>
+    )
+})
+```
+
+Notice that since the computation depends on non-observable value, it has to be passed as a second argument to `useComputed`. There is [React `useMemo`](https://reactjs.org/docs/hooks-reference.html#usememo) behind the scenes and all rules applies here as well except you don't need to specify dependency on observable values.
 
 ### Server Side Rendering with `useStaticRendering`
 
