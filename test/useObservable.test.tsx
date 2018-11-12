@@ -58,7 +58,7 @@ describe("is used to keep observable within component body", () => {
                 }
             })
             return (
-                <div onClick={() => obs.inc()}>
+                <div onClick={obs.inc}>
                     {obs.x}-{obs.y}
                 </div>
             )
