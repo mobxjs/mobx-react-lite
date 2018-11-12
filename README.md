@@ -97,6 +97,43 @@ function ObservePerson(props) {
 }
 ```
 
+### useObservable
+
+React hook that allows creating observable object within a component body and keeps track of it over renders. Gets all the benefits from [observable objects](https://mobx.js.org/refguide/object.html) including computed properties and methods to mutate the state. You can also use arrays and Map which are useful to track dynamic list/table of information. The Set is not supported (see https://github.com/mobxjs/mobx/issues/69).
+
+```tsx
+import { observer, useObservable } from "mobx-react-lite"
+
+const TodoList = observer(() => {
+    const todos = useObservable(new Map<string, boolean>())
+    const todoRef = React.useRef()
+    const addTodo = React.useCallback(() => {
+        todos.set(todoRef.current.value, false)
+        todoRef.current.value = ""
+    }, [])
+    const toggleTodo = React.useCallback((todo: string) => {
+        todos.set(todo, !todos.get(todo))
+    }, [])
+
+    return (
+        <div>
+            {Array.from(todos).map(([todo, done]) => (
+                <div onClick={() => toggleTodo(todo)} key={todo}>
+                    {todo}
+                    {done ? " ✔" : " ⏲"}
+                </div>
+            ))}
+            <input ref={todoRef} />
+            <button onClick={addTodo}>Add todo</button>
+        </div>
+    )
+})
+```
+
+[![Edit TodoList](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/jzj48v2xry?module=%2Fsrc%2FTodoList.tsx)
+
+Note that if you want to track a single scalar value (string, number, boolean), you would need [a boxed value](https://mobx.js.org/refguide/boxed.html) which is not recognized by `useObservable`. However, we recommend to just `useState` instead which gives you almost same result (with slightly different API).
+
 ### Server Side Rendering with `useStaticRendering`
 
 When using server side rendering, the components are rendered only once.

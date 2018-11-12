@@ -1,6 +1,8 @@
 import { observable } from "mobx"
 import { useRef } from "react"
 
-export function useObservable<T extends object>(initialValue: T): T {
+type SupportedValues = object | Map<unknown, unknown> | Array<unknown>
+
+export function useObservable<T extends SupportedValues>(initialValue: T): T {
     return useRef(observable(initialValue)).current
 }

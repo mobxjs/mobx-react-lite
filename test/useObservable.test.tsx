@@ -87,4 +87,24 @@ describe("is used to keep observable within component body", () => {
         fireEvent.click(div)
         expect(div.textContent).toBe("4")
     })
+
+    it("Map can used instead of object", () => {
+        const TestComponent = observer(() => {
+            const map = useObservable(new Map([["initial", 10]]))
+            return (
+                <div onClick={() => map.set("later", 20)}>
+                    {Array.from(map).map(([key, value]) => (
+                        <div key={key}>
+                            {key} - {value}
+                        </div>
+                    ))}
+                </div>
+            )
+        })
+        const { container } = render(<TestComponent />)
+        const div = container.querySelector("div")!
+        expect(div.textContent).toBe("initial - 10")
+        fireEvent.click(div)
+        expect(div.textContent).toBe("initial - 10later - 20")
+    })
 })
