@@ -245,7 +245,7 @@ function inject(useSelector, baseComponent) {
     const store = useContext(StoreContext)
     const selected = useSelector(store)
     // optional memo essentially making a pure component
-    return React.memo(props => baseComponent({ ...store, ...props }))
+    return React.memo(props => baseComponent({ ...selected, ...props }))
 }
 
 // use the HOC with a selector
