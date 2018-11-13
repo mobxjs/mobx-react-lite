@@ -203,10 +203,52 @@ const StoreContext = React.createContext()
 function App({ children }) {
     return <StoreContext.Provider value={createStore()}>{children}</StoreContext.Provider>
 }
+```
 
-// a file with a component
-function ConnectedComponent() {
-    // replacement for inject
-    const store = useContext(StoreContext)
+### What about smart/dumb components?
+
+The React hooks don't force anyone to suddenly have a state inside a _dumb component_ that is supposed to only render stuff. You can separate your concerns in a similar fashion.
+
+```tsx
+import { createSelector } from 'react-selector-hooks'
+
+const userSelector = createSelector(({ user ) => ({
+    name: user.name,
+    age: user.age
+}))
+
+function UiComponent({ name, age }) {
+    return (
+        <div>
+            <div>Name: {name}</div>
+            <div>Age: {age}</div>
+        </div>
+    )
 }
+
+export default () => {
+    // you may extract these two lines into a custom hook
+    const store = useContext(StoreContext)
+    const data = userSelector(store)
+    return UiComponent({...data})
+    // perhaps wrap it inside observer in here?
+    return observer(UiComponent({...data}))
+}
+```
+
+It may look a bit more verbose than a _classic_ inject, but there is nothing stopping you to make your own `inject` HOC which is so much easier since everything is just a funciton.
+
+```tsx
+// make universal HOC
+
+function inject(useSelector, baseComponent) {
+    const store = useContext(StoreContext)
+    const selected = useSelector(store)
+    // optional memo essentially making a pure component
+    return React.memo(props => baseComponent({ ...store, ...props }))
+}
+
+// use the HOC with a selector
+
+export default inject(userSelector, UiComponent)
 ```
