@@ -8,6 +8,7 @@ export function useStaticRendering(enable: boolean) {
 }
 
 export function observer<P>(baseComponent: FunctionComponent<P>): FunctionComponent<P> {
+    // The working of observer is explaind step by step in this talk: https://www.youtube.com/watch?v=cPF4iBedoF0&feature=youtu.be&t=1307
     if (isUsingStaticRendering) {
         return baseComponent
     }
