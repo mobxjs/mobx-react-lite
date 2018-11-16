@@ -12,10 +12,12 @@ export function observer<P>(baseComponent: FunctionComponent<P>): FunctionCompon
     if (isUsingStaticRendering) {
         return baseComponent
     }
+    const baseComponentName = baseComponent.displayName || baseComponent.name
     // memo; we are not intested in deep updates
     // in props; we assume that if deep objects are changed,
     // this is in observables, which would have been tracked anyway
-    return memo(props => {
+
+    const memoComponent = memo(props => {
         // forceUpdate 2.0
         const forceUpdate = useForceUpdate()
 
@@ -25,7 +27,7 @@ export function observer<P>(baseComponent: FunctionComponent<P>): FunctionCompon
                 // If the Reaction detects a change in dependency,
                 // force a new render
                 new Reaction(
-                    `observer(${baseComponent.displayName || baseComponent.name})`,
+                    `observer(${baseComponentName})`,
                     forceUpdate
                 ),
             []
@@ -39,10 +41,12 @@ export function observer<P>(baseComponent: FunctionComponent<P>): FunctionCompon
         // can be invalidated (see above) once a dependency changes
         let rendering
         reaction.track(() => {
-            rendering = baseComponent(props)
+            rendering = baseComponent(props as P)
         })
         return rendering
     })
+    memoComponent.displayName = baseComponentName
+    return memoComponent
 }
 
 function useForceUpdate() {
