@@ -5,7 +5,7 @@
 
 This is a next iteration of [mobx-react](https://github.com/mobxjs/mobx-react) coming from introducing React hooks which simplifies a lot of internal workings of this package. Class based components **are not supported** except using `<Observer>` directly in its `render` method.
 
-**You need React version 16.7.0-alpha.0 which is highly experimental and not recommended for a production.**
+**You need React version 16.7.0-alpha.2 which is highly experimental and not recommended for production.**
 
 [![NPM](https://nodei.co/npm/mobx-react-lite.png)](https://www.npmjs.com/package/mobx-react-lite)
 
