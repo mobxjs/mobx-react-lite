@@ -50,21 +50,15 @@ function useObserverReaction(baseComponentName: string) {
     // forceUpdate 2.0
     const forceUpdate = useForceUpdate()
 
-    const lastReaction = useRef<Reaction | undefined>(undefined)
+    const reaction = useRef(
+        new Reaction(`observer(${baseComponentName})`, () => {
+            forceUpdate()
+        })
+    )
+
     useUnmount(() => {
-        if (lastReaction.current) {
-            lastReaction.current.dispose()
-            lastReaction.current = undefined
-        }
+        reaction.current.dispose()
     })
 
-    // we create a reaction per render to make sure we only re-render when observed values change OUTSIDE the render phase
-    if (lastReaction.current) {
-        lastReaction.current.dispose()
-        lastReaction.current = undefined
-    }
-
-    lastReaction.current = new Reaction(`observer(${baseComponentName})`, forceUpdate)
-
-    return lastReaction.current
+    return reaction.current
 }

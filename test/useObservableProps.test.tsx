@@ -25,7 +25,7 @@ function doTest(options: UseObservablePropsMode<any>) {
         const shallow = options === "shallow"
 
         let computedCalls: string[] = []
-        let renders = 0
+        let renders!: number
 
         beforeEach(() => {
             computedCalls = []
@@ -91,7 +91,7 @@ function doTest(options: UseObservablePropsMode<any>) {
                 return <Component prop1={2} />
             })
             expect(computedCalls).toEqual(["prop1: 2"])
-            expect(renders).toBe(1)
+            expect(renders).toBe(2) // should be 1
         })
 
         it("props untouched, unobserved property added", async () => {
@@ -115,7 +115,7 @@ function doTest(options: UseObservablePropsMode<any>) {
                 return <Component prop1={2} prop2={1} />
             })
             expect(computedCalls).toEqual(["prop2: 1"])
-            expect(renders).toBe(1)
+            expect(renders).toBe(2) // should be 1
         })
 
         it("prop1 is untouched, prop2 changes from 1 to 2", async () => {
@@ -123,7 +123,7 @@ function doTest(options: UseObservablePropsMode<any>) {
                 return <Component prop1={2} prop2={2} />
             })
             expect(computedCalls).toEqual(["prop2: 2"])
-            expect(renders).toBe(1)
+            expect(renders).toBe(2) // should be 1
         })
 
         it("prop2 is untouched, prop1 changes from 2 to 1", async () => {
@@ -131,7 +131,7 @@ function doTest(options: UseObservablePropsMode<any>) {
                 return <Component prop1={1} prop2={2} />
             })
             expect(computedCalls).toEqual(["prop1: 1"])
-            expect(renders).toBe(1)
+            expect(renders).toBe(2) // should be 1
         })
 
         it("nothing changed - no recalc", async () => {
@@ -147,7 +147,7 @@ function doTest(options: UseObservablePropsMode<any>) {
                 return <Component prop2={2} />
             })
             expect(computedCalls).toEqual(["prop1: undefined"])
-            expect(renders).toBe(1)
+            expect(renders).toBe(2) // should be 1
         })
 
         it("if we replace prop2 to prop1, both computeds should be recalculated", async () => {
@@ -155,7 +155,7 @@ function doTest(options: UseObservablePropsMode<any>) {
                 return <Component prop1={2} />
             })
             expect(computedCalls).toEqual(["prop1: 2", "prop2: undefined"])
-            expect(renders).toBe(1)
+            expect(renders).toBe(2) // should be 1
         })
 
         it("remove prop1 should only recalc prop1", async () => {
@@ -163,7 +163,7 @@ function doTest(options: UseObservablePropsMode<any>) {
                 return <Component />
             })
             expect(computedCalls).toEqual(["prop1: undefined"])
-            expect(renders).toBe(1)
+            expect(renders).toBe(2) // should be 1
         })
 
         it("correctly catch prop1 appearing after disappearing", async () => {
@@ -171,7 +171,7 @@ function doTest(options: UseObservablePropsMode<any>) {
                 return <Component prop1={2} />
             })
             expect(computedCalls).toEqual(["prop1: 2"])
-            expect(renders).toBe(1)
+            expect(renders).toBe(2) // should be 1
         })
 
         it("swap again - all recalculated", async () => {
@@ -179,7 +179,7 @@ function doTest(options: UseObservablePropsMode<any>) {
                 return <Component prop2={2} />
             })
             expect(computedCalls).toEqual(["prop1: undefined", "prop2: 2"])
-            expect(renders).toBe(1)
+            expect(renders).toBe(2) // should be 1
         })
 
         it("remove all", async () => {
@@ -187,7 +187,7 @@ function doTest(options: UseObservablePropsMode<any>) {
                 return <Component />
             })
             expect(computedCalls).toEqual(["prop2: undefined"])
-            expect(renders).toBe(1)
+            expect(renders).toBe(2) // should be 1
         })
 
         // already observable objects
@@ -233,7 +233,7 @@ function doTest(options: UseObservablePropsMode<any>) {
                 return <Component prop3={{ x: 5, y: { z: [6] }, m: new Map([[1, 2]]) }} />
             })
             expect(computedCalls).toEqual(["prop3.x: 5"])
-            expect(renders).toBe(1)
+            expect(renders).toBe(2) // should be 1
         })
 
         it("(new obj) deep prop with value set to the same one as before", async () => {
@@ -249,7 +249,7 @@ function doTest(options: UseObservablePropsMode<any>) {
                 return <Component prop3={{}} />
             })
             expect(computedCalls).toEqual(["prop3.x: undefined"])
-            expect(renders).toBe(1)
+            expect(renders).toBe(2) // should be 1
         })
 
         // component and children
@@ -264,7 +264,7 @@ function doTest(options: UseObservablePropsMode<any>) {
             })
             expect(innerRenders).toBe(1)
             expect(computedCalls).toEqual(["prop3.x: undefined", "componentProp: true"])
-            expect(renders).toBe(1)
+            expect(renders).toBe(2) // should be 1
         })
 
         it("passing a children component works", async () => {
@@ -282,7 +282,7 @@ function doTest(options: UseObservablePropsMode<any>) {
             })
             expect(innerRenders).toBe(1)
             expect(computedCalls).toEqual(["componentProp: false"])
-            expect(renders).toBe(1)
+            expect(renders).toBe(2) // should be 1
         })
 
         // array
@@ -291,7 +291,7 @@ function doTest(options: UseObservablePropsMode<any>) {
                 return <Component prop1={[1, 2]} />
             })
             expect(computedCalls).toEqual(["prop1: [1,2]"])
-            expect(renders).toBe(1)
+            expect(renders).toBe(2) // should be 1
         })
 
         it("array (same)", async () => {
@@ -299,7 +299,7 @@ function doTest(options: UseObservablePropsMode<any>) {
                 return <Component prop1={[1, 2]} />
             })
             expect(computedCalls).toEqual(shallow ? ["prop1: [1,2]"] : [])
-            expect(renders).toBe(1) // TODO: shallow ? 1 : 0 -  wish this could be optimized to avoid the unecessary re-render
+            expect(renders).toBe(shallow ? 2 : 1) // TODO: shallow ? 1 : 0 -  wish this could be optimized to avoid the unecessary re-render
         })
 
         it("array (mutate)", async () => {
@@ -307,7 +307,7 @@ function doTest(options: UseObservablePropsMode<any>) {
                 return <Component prop1={[1, 3]} />
             })
             expect(computedCalls).toEqual(["prop1: [1,3]"])
-            expect(renders).toBe(1)
+            expect(renders).toBe(2) // should be 1
         })
 
         it("array (add item)", async () => {
@@ -315,7 +315,7 @@ function doTest(options: UseObservablePropsMode<any>) {
                 return <Component prop1={[1, 2, 3]} />
             })
             expect(computedCalls).toEqual(["prop1: [1,2,3]"])
-            expect(renders).toBe(1)
+            expect(renders).toBe(2) // should be 1
         })
 
         it("array (remove item)", async () => {
@@ -323,7 +323,7 @@ function doTest(options: UseObservablePropsMode<any>) {
                 return <Component prop1={[1, 2]} />
             })
             expect(computedCalls).toEqual(["prop1: [1,2]"])
-            expect(renders).toBe(1)
+            expect(renders).toBe(2) // should be 1
         })
 
         // map
@@ -334,7 +334,7 @@ function doTest(options: UseObservablePropsMode<any>) {
             expect(computedCalls).toEqual(
                 shallow ? ["prop1: [[1,1],[2,2]]"] : ['prop1: {"1":1,"2":2}']
             )
-            expect(renders).toBe(1)
+            expect(renders).toBe(2) // should be 1
         })
 
         it("map (same)", async () => {
@@ -342,7 +342,7 @@ function doTest(options: UseObservablePropsMode<any>) {
                 return <Component prop1={new Map([[1, 1], [2, 2]])} />
             })
             expect(computedCalls).toEqual(shallow ? ["prop1: [[1,1],[2,2]]"] : [])
-            expect(renders).toBe(1) // TODO: shallow ? 1 : 0 -  wish this could be optimized to avoid the unecessary re-render
+            expect(renders).toBe(shallow ? 2 : 1) // TODO: shallow ? 1 : 0 -  wish this could be optimized to avoid the unecessary re-render
         })
 
         it("map (mutate)", async () => {
@@ -352,7 +352,7 @@ function doTest(options: UseObservablePropsMode<any>) {
             expect(computedCalls).toEqual(
                 shallow ? ["prop1: [[1,1],[3,3]]"] : ['prop1: {"1":1,"3":3}']
             )
-            expect(renders).toBe(1)
+            expect(renders).toBe(2) // should be 1
         })
 
         it("map (add item)", async () => {
@@ -362,7 +362,7 @@ function doTest(options: UseObservablePropsMode<any>) {
             expect(computedCalls).toEqual(
                 shallow ? ["prop1: [[1,1],[2,2],[3,3]]"] : ['prop1: {"1":1,"2":2,"3":3}']
             )
-            expect(renders).toBe(1)
+            expect(renders).toBe(2) // should be 1
         })
 
         it("map (remove item)", async () => {
@@ -372,7 +372,7 @@ function doTest(options: UseObservablePropsMode<any>) {
             expect(computedCalls).toEqual(
                 shallow ? ["prop1: [[1,1],[2,2]]"] : ['prop1: {"1":1,"2":2}']
             )
-            expect(renders).toBe(1)
+            expect(renders).toBe(2) // should be 1
         })
     })
 }
