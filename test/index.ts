@@ -1,7 +1,7 @@
 import { configure } from "enzyme"
 import Adapter from "enzyme-adapter-react-16"
-import React from "react"
-import ReactDOM from "react-dom"
+import * as React from "react"
+import * as ReactDOM from "react-dom"
 
 configure({ adapter: new Adapter() })
 
@@ -14,23 +14,23 @@ export function createTestRoot() {
     return testRoot
 }
 
-export function sleepHelper(time) {
+export function sleepHelper(time: number) {
     return new Promise(resolve => {
         setTimeout(resolve, time)
     })
 }
 
-export function asyncReactDOMRender(Component, root) {
+export function asyncReactDOMRender(Component: React.ReactElement<any>, root: Element) {
     return new Promise(resolve => {
         ReactDOM.render(Component, root, resolve)
     })
 }
 
-export function withConsole(fn) {
+export function withConsole(fn: () => void) {
     const { warn, error, info } = global.console
-    const warnings = []
-    const errors = []
-    const infos = []
+    const warnings: any[] = []
+    const errors: any[] = []
+    const infos: any[] = []
     try {
         Object.assign(global.console, {
             warn() {
@@ -54,11 +54,11 @@ export function withConsole(fn) {
     }
 }
 
-export async function withAsyncConsole(fn) {
+export async function withAsyncConsole(fn: () => void) {
     const { warn, error, info } = global.console
-    const warnings = []
-    const errors = []
-    const infos = []
+    const warnings: any[] = []
+    const errors: any[] = []
+    const infos: any[] = []
     try {
         Object.assign(global.console, {
             warn() {

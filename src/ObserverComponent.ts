@@ -21,7 +21,13 @@ Observer.propTypes = {
     render: ObserverPropsCheck
 }
 
-function ObserverPropsCheck(props, key, componentName, location, propFullName) {
+function ObserverPropsCheck(
+    props: { [k: string]: any },
+    key: string,
+    componentName: string,
+    location: any,
+    propFullName: string
+) {
     const extraKey = key === "children" ? "render" : "children"
     const hasProp = typeof props[key] === "function"
     const hasExtraProp = typeof props[extraKey] === "function"

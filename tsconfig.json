@@ -15,10 +15,9 @@
         "noImplicitReturns": true,
         "noUnusedLocals": true,
         "noUnusedParameters": false,
-        "noImplicitAny": false,
-        "noImplicitThis": false,
+        "noImplicitAny": true,
+        "noImplicitThis": true,
         "lib": ["es6", "dom"],
         "jsx": "react"
-    },
-    "include": ["src/**/*.ts", "setup.js"]
+    }
 }
