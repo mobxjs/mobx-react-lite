@@ -26,7 +26,7 @@ export function observer<P>(baseComponent: FunctionComponent<P>): FunctionCompon
         // render the original component, but have the
         // reaction track the observables, so that rendering
         // can be invalidated (see above) once a dependency changes
-        let rendering!: React.ReactElement<any> | null
+        let rendering!: ReturnType<typeof baseComponent>
         observerReaction.track(() => {
             rendering = baseComponent(props)
         })
