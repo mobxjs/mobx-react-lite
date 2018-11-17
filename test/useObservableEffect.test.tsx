@@ -1,7 +1,7 @@
-import { reaction } from "mobx"
+import { observable, reaction } from "mobx"
 import * as React from "react"
 import { cleanup, render } from "react-testing-library"
-import { observer, useObservableEffect, useObservableProps } from "../src"
+import { observer, useObservableEffect } from "../src"
 
 afterEach(cleanup)
 
@@ -10,12 +10,15 @@ test("useObservableEffect", async () => {
     let reactions2 = 0
     let renders = 0
 
-    const Component = observer((nonObsProps: { prop1?: number; prop2?: number }) => {
-        const props = useObservableProps(nonObsProps, "shallow")
+    const store = observable({
+        prop1: 0,
+        prop2: 0
+    })
 
+    const Component = observer((props: { store: typeof store }) => {
         useObservableEffect(() =>
             reaction(
-                () => props.prop1,
+                () => props.store.prop1,
                 () => {
                     reactions1++
                 }
@@ -24,7 +27,7 @@ test("useObservableEffect", async () => {
 
         useObservableEffect(() =>
             reaction(
-                () => props.prop2,
+                () => props.store.prop2,
                 () => {
                     reactions2++
                 }
@@ -32,21 +35,27 @@ test("useObservableEffect", async () => {
         )
 
         renders++
-        return null
+        return (
+            <div>
+                `${props.store.prop1} ${props.store.prop2}`
+            </div>
+        )
     })
 
-    const { rerender } = render(<Component />)
+    const { rerender } = render(<Component store={store} />)
     expect(renders).toBe(1)
     expect(reactions1).toBe(0)
     expect(reactions2).toBe(0)
 
-    rerender(<Component prop1={1} />)
+    store.prop1 = 1
+    rerender(<Component store={store} />)
     expect(renders).toBe(2)
     expect(reactions1).toBe(1)
     expect(reactions2).toBe(0)
 
-    rerender(<Component prop2={1} />)
+    store.prop2 = 1
+    rerender(<Component store={store} />)
     expect(renders).toBe(3)
-    expect(reactions1).toBe(2)
+    expect(reactions1).toBe(1)
     expect(reactions2).toBe(1)
 })

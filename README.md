@@ -176,15 +176,18 @@ Returns the generated disposer for early disposal.
 Example (TypeScript):
 
 ```typescript
-import { observer, useObservableProps, useObservableEffect } from "mobx-react-lite"
+import { observer, useComputed, useObservableEffect } from "mobx-react-lite"
 
-const NameAndAge = observer((nonObsProps: { firstName: string; lastName: string }) => {
-    const props = useObservableProps(nonObsProps, "shallow")
+const Name = observer((props: { firstName: string; lastName: string }) => {
+    const fullName = useComputed(() => `${props.firstName} ${props.lastName}`, [
+        props.firstName,
+        props.lastName
+    ])
 
     // when the name changes then send this info to the server
     useObservableEffect(() =>
         reaction(
-            () => [props.firstName, props.lastName],
+            () => fullName,
             () => {
                 // send this to some server
             }
@@ -193,36 +196,6 @@ const NameAndAge = observer((nonObsProps: { firstName: string; lastName: string 
 
     // render phase
     return `Your full name is ${props.firstName} ${props.lastName}`
-})
-```
-
-### `useObservableProps<P>(props: P, mode): P`
-
-Converts standard non-observable props into reactive (observable) props.
-
-This allows you to, for example, create reactions/autorun/computed over individual props.
-
-The `mode` parameter can be one of:
-
--   `"shallow"`: the props object reference is kept static and the individual props (primitives, objects, maps and arrays) are turned into a shallowly observable object
--   `"deep"`: the props object reference is kept static and individual props (primitives, objects, maps and arrays) are turned into a deeply observable object
--   `{ deepProps: (keyof P)[] }`: like 'shallow', except some properties are turned into deep observables 'opt-in'
-
-Note that in any case already observable objects are not transformed in any way.
-
-Example (TypeScript):
-
-```typescript
-import { observer, useObservableProps, useComputed } from "mobx-react-lite"
-
-const NameAndAge = observer((nonObsProps: { firstName: string; lastName: string }) => {
-    const props = useObservableProps(nonObsProps, "shallow")
-
-    // notice how in this case we don't need to pass the array of dependencies since the props are now observables
-    const fullName = useComputed(() => `${props.firstName} ${props.lastName}`)
-
-    // render phase
-    return `Your full name is ${fullName}`
 })
 ```
 
