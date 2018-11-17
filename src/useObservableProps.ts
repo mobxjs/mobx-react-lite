@@ -23,7 +23,7 @@ export type UseObservablePropsMode<P> =
 
 export function useObservableProps<P>(props: P, mode: UseObservablePropsMode<P>): P {
     const obsProps = useMemo(() => {
-        return toObservablePropsAction(props, mode)
+        return toObservablePropsAction(mode)
     }, [])
 
     obsProps.update(props)
@@ -31,7 +31,6 @@ export function useObservableProps<P>(props: P, mode: UseObservablePropsMode<P>)
 }
 
 function toObservableProps<P>(
-    initialProps: P,
     mode: UseObservablePropsMode<P>
 ): {
     get: (() => P)
@@ -61,8 +60,6 @@ function toObservableProps<P>(
     const update = action((unobserved: P) => {
         updateObservableObject(observed, unobserved || EMPTY_OBJECT, isDeepProp, localObservables)
     })
-
-    update(initialProps)
 
     return {
         get: () => observed,
@@ -154,19 +151,17 @@ function updateObservableObject(
 
     // add/update props
     Object.keys(newObj).forEach(propName => {
-        if (!isDeepProp || propName !== "__forwardedRef") {
-            oldObjKeysToRemove.delete(propName)
-            const maybeNewValue = newObj[propName]
-            const oldValue = oldObj[propName]
+        oldObjKeysToRemove.delete(propName)
+        const maybeNewValue = newObj[propName]
+        const oldValue = oldObj[propName]
 
-            const newValue =
-                isDeepProp && !isDeepProp(propName)
-                    ? maybeNewValue
-                    : updateObservableValue(oldValue, maybeNewValue, localObservables)
+        const newValue =
+            isDeepProp && !isDeepProp(propName)
+                ? maybeNewValue
+                : updateObservableValue(oldValue, maybeNewValue, localObservables)
 
-            if (oldValue !== newValue) {
-                set(oldObj, propName, newValue)
-            }
+        if (oldValue !== newValue) {
+            set(oldObj, propName, newValue)
         }
     })
 

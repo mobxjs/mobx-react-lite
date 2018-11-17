@@ -1,10 +1,9 @@
-import { useMemo, useRef } from "react"
-import { useUnmount } from "./utils"
+import { useEffect, useMemo, useRef } from "react"
 
 type Disposer = () => any
 
 /**
- * Adds a Mobx effect (reaction, autorun, or anything else that returns a disposer) that will be registered upon component creation and disposed upon unmounting.
+ * Adds an observable effect (reaction, autorun, or anything else that returns a disposer) that will be registered upon component creation and disposed upon unmounting.
  * Returns the generated disposer for early disposal.
  *
  * @export
@@ -13,7 +12,7 @@ type Disposer = () => any
  * @param {ReadonlyArray<any>} [inputs=[]] If you want the effect to be automatically re-created when some variable(s) are changed then pass them in this array.
  * @returns {D}
  */
-export function useMobxEffect<D extends Disposer>(
+export function useObservableEffect<D extends Disposer>(
     disposerGenerator: () => D,
     inputs: ReadonlyArray<any> = []
 ): D {
@@ -23,9 +22,11 @@ export function useMobxEffect<D extends Disposer>(
         disposerRef.current = disposerGenerator()
     }, inputs)
 
-    useUnmount(() => {
-        if (disposerRef.current) {
-            disposerRef.current()
+    useEffect(() => {
+        return () => {
+            if (disposerRef.current) {
+                disposerRef.current()
+            }
         }
     }, inputs)
 

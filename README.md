@@ -168,21 +168,21 @@ Notice that since the computation depends on non-observable value, it has to be 
 
 [![Edit Calculator](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/jzj48v2xry?module=%2Fsrc%2FCalculator.tsx)
 
-### `useMobxEffect<D extends Disposer>(disposerGenerator: () => D, inputs: ReadonlyArray<any> = []): D`
+### `useObservableEffect<D extends Disposer>(disposerGenerator: () => D, inputs: ReadonlyArray<any> = []): D`
 
-Adds a Mobx effect (`reaction`, `autorun`, `when`, or anything else that returns a disposer) that will be registered upon component creation and disposed upon unmounting.
+Adds an observable (Mobx) effect (`reaction`, `autorun`, `when`, or anything else that returns a disposer) that will be registered upon component creation and disposed upon unmounting.
 Returns the generated disposer for early disposal.
 
 Example (TypeScript):
 
 ```typescript
-import { observer, useObservableProps, useComputed } from "mobx-react-lite"
+import { observer, useObservableProps, useObservableEffect } from "mobx-react-lite"
 
 const NameAndAge = observer((nonObsProps: { firstName: string; lastName: string }) => {
     const props = useObservableProps(nonObsProps, "shallow")
 
     // when the name changes then send this info to the server
-    useMobxEffect(() =>
+    useObservableEffect(() =>
         reaction(
             () => [props.firstName, props.lastName],
             () => {
@@ -200,12 +200,12 @@ const NameAndAge = observer((nonObsProps: { firstName: string; lastName: string 
 
 Converts standard non-observable props into reactive (observable) props.
 
-This allows you to, for example, create reactions/autorun/computed over individual props rather than the whole props object.
+This allows you to, for example, create reactions/autorun/computed over individual props.
 
 The `mode` parameter can be one of:
 
--   `"shallow"`: the reference is kept static and the individual props (primitives, objects, maps and arrays) are turned into a shallowly observable object
--   `"deep"`: the reference is kept static and individual props (primitives, objects, maps and arrays) are turned into a deeply observable object
+-   `"shallow"`: the props object reference is kept static and the individual props (primitives, objects, maps and arrays) are turned into a shallowly observable object
+-   `"deep"`: the props object reference is kept static and individual props (primitives, objects, maps and arrays) are turned into a deeply observable object
 -   `{ deepProps: (keyof P)[] }`: like 'shallow', except some properties are turned into deep observables 'opt-in'
 
 Note that in any case already observable objects are not transformed in any way.

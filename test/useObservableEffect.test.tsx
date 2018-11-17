@@ -1,11 +1,11 @@
 import { reaction } from "mobx"
 import * as React from "react"
-import { observer, useMobxEffect, useObservableProps } from "../src"
+import { observer, useObservableEffect, useObservableProps } from "../src"
 import { asyncReactDOMRender, createTestRoot } from "./index"
 
 const testRoot = createTestRoot()
 
-test("useMobxEffect", async () => {
+test("useObservableEffect", async () => {
     let reactions1 = 0
     let reactions2 = 0
     let renders = 0
@@ -13,7 +13,7 @@ test("useMobxEffect", async () => {
     const Component = observer((nonObsProps: { prop1?: number; prop2?: number }) => {
         const props = useObservableProps(nonObsProps, "shallow")
 
-        useMobxEffect(() =>
+        useObservableEffect(() =>
             reaction(
                 () => props.prop1,
                 () => {
@@ -22,7 +22,7 @@ test("useMobxEffect", async () => {
             )
         )
 
-        useMobxEffect(() =>
+        useObservableEffect(() =>
             reaction(
                 () => props.prop2,
                 () => {

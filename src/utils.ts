@@ -1,5 +1,7 @@
 import { useEffect } from "react"
 
-export function useUnmount(fn: () => void, inputs: ReadonlyArray<any> = []) {
-    useEffect(() => fn, inputs)
+const EMPTY_ARRAY: any[] = []
+
+export function useUnmount(fn: () => void) {
+    useEffect(() => fn, EMPTY_ARRAY)
 }
