@@ -1,6 +1,6 @@
 import * as mobx from "mobx"
 import * as React from "react"
-import { render } from "react-testing-library"
+import { cleanup, render } from "react-testing-library"
 import { observer, useComputed, useObservableProps, UseObservablePropsMode } from "../src"
 
 function toJson(val: any): string {
@@ -10,14 +10,19 @@ function toJson(val: any): string {
     return JSON.stringify(val)
 }
 
-const { rerender } = render(<div />)
-
 function doTest(options: UseObservablePropsMode<any>) {
     describe(`options: ${JSON.stringify(options)}`, async () => {
         const shallow = options === "shallow"
 
         let computedCalls: string[] = []
         let renders!: number
+
+        let rerender: (ui: React.ReactElement<any>) => void
+        beforeAll(() => {
+            cleanup()
+            const ret = render(<div />)
+            rerender = ret.rerender
+        })
 
         beforeEach(() => {
             computedCalls = []
