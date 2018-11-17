@@ -1,6 +1,7 @@
 # mobx-react-lite
 
 [![Build Status](https://travis-ci.org/mobxjs/mobx-react-lite.svg?branch=master)](https://travis-ci.org/mobxjs/mobx-react)
+
 [![Join the chat at https://gitter.im/mobxjs/mobx](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/mobxjs/mobx?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 This is a next iteration of [mobx-react](https://github.com/mobxjs/mobx-react) coming from introducing React hooks which simplifies a lot of internal workings of this package. Class based components **are not supported** except using `<Observer>` directly in its `render` method.
@@ -13,7 +14,7 @@ Project is written in TypeScript and provides type safety out of the box. No Flo
 
 ## API documentation
 
-### observer(componentClass)
+### `observer<P>(baseComponent: FunctionComponent<P>): FunctionComponent<P>`
 
 Function that converts a function component into a reactive component, which tracks which observables are used automatically re-renders the component when one of these values changes. Observables can be passed through props, accessed from context or created locally with `useObservable`.
 
@@ -54,7 +55,7 @@ const FriendlyComponent = observer(() => {
 
 [![Edit FriendlyComponent](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/jzj48v2xry?module=%2Fsrc%2FFriendlyComponent.tsx)
 
-### `Observer`
+### `<Observer/>`
 
 `Observer` is a React component, which applies `observer` to an anonymous region in your component.
 It takes as children a single, argumentless function which should return exactly one React component.
@@ -97,7 +98,7 @@ function ObservePerson(props) {
 }
 ```
 
-### useObservable
+### `useObservable<T>(initialValue: T): T`
 
 React hook that allows creating observable object within a component body and keeps track of it over renders. Gets all the benefits from [observable objects](https://mobx.js.org/refguide/object.html) including computed properties and methods. You can also use arrays and Map which are useful to track dynamic list/table of information. The Set is not supported (see https://github.com/mobxjs/mobx/issues/69).
 
@@ -136,7 +137,7 @@ const TodoList = observer(() => {
 
 Note that if you want to track a single scalar value (string, number, boolean), you would need [a boxed value](https://mobx.js.org/refguide/boxed.html) which is not recognized by `useObservable`. However, we recommend to just `useState` instead which gives you almost same result (with slightly different API).
 
-### useComputed
+### `useComputed(func: () => T, inputs: ReadonlyArray<any> = []): T`
 
 Another React hook that simplifies computational logic. It's just a tiny wrapper around [MobX computed](https://mobx.js.org/refguide/computed-decorator.html#-computed-expression-as-function) function that runs computation whenever observable values change. In conjuction with `observer` the component will rerender based on such a change.
 
@@ -166,6 +167,37 @@ const Calculator = observer(({ hasExploded }: { hasExploded: boolean }) => {
 Notice that since the computation depends on non-observable value, it has to be passed as a second argument to `useComputed`. There is [React `useMemo`](https://reactjs.org/docs/hooks-reference.html#usememo) behind the scenes and all rules applies here as well except you don't need to specify dependency on observable values.
 
 [![Edit Calculator](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/jzj48v2xry?module=%2Fsrc%2FCalculator.tsx)
+
+### `useObservableEffect<D extends IReactionDisposer>(disposerGenerator: () => D, inputs: ReadonlyArray<any> = []): D`
+
+Adds an observable (Mobx) effect (`reaction`, `autorun`, `when`, or anything else that returns a disposer) that will be registered upon component creation and disposed upon unmounting.
+Returns the generated disposer for early disposal.
+
+Example (TypeScript):
+
+```typescript
+import { observer, useComputed, useObservableEffect } from "mobx-react-lite"
+
+const Name = observer((props: { firstName: string; lastName: string }) => {
+    const fullName = useComputed(() => `${props.firstName} ${props.lastName}`, [
+        props.firstName,
+        props.lastName
+    ])
+
+    // when the name changes then send this info to the server
+    useObservableEffect(() =>
+        reaction(
+            () => fullName,
+            () => {
+                // send this to some server
+            }
+        )
+    )
+
+    // render phase
+    return `Your full name is ${props.firstName} ${props.lastName}`
+})
+```
 
 ### Server Side Rendering with `useStaticRendering`
 

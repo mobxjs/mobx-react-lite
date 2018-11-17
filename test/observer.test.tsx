@@ -1,10 +1,10 @@
-import * as mobx from 'mobx'
-import * as React from 'react'
-import { cleanup, fireEvent, render } from 'react-testing-library'
+import * as mobx from "mobx"
+import * as React from "react"
+import { cleanup, fireEvent, render } from "react-testing-library"
 
-import { observer, useStaticRendering } from '../src'
+import { observer, useStaticRendering } from "../src"
 
-const getDNode = (obj, prop) => mobx._getAdministration(obj, prop)
+const getDNode = (obj: any, prop?: string) => mobx._getAdministration(obj, prop)
 
 afterEach(cleanup)
 
@@ -191,7 +191,14 @@ describe("issue 12", () => {
             ]
         })
 
-    const Row: React.FC<{ item: { name: string }; selected: string }> = props => {
+    interface IItem {
+        name: string
+    }
+    interface IRowProps {
+        item: IItem
+        selected: string
+    }
+    const Row: React.FC<IRowProps> = props => {
         return (
             <span>
                 {props.item.name}
@@ -200,7 +207,7 @@ describe("issue 12", () => {
         )
     }
     /** table stateles component */
-    const Table: React.FC<{ data: any }> = observer(props => {
+    const Table = observer<{ data: { items: IItem[]; selected: string } }>(props => {
         return (
             <div>
                 {props.data.items.map(item => (
