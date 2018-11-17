@@ -137,7 +137,7 @@ const TodoList = observer(() => {
 
 Note that if you want to track a single scalar value (string, number, boolean), you would need [a boxed value](https://mobx.js.org/refguide/boxed.html) which is not recognized by `useObservable`. However, we recommend to just `useState` instead which gives you almost same result (with slightly different API).
 
-### `useComputed(func: () => T, inputs: ReadonlyArray<any> = [], options?: IComputedValueOptions<T>): T`
+### `useComputed(func: () => T, inputs: ReadonlyArray<any> = []): T`
 
 Another React hook that simplifies computational logic. It's just a tiny wrapper around [MobX computed](https://mobx.js.org/refguide/computed-decorator.html#-computed-expression-as-function) function that runs computation whenever observable values change. In conjuction with `observer` the component will rerender based on such a change.
 
