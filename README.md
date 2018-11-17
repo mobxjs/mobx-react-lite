@@ -168,7 +168,7 @@ Notice that since the computation depends on non-observable value, it has to be 
 
 [![Edit Calculator](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/jzj48v2xry?module=%2Fsrc%2FCalculator.tsx)
 
-### `useObservableEffect<D extends Disposer>(disposerGenerator: () => D, inputs: ReadonlyArray<any> = []): D`
+### `useObservableEffect<D extends IReactionDisposer>(disposerGenerator: () => D, inputs: ReadonlyArray<any> = []): D`
 
 Adds an observable (Mobx) effect (`reaction`, `autorun`, `when`, or anything else that returns a disposer) that will be registered upon component creation and disposed upon unmounting.
 Returns the generated disposer for early disposal.
