@@ -1,9 +1,9 @@
 import { reaction } from "mobx"
 import * as React from "react"
+import { cleanup, render } from "react-testing-library"
 import { observer, useObservableEffect, useObservableProps } from "../src"
-import { asyncReactDOMRender, createTestRoot } from "./index"
 
-const testRoot = createTestRoot()
+afterEach(cleanup)
 
 test("useObservableEffect", async () => {
     let reactions1 = 0
@@ -35,17 +35,17 @@ test("useObservableEffect", async () => {
         return null
     })
 
-    await asyncReactDOMRender(<Component />, testRoot)
+    const { rerender } = render(<Component />)
     expect(renders).toBe(1)
     expect(reactions1).toBe(0)
     expect(reactions2).toBe(0)
 
-    await asyncReactDOMRender(<Component prop1={1} />, testRoot)
+    rerender(<Component prop1={1} />)
     expect(renders).toBe(2)
     expect(reactions1).toBe(1)
     expect(reactions2).toBe(0)
 
-    await asyncReactDOMRender(<Component prop2={1} />, testRoot)
+    rerender(<Component prop2={1} />)
     expect(renders).toBe(3)
     expect(reactions1).toBe(2)
     expect(reactions2).toBe(1)
