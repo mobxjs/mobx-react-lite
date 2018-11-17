@@ -1,5 +1,4 @@
 import { Reaction } from "mobx"
-import * as React from "react"
 import { FunctionComponent, memo, useCallback, useRef, useState } from "react"
 import { useUnmount } from "./utils"
 

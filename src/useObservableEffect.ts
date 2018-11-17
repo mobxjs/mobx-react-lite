@@ -21,13 +21,14 @@ export function useObservableEffect<D extends IReactionDisposer>(
         disposerRef.current = disposerGenerator()
     }, inputs)
 
-    useEffect(() => {
-        return () => {
+    useEffect(
+        () => () => {
             if (disposerRef.current) {
                 disposerRef.current()
             }
-        }
-    }, inputs)
+        },
+        inputs
+    )
 
     return disposerRef.current!
 }
