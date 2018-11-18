@@ -40,7 +40,7 @@ export function observer<P extends object, TRef = {}>(
 
     const baseComponentName = baseComponent.displayName || baseComponent.name
 
-    const wrappedComponent = (props: P, ref: any) => {
+    const wrappedComponent = (props: P, ref: React.Ref<TRef>) => {
         const observerReaction = useObserverReaction(baseComponentName)
 
         // render the original component, but have the
