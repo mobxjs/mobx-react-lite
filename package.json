@@ -17,7 +17,7 @@
     "lint": "tslint --project .",
     "validate": "tsc --noEmit --pretty",
     "test": "jest --watch",
-    "test:travis": "yarn lint && jest",
+    "test:travis": "yarn validate && yarn lint && jest",
     "build": "node build-rollup.js",
     "release": "np"
   },

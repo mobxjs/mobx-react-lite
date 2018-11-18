@@ -19,5 +19,7 @@
         "noImplicitThis": true,
         "lib": ["es6", "dom"],
         "jsx": "react"
-    }
+    },
+    "include": ["src/**/*", "test/**/*"],
+    "exclude": ["node_modules"]
 }
