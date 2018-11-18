@@ -13,7 +13,7 @@ function useForceUpdate() {
     return update
 }
 
-export function useObserver<T>(fn: () => T, baseComponentName = "anonymous"): T {
+export function useObserver<T>(fn: () => T, baseComponentName = "observed"): T {
     if (isUsingStaticRendering()) {
         return fn()
     }
