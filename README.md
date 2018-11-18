@@ -30,7 +30,7 @@ Function that converts a function component into a reactive component, which tra
 
 As for options, it is an optional object with the following optional properties:
 
--   `fowardRef`: pass `true` to use `forwardRef` over the inner component, pass `false` (the default) otherwise.
+-   `forwardRef`: pass `true` to use `forwardRef` over the inner component, pass `false` (the default) otherwise.
 
 ```tsx
 import { observer, useObservable } from "mobx-react-lite"
