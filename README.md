@@ -12,6 +12,16 @@ This is a next iteration of [mobx-react](https://github.com/mobxjs/mobx-react) c
 
 Project is written in TypeScript and provides type safety out of the box. No Flow Type support is planned at this moment, but feel free to contribute.
 
+-   [API documentation](#api-documentation)
+    -   [`observer<P>(baseComponent: FunctionComponent<P>): FunctionComponent<P>`](#observerpbasecomponent-functioncomponentp-functioncomponentp)
+    -   [`<Observer/>`](#observer)
+    -   [`useObservable<T>(initialValue: T): T`](#useobservabletinitialvalue-t-t)
+    -   [`useComputed(func: () => T, inputs: ReadonlyArray<any> = []): T`](#usecomputedfunc---t-inputs-readonlyarrayany---t)
+    -   [`useObservableEffect<D extends IReactionDisposer>(disposerGenerator: () => D, inputs: ReadonlyArray<any> = []): D`](#useobservableeffectd-extends-ireactiondisposerdisposergenerator---d-inputs-readonlyarrayany---d)
+-   [Server Side Rendering with `useStaticRendering`](#server-side-rendering-with-usestaticrendering)
+-   [Why no Provider/inject?](#why-no-providerinject)
+    -   [What about smart/dumb components?](#what-about-smartdumb-components)
+
 ## API documentation
 
 ### `observer<P>(baseComponent: FunctionComponent<P>): FunctionComponent<P>`
@@ -199,7 +209,7 @@ const Name = observer((props: { firstName: string; lastName: string }) => {
 })
 ```
 
-### Server Side Rendering with `useStaticRendering`
+## Server Side Rendering with `useStaticRendering`
 
 When using server side rendering, the components are rendered only once.
 Since components are never unmounted, `observer` components would in this case leak memory when being rendered server side.
