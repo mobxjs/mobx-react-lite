@@ -15,7 +15,7 @@ Project is written in TypeScript and provides type safety out of the box. No Flo
 -   [API documentation](#api-documentation)
     -   [`<Observer/>`](#observer)
     -   [`observer<P>(baseComponent: FunctionComponent<P>, options?: IObserverOptions): FunctionComponent<P>`](#observerpbasecomponent-functioncomponentp-options-iobserveroptions-functioncomponentp)
-    -   [`useObserver<T>(fn: () => T, baseComponentName = "anonymous"): T`](#useobservertfn---t-basecomponentname--%22anonymous%22-t)
+    -   [`useObserver<T>(fn: () => T, baseComponentName = "observed"): T`](#useobservertfn---t-basecomponentname--%22observed%22-t)
     -   [`useObservable<T>(initialValue: T): T`](#useobservabletinitialvalue-t-t)
     -   [`useComputed(func: () => T, inputs: ReadonlyArray<any> = []): T`](#usecomputedfunc---t-inputs-readonlyarrayany---t)
     -   [`useObservableEffect<D extends IReactionDisposer>(disposerGenerator: () => D, inputs: ReadonlyArray<any> = []): D`](#useobservableeffectd-extends-ireactiondisposerdisposergenerator---d-inputs-readonlyarrayany---d)
@@ -112,7 +112,7 @@ const FriendlyComponent = observer(() => {
 
 [![Edit FriendlyComponent](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/jzj48v2xry?module=%2Fsrc%2FFriendlyComponent.tsx)
 
-### `useObserver<T>(fn: () => T, baseComponentName = "anonymous"): T`
+### `useObserver<T>(fn: () => T, baseComponentName = "observed"): T`
 
 Low level implementation used internally by `observer`.
 It allows you to use an `observer` like behaviour, but still allowing you to optimize the component in any way you want (e.g. using `memo` with a custom `areEqual`, using `forwardRef`, etc.) and to declare exactly the part that is observed (the render phase). One good thing about this is that if any hook changes an observable for some reason then the component won't rerender twice unnecessarily.
