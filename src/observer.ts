@@ -28,14 +28,14 @@ export function observer<P extends object, TRef = {}>(
     baseComponent: React.RefForwardingComponent<TRef, P>,
     options?: IObserverOptions
 ) {
-    const realOptions = {
-        forwardRef: false,
-        ...options
-    }
-
     // The working of observer is explaind step by step in this talk: https://www.youtube.com/watch?v=cPF4iBedoF0&feature=youtu.be&t=1307
     if (isUsingStaticRendering) {
         return baseComponent
+    }
+
+    const realOptions = {
+        forwardRef: false,
+        ...options
     }
 
     const baseComponentName = baseComponent.displayName || baseComponent.name
