@@ -12,18 +12,60 @@ This is a next iteration of [mobx-react](https://github.com/mobxjs/mobx-react) c
 
 Project is written in TypeScript and provides type safety out of the box. No Flow Type support is planned at this moment, but feel free to contribute.
 
-- [API documentation](#api-documentation)
-    - [`observer<P>(baseComponent: FunctionComponent<P>, options?: IObserverOptions): FunctionComponent<P>`](#observerpbasecomponent-functioncomponentp-options-iobserveroptions-functioncomponentp)
-    - [`<Observer/>`](#observer)
-    - [`useObserver<T>(fn: () => T, baseComponentName = "anonymous"): T`](#useobservertfn---t-basecomponentname--%22anonymous%22-t)
-    - [`useObservable<T>(initialValue: T): T`](#useobservabletinitialvalue-t-t)
-    - [`useComputed(func: () => T, inputs: ReadonlyArray<any> = []): T`](#usecomputedfunc---t-inputs-readonlyarrayany---t)
-    - [`useObservableEffect<D extends IReactionDisposer>(disposerGenerator: () => D, inputs: ReadonlyArray<any> = []): D`](#useobservableeffectd-extends-ireactiondisposerdisposergenerator---d-inputs-readonlyarrayany---d)
-- [Server Side Rendering with `useStaticRendering`](#server-side-rendering-with-usestaticrendering)
-- [Why no Provider/inject?](#why-no-providerinject)
-- [What about smart/dumb components?](#what-about-smartdumb-components)
+-   [API documentation](#api-documentation)
+    -   [`<Observer/>`](#observer)
+    -   [`observer<P>(baseComponent: FunctionComponent<P>, options?: IObserverOptions): FunctionComponent<P>`](#observerpbasecomponent-functioncomponentp-options-iobserveroptions-functioncomponentp)
+    -   [`useObserver<T>(fn: () => T, baseComponentName = "anonymous"): T`](#useobservertfn---t-basecomponentname--%22anonymous%22-t)
+    -   [`useObservable<T>(initialValue: T): T`](#useobservabletinitialvalue-t-t)
+    -   [`useComputed(func: () => T, inputs: ReadonlyArray<any> = []): T`](#usecomputedfunc---t-inputs-readonlyarrayany---t)
+    -   [`useObservableEffect<D extends IReactionDisposer>(disposerGenerator: () => D, inputs: ReadonlyArray<any> = []): D`](#useobservableeffectd-extends-ireactiondisposerdisposergenerator---d-inputs-readonlyarrayany---d)
+-   [Server Side Rendering with `useStaticRendering`](#server-side-rendering-with-usestaticrendering)
+-   [Why no Provider/inject?](#why-no-providerinject)
+-   [What about smart/dumb components?](#what-about-smartdumb-components)
 
 ## API documentation
+
+### `<Observer/>`
+
+`Observer` is a React component, which applies `observer` to an anonymous region in your component.
+It takes as children a single, argumentless function which should return exactly one React component.
+The rendering in the function will be tracked and automatically re-rendered when needed.
+This can come in handy when needing to pass render function to external components (for example the React Native listview), or if you want to observe only relevant parts of the output for a performance reasons.
+
+```jsx
+import { Observer } from "mobx-react-lite"
+
+function ObservePerson(props) {
+    const person = useObservable({ name: "John" })
+    return (
+        <div>
+            {person.name}
+            <Observer>{() => <div>{person.name}</div>}</Observer>
+            <button onClick={() => (person.name = "Mike")}>No! I am Mike</button>
+        </div>
+    )
+}
+```
+
+[![Edit ObservePerson](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/jzj48v2xry?module=%2Fsrc%2FObservePerson.tsx)
+
+In case you are a fan of render props, you can use that instead of children. Be advised, that you cannot use both approaches at once, children have a precedence.
+Example
+
+```jsx
+import { Observer } from "mobx-react-lite"
+
+function ObservePerson(props) {
+    const person = useObservable({ name: "John" })
+    return (
+        <div>
+            {person.name}
+            <Observer render={() => <div>{person.name}</div>} />
+            <button onClick={() => (person.name = "Mike")}>No! I am Mike</button>
+        </div>
+    )
+}
+```
 
 ### `observer<P>(baseComponent: FunctionComponent<P>, options?: IObserverOptions): FunctionComponent<P>`
 
@@ -31,7 +73,7 @@ Function that converts a function component into a reactive component, which tra
 
 As for options, it is an optional object with the following optional properties:
 
--   `forwardRef`: pass `true` to use `forwardRef` over the inner component, pass `false` (the default) otherwise.
+-   `forwardRef`: pass `true` to use [`forwardRef`](https://reactjs.org/docs/forwarding-refs.html) over the inner component, pass `false` (the default) otherwise.
 
 ```tsx
 import { observer, useObservable } from "mobx-react-lite"
@@ -70,49 +112,6 @@ const FriendlyComponent = observer(() => {
 
 [![Edit FriendlyComponent](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/jzj48v2xry?module=%2Fsrc%2FFriendlyComponent.tsx)
 
-### `<Observer/>`
-
-`Observer` is a React component, which applies `observer` to an anonymous region in your component.
-It takes as children a single, argumentless function which should return exactly one React component.
-The rendering in the function will be tracked and automatically re-rendered when needed.
-This can come in handy when needing to pass render function to external components (for example the React Native listview), or if you
-dislike the `observer` function.
-
-```jsx
-import { Observer } from "mobx-react-lite"
-
-function ObservePerson(props) {
-    const person = useObservable({ name: "John" })
-    return (
-        <div>
-            {person.name}
-            <Observer>{() => <div>{person.name}</div>}</Observer>
-            <button onClick={() => (person.name = "Mike")}>No! I am Mike</button>
-        </div>
-    )
-}
-```
-
-[![Edit ObservePerson](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/jzj48v2xry?module=%2Fsrc%2FObservePerson.tsx)
-
-In case you are a fan of render props, you can use that instead of children. Be advised, that you cannot use both approaches at once, children have a precedence.
-Example
-
-```jsx
-import { Observer } from "mobx-react-lite"
-
-function ObservePerson(props) {
-    const person = useObservable({ name: "John" })
-    return (
-        <div>
-            {person.name}
-            <Observer render={() => <div>{person.name}</div>} />
-            <button onClick={() => (person.name = "Mike")}>No! I am Mike</button>
-        </div>
-    )
-}
-```
-
 ### `useObserver<T>(fn: () => T, baseComponentName = "anonymous"): T`
 
 Low level implementation used internally by `observer`.
@@ -122,14 +121,14 @@ It allows you to use an `observer` like behaviour, but still allowing you to opt
 import { memo } from "react"
 import { useObserver } from "mobx-react-lite"
 
-const Person = memo((props) => {
+const Person = memo(props => {
     const person = useObservable({ name: "John" })
     return useObserver(() => (
         <div>
             {person.name}
             <button onClick={() => (person.name = "Mike")}>No! I am Mike</button>
         </div>
-    ));
+    ))
 })
 ```
 
