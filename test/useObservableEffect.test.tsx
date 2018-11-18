@@ -5,7 +5,7 @@ import { observer, useObservableEffect } from "../src"
 
 afterEach(cleanup)
 
-test("useObservableEffect", async () => {
+test("reactions run and dispose properly", async () => {
     let reactions1 = 0
     let reactions2 = 0
     let renders = 0
@@ -48,7 +48,7 @@ test("useObservableEffect", async () => {
         renders++
         return (
             <div>
-                `${props.store.prop1} ${props.store.prop2}`
+                {props.store.prop1} {props.store.prop2}
             </div>
         )
     })
@@ -78,4 +78,23 @@ test("useObservableEffect", async () => {
     expect(renders).toBe(3)
     expect(reactions1).toBe(1)
     expect(reactions2).toBe(1)
+})
+
+test("an undefined disposer works", async () => {
+    let renders = 0
+
+    const Component = observer(() => {
+        useObservableEffect(() => {
+            return undefined as any
+        })
+
+        renders++
+        return <div>test</div>
+    })
+
+    const { rerender } = render(<Component />)
+    expect(renders).toBe(1)
+
+    rerender(<div />)
+    expect(renders).toBe(1)
 })
