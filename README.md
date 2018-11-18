@@ -120,7 +120,7 @@ It allows you to use an `observer` like behaviour, but still allowing you to opt
 `areEqual`, using `forwardRef`, etc.) and to declare exactly the part that is observed (the render phase). One good thing about this is that if any
 hook changes an observable for some reason then the component won't rerender twice unnecessarily.
 
-```
+```tsx
 import { memo } from "react"
 import { useObserver } from "mobx-react-lite"
 
