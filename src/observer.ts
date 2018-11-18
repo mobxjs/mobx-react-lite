@@ -1,12 +1,6 @@
-import { Reaction } from "mobx"
-import { forwardRef, memo, useCallback, useRef, useState } from "react"
-import { useUnmount } from "./utils"
-
-let isUsingStaticRendering = false
-
-export function useStaticRendering(enable: boolean) {
-    isUsingStaticRendering = enable
-}
+import { forwardRef, memo } from "react"
+import { isUsingStaticRendering } from "./staticRendering"
+import { useObserver } from "./useObserver"
 
 export interface IObserverOptions {
     readonly forwardRef?: boolean
@@ -29,7 +23,7 @@ export function observer<P extends object, TRef = {}>(
     options?: IObserverOptions
 ) {
     // The working of observer is explaind step by step in this talk: https://www.youtube.com/watch?v=cPF4iBedoF0&feature=youtu.be&t=1307
-    if (isUsingStaticRendering) {
+    if (isUsingStaticRendering()) {
         return baseComponent
     }
 
@@ -41,16 +35,7 @@ export function observer<P extends object, TRef = {}>(
     const baseComponentName = baseComponent.displayName || baseComponent.name
 
     const wrappedComponent = (props: P, ref: React.Ref<TRef>) => {
-        const observerReaction = useObserverReaction(baseComponentName)
-
-        // render the original component, but have the
-        // reaction track the observables, so that rendering
-        // can be invalidated (see above) once a dependency changes
-        let rendering!: ReturnType<typeof baseComponent>
-        observerReaction.track(() => {
-            rendering = baseComponent(props, ref)
-        })
-        return rendering
+        return useObserver(() => baseComponent(props, ref), baseComponentName)
     }
 
     // memo; we are not intested in deep updates
@@ -69,31 +54,4 @@ export function observer<P extends object, TRef = {}>(
 
     memoComponent.displayName = baseComponentName
     return memoComponent
-}
-
-function useForceUpdate() {
-    const [tick, setTick] = useState(1)
-
-    const update = useCallback(() => {
-        setTick(tick + 1)
-    }, [])
-
-    return update
-}
-
-function useObserverReaction(baseComponentName: string) {
-    // forceUpdate 2.0
-    const forceUpdate = useForceUpdate()
-
-    const reaction = useRef(
-        new Reaction(`observer(${baseComponentName})`, () => {
-            forceUpdate()
-        })
-    )
-
-    useUnmount(() => {
-        reaction.current.dispose()
-    })
-
-    return reaction.current
 }
