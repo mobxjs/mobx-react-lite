@@ -7,20 +7,20 @@ interface IObserverProps {
     render?(): ReactElement<any>
 }
 
-function ObserverFunc({ children, render }: IObserverProps) {
+function ObserverComponent({ children, render }: IObserverProps) {
     const component = children || render
     if (typeof component === "undefined") {
         return null
     }
     return component()
 }
-ObserverFunc.propTypes = {
+ObserverComponent.propTypes = {
     children: ObserverPropsCheck,
     render: ObserverPropsCheck
 }
-ObserverFunc.displayName = "Observer"
+ObserverComponent.displayName = "Observer"
 
-export const Observer = observer(ObserverFunc)
+export const Observer = observer(ObserverComponent)
 
 function ObserverPropsCheck(
     props: { [k: string]: any },
