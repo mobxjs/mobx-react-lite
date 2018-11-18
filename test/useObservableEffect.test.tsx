@@ -9,7 +9,7 @@ test("useObservableEffect", async () => {
     let reactions1 = 0
     let reactions2 = 0
     let renders = 0
-    let reaction2DisposerCalls = 0
+    let reactionDisposerCalls = 0
 
     const store = observable({
         prop1: 0,
@@ -17,14 +17,19 @@ test("useObservableEffect", async () => {
     })
 
     const Component = observer((props: { store: typeof store }) => {
-        useObservableEffect(() =>
-            reaction(
+        useObservableEffect(() => {
+            const disposer = reaction(
                 () => props.store.prop1,
                 () => {
                     reactions1++
                 }
             )
-        )
+
+            return (() => {
+                reactionDisposerCalls++
+                disposer()
+            }) as IReactionDisposer
+        })
 
         useObservableEffect(() => {
             const disposer = reaction(
@@ -35,7 +40,7 @@ test("useObservableEffect", async () => {
             )
 
             return (() => {
-                reaction2DisposerCalls++
+                reactionDisposerCalls++
                 disposer()
             }) as IReactionDisposer
         })
@@ -49,27 +54,27 @@ test("useObservableEffect", async () => {
     })
 
     const { rerender } = render(<Component store={store} />)
-    expect(reaction2DisposerCalls).toBe(0)
+    expect(reactionDisposerCalls).toBe(0)
     expect(renders).toBe(1)
     expect(reactions1).toBe(0)
     expect(reactions2).toBe(0)
 
     store.prop1 = 1
     rerender(<Component store={store} />)
-    expect(reaction2DisposerCalls).toBe(0)
+    expect(reactionDisposerCalls).toBe(0)
     expect(renders).toBe(2)
     expect(reactions1).toBe(1)
     expect(reactions2).toBe(0)
 
     store.prop2 = 1
     rerender(<Component store={store} />)
-    expect(reaction2DisposerCalls).toBe(0)
+    expect(reactionDisposerCalls).toBe(0)
     expect(renders).toBe(3)
     expect(reactions1).toBe(1)
     expect(reactions2).toBe(1)
 
     rerender(<div />)
-    expect(reaction2DisposerCalls).toBe(1)
+    expect(reactionDisposerCalls).toBe(2)
     expect(renders).toBe(3)
     expect(reactions1).toBe(1)
     expect(reactions2).toBe(1)
