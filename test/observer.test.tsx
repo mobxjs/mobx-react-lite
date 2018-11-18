@@ -9,15 +9,19 @@ const getDNode = (obj: any, prop?: string) => mobx._getAdministration(obj, prop)
 afterEach(cleanup)
 
 function runTestSuite(mode: "observer" | "useObserver") {
-    function obsComponent<P extends object>(component: React.FunctionComponent<P>) {
+    function obsComponent<P extends object>(
+        component: React.FunctionComponent<P>,
+        forceMemo = false
+    ) {
         if (mode === "observer") {
             return observer(component)
         } else {
-            return React.memo((props: P) => {
+            const c = (props: P) => {
                 return useObserver(() => {
                     return component(props)
                 })
-            })
+            }
+            return forceMemo ? React.memo(c) : c
         }
     }
 
@@ -41,7 +45,7 @@ function runTestSuite(mode: "observer" | "useObserver") {
             const TodoItem = obsComponent(({ todo }: { todo: typeof store.todos[0] }) => {
                 renderings.item++
                 return <li>|{todo.title}</li>
-            })
+            }, true)
 
             const TodoList = obsComponent(() => {
                 renderings.list++
@@ -53,7 +57,7 @@ function runTestSuite(mode: "observer" | "useObserver") {
                         ))}
                     </div>
                 )
-            })
+            }, true)
             const rendered = render(<TodoList />)
             return { ...rendered, store, renderings }
         }
@@ -368,13 +372,13 @@ function runTestSuite(mode: "observer" | "useObserver") {
             const Child = obsComponent((props: any) => {
                 renderings.child++
                 return <span>{props.data.x}</span>
-            })
+            }, true)
             const Parent = obsComponent(() => {
                 renderings.parent++
                 // tslint:disable-next-line no-unused-expression
                 odata.y /// depend
                 return <Child data={data} />
-            })
+            }, true)
             return { ...render(<Parent />), renderings, odata }
         }
 
