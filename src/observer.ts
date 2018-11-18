@@ -41,16 +41,9 @@ export function observer<P extends object, TRef = {}>(
     const baseComponentName = baseComponent.displayName || baseComponent.name
 
     const wrappedComponent = (props: P, ref: React.Ref<TRef>) => {
-        const observerReaction = useObserverReaction(baseComponentName)
-
-        // render the original component, but have the
-        // reaction track the observables, so that rendering
-        // can be invalidated (see above) once a dependency changes
-        let rendering!: ReturnType<typeof baseComponent>
-        observerReaction.track(() => {
-            rendering = baseComponent(props, ref)
-        })
-        return rendering
+        return useObserver(() => {
+            return baseComponent(props, ref)
+        }, baseComponentName)
     }
 
     // memo; we are not intested in deep updates
@@ -81,7 +74,7 @@ function useForceUpdate() {
     return update
 }
 
-function useObserverReaction(baseComponentName: string) {
+export function useObserver<T>(fn: () => T, baseComponentName = "anonymous"): T {
     // forceUpdate 2.0
     const forceUpdate = useForceUpdate()
 
@@ -95,5 +88,12 @@ function useObserverReaction(baseComponentName: string) {
         reaction.current.dispose()
     })
 
-    return reaction.current
+    // render the original component, but have the
+    // reaction track the observables, so that rendering
+    // can be invalidated (see above) once a dependency changes
+    let rendering!: T
+    reaction.current.track(() => {
+        rendering = fn()
+    })
+    return rendering
 }

@@ -1,4 +1,4 @@
-# mobx-react-lite
+# mobx-react-lite <!-- omit in toc -->
 
 [![Build Status](https://travis-ci.org/mobxjs/mobx-react-lite.svg?branch=master)](https://travis-ci.org/mobxjs/mobx-react)
 
@@ -12,15 +12,16 @@ This is a next iteration of [mobx-react](https://github.com/mobxjs/mobx-react) c
 
 Project is written in TypeScript and provides type safety out of the box. No Flow Type support is planned at this moment, but feel free to contribute.
 
--   [API documentation](#api-documentation)
-    -   [`observer<P>(baseComponent: FunctionComponent<P>): FunctionComponent<P>`](#observerpbasecomponent-functioncomponentp-functioncomponentp)
-    -   [`<Observer/>`](#observer)
-    -   [`useObservable<T>(initialValue: T): T`](#useobservabletinitialvalue-t-t)
-    -   [`useComputed(func: () => T, inputs: ReadonlyArray<any> = []): T`](#usecomputedfunc---t-inputs-readonlyarrayany---t)
-    -   [`useObservableEffect<D extends IReactionDisposer>(disposerGenerator: () => D, inputs: ReadonlyArray<any> = []): D`](#useobservableeffectd-extends-ireactiondisposerdisposergenerator---d-inputs-readonlyarrayany---d)
--   [Server Side Rendering with `useStaticRendering`](#server-side-rendering-with-usestaticrendering)
--   [Why no Provider/inject?](#why-no-providerinject)
-    -   [What about smart/dumb components?](#what-about-smartdumb-components)
+- [API documentation](#api-documentation)
+    - [`observer<P>(baseComponent: FunctionComponent<P>, options?: IObserverOptions): FunctionComponent<P>`](#observerpbasecomponent-functioncomponentp-options-iobserveroptions-functioncomponentp)
+    - [`<Observer/>`](#observer)
+    - [`useObserver<T>(fn: () => T, baseComponentName = "anonymous"): T`](#useobservertfn---t-basecomponentname--%22anonymous%22-t)
+    - [`useObservable<T>(initialValue: T): T`](#useobservabletinitialvalue-t-t)
+    - [`useComputed(func: () => T, inputs: ReadonlyArray<any> = []): T`](#usecomputedfunc---t-inputs-readonlyarrayany---t)
+    - [`useObservableEffect<D extends IReactionDisposer>(disposerGenerator: () => D, inputs: ReadonlyArray<any> = []): D`](#useobservableeffectd-extends-ireactiondisposerdisposergenerator---d-inputs-readonlyarrayany---d)
+- [Server Side Rendering with `useStaticRendering`](#server-side-rendering-with-usestaticrendering)
+- [Why no Provider/inject?](#why-no-providerinject)
+- [What about smart/dumb components?](#what-about-smartdumb-components)
 
 ## API documentation
 
@@ -110,6 +111,28 @@ function ObservePerson(props) {
         </div>
     )
 }
+```
+
+### `useObserver<T>(fn: () => T, baseComponentName = "anonymous"): T`
+
+Low level implementation used internally by `observer`.
+It allows you to use an `observer` like behaviour, but still allowing you to optimize the component in any way you want (e.g. using `memo` with a custom
+`areEqual`, using `forwardRef`, etc.) and to declare exactly the part that is observed (the render phase). One good thing about this is that if any
+hook changes an observable for some reason then the component won't rerender twice unnecessarily.
+
+```
+import { memo } from "react"
+import { useObserver } from "mobx-react-lite"
+
+const Person = memo((props) => {
+    const person = useObservable({ name: "John" })
+    return useObserver(() => (
+        <div>
+            {person.name}
+            <button onClick={() => (person.name = "Mike")}>No! I am Mike</button>
+        </div>
+    ));
+})
 ```
 
 ### `useObservable<T>(initialValue: T): T`
@@ -251,7 +274,7 @@ function App({ children }) {
 }
 ```
 
-### What about smart/dumb components?
+## What about smart/dumb components?
 
 The React hooks don't force anyone to suddenly have a state inside a _dumb component_ that is supposed to only render stuff. You can separate your concerns in a similar fashion.
 
