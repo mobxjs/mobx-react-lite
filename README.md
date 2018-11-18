@@ -118,7 +118,7 @@ function ObservePerson(props) {
 Low level implementation used internally by `observer`.
 It allows you to use an `observer` like behaviour, but still allowing you to optimize the component in any way you want (e.g. using `memo` with a custom `areEqual`, using `forwardRef`, etc.) and to declare exactly the part that is observed (the render phase). One good thing about this is that if any hook changes an observable for some reason then the component won't rerender twice unnecessarily.
 
-```
+```tsx
 import { memo } from "react"
 import { useObserver } from "mobx-react-lite"
 
