@@ -418,19 +418,22 @@ test("useImperativeMethods and forwardRef should work with observer", () => {
         value: string
     }
 
-    const FancyInput = observer((props: IProps, ref: React.Ref<IMethods>) => {
-        const inputRef = React.useRef<HTMLInputElement>(null)
-        React.useImperativeMethods(
-            ref,
-            () => ({
-                focus: () => {
-                    inputRef.current!.focus()
-                }
-            }),
-            []
-        )
-        return <input ref={inputRef} defaultValue={props.value} />
-    })
+    const FancyInput = observer(
+        (props: IProps, ref: React.Ref<IMethods>) => {
+            const inputRef = React.useRef<HTMLInputElement>(null)
+            React.useImperativeMethods(
+                ref,
+                () => ({
+                    focus: () => {
+                        inputRef.current!.focus()
+                    }
+                }),
+                []
+            )
+            return <input ref={inputRef} defaultValue={props.value} />
+        },
+        { forwardRef: true }
+    )
 
     const cr = React.createRef<IMethods>()
     render(<FancyInput ref={cr} value="" />)
