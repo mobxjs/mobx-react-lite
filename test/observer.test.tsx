@@ -409,6 +409,39 @@ describe("should not re-render on shallow equal new props", () => {
     })
 })
 
+test("useImperativeMethods and forwardRef should work with observer", () => {
+    interface IMethods {
+        focus(): void
+    }
+
+    interface IProps {
+        value: string
+    }
+
+    const FancyInput = observer(
+        (props: IProps, ref: React.Ref<IMethods>) => {
+            const inputRef = React.useRef<HTMLInputElement>(null)
+            React.useImperativeMethods(
+                ref,
+                () => ({
+                    focus: () => {
+                        inputRef.current!.focus()
+                    }
+                }),
+                []
+            )
+            return <input ref={inputRef} defaultValue={props.value} />
+        },
+        { forwardRef: true }
+    )
+
+    const cr = React.createRef<IMethods>()
+    render(<FancyInput ref={cr} value="" />)
+    expect(cr).toBeTruthy()
+    expect(cr.current).toBeTruthy()
+    expect(typeof cr.current!.focus).toBe("function")
+})
+
 // test("parent / childs render in the right order", done => {
 //     // See: https://jsfiddle.net/gkaemmer/q1kv7hbL/13/
 //     let events = []

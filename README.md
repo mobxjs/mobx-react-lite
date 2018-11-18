@@ -24,9 +24,13 @@ Project is written in TypeScript and provides type safety out of the box. No Flo
 
 ## API documentation
 
-### `observer<P>(baseComponent: FunctionComponent<P>): FunctionComponent<P>`
+### `observer<P>(baseComponent: FunctionComponent<P>, options?: IObserverOptions): FunctionComponent<P>`
 
 Function that converts a function component into a reactive component, which tracks which observables are used automatically re-renders the component when one of these values changes. Observables can be passed through props, accessed from context or created locally with `useObservable`.
+
+As for options, it is an optional object with the following optional properties:
+
+-   `forwardRef`: pass `true` to use `forwardRef` over the inner component, pass `false` (the default) otherwise.
 
 ```tsx
 import { observer, useObservable } from "mobx-react-lite"
