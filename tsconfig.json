@@ -9,7 +9,6 @@
         "esModuleInterop": true,
         "alwaysStrict": true,
         "sourceMap": false,
-        "declaration": true,
         "removeComments": false,
         "strict": true,
         "noImplicitReturns": true,

@@ -41,8 +41,10 @@ function build(target, mode, filename) {
         }),
         alias({ "react-native": emptyModulePath }),
         typescript({
+            tsconfig: "tsconfig.build.json",
             clean: true,
-            check: false
+            check: true,
+            useTsconfigDeclarationDir: true
         }),
         resolve({
             module: true,
