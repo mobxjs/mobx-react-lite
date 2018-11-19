@@ -4,5 +4,6 @@
     "typescriptHero.imports.insertSemicolons": false,
     "typescriptHero.imports.organizeOnSave": true,
     "tslint.enable": true,
-    "tslint.autoFixOnSave": true
+    "tslint.autoFixOnSave": true,
+    "typescriptHero.imports.stringQuoteStyle": "\""
 }
