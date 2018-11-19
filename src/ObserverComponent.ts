@@ -1,6 +1,6 @@
 import { ReactElement } from "react"
 
-import { observer } from "./observer"
+import { useObserver } from "./useObserver"
 
 interface IObserverProps {
     children?(): ReactElement<any>
@@ -9,10 +9,10 @@ interface IObserverProps {
 
 function ObserverComponent({ children, render }: IObserverProps) {
     const component = children || render
-    if (typeof component === "undefined") {
+    if (typeof component !== "function") {
         return null
     }
-    return component()
+    return useObserver(component)
 }
 ObserverComponent.propTypes = {
     children: ObserverPropsCheck,
@@ -20,7 +20,7 @@ ObserverComponent.propTypes = {
 }
 ObserverComponent.displayName = "Observer"
 
-export const Observer = observer(ObserverComponent)
+export { ObserverComponent as Observer }
 
 function ObserverPropsCheck(
     props: { [k: string]: any },

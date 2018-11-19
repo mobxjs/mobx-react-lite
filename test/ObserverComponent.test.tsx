@@ -1,8 +1,9 @@
-import * as mobx from 'mobx'
-import * as React from 'react'
-import { cleanup, render } from 'react-testing-library'
+import mockConsole from "jest-mock-console"
+import * as mobx from "mobx"
+import * as React from "react"
+import { cleanup, render } from "react-testing-library"
 
-import { Observer } from '../src'
+import { Observer } from "../src"
 
 afterEach(cleanup)
 
@@ -32,16 +33,23 @@ describe("regions should rerender component", () => {
     })
 })
 
-describe("prop types checks for children/render usage", () => {
-    // FALSE POSITIVE test, no error bubbles here from prop types checks
-    it("allows either children or render props", () => {
-        const Comp = () => (
-            <div>
-                <Observer render={() => <span>children</span>}>
-                    {() => <span>children</span>}
-                </Observer>
-            </div>
-        )
-        render(<Comp />)
-    })
+it("renders null if no children/render prop is supplied a function", () => {
+    const restoreConsole = mockConsole()
+    const Comp = () => <Observer />
+    const { container } = render(<Comp />)
+    expect(container).toMatchInlineSnapshot(`<div />`)
+    restoreConsole()
+})
+
+it("prop types checks for children/render usage", () => {
+    const Comp = () => (
+        <Observer render={() => <span>children</span>}>{() => <span>children</span>}</Observer>
+    )
+    const restoreConsole = mockConsole()
+    render(<Comp />)
+    // tslint:disable-next-line:no-console
+    expect(console.error).toHaveBeenCalledWith(
+        expect.stringContaining("Do not use children and render in the same time")
+    )
+    restoreConsole()
 })

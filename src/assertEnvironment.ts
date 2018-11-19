@@ -5,5 +5,5 @@ if (!useState) {
     throw new Error("mobx-react-lite requires React 16.7 to be available")
 }
 if (!spy) {
-    throw new Error("mobx-react-lite requires mobx to be available")
+    throw new Error("mobx-react-lite requires mobx 4 to be available")
 }
