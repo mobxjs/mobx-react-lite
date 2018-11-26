@@ -2,6 +2,7 @@ import "./assertEnvironment"
 
 export { useObservable } from "./useObservable"
 export { useComputed } from "./useComputed"
+export { useDisposable } from "./useDisposable"
 export { useObservableEffect } from "./useObservableEffect"
 export { isUsingStaticRendering, useStaticRendering } from "./staticRendering"
 export { observer, IObserverOptions } from "./observer"

@@ -1,10 +1,12 @@
 import { IReactionDisposer } from "mobx"
-import { useEffect, useMemo, useRef } from "react"
+
+import { useDisposable } from "./useDisposable"
 
 /**
  * Adds an observable effect (reaction, autorun, or anything else that returns a disposer) that will be registered upon component creation and disposed upon unmounting.
  * Returns the generated disposer for early disposal.
  *
+ * @deprecated Renamed to useDisposable for a more universal use
  * @export
  * @template D
  * @param {() => D} disposerGenerator A function that returns the disposer of the wanted effect.
@@ -15,20 +17,5 @@ export function useObservableEffect<D extends IReactionDisposer>(
     disposerGenerator: () => D,
     inputs: ReadonlyArray<any> = []
 ): D {
-    const disposerRef = useRef<D | undefined>(undefined)
-
-    useMemo(() => {
-        disposerRef.current = disposerGenerator()
-    }, inputs)
-
-    useEffect(
-        () => () => {
-            if (disposerRef.current) {
-                disposerRef.current()
-            }
-        },
-        inputs
-    )
-
-    return disposerRef.current!
+    return useDisposable(disposerGenerator, inputs)
 }

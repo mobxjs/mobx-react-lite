@@ -18,7 +18,7 @@ Project is written in TypeScript and provides type safety out of the box. No Flo
     -   [`useObserver<T>(fn: () => T, baseComponentName = "observed"): T`](#useobservertfn---t-basecomponentname--%22observed%22-t)
     -   [`useObservable<T>(initialValue: T): T`](#useobservabletinitialvalue-t-t)
     -   [`useComputed(func: () => T, inputs: ReadonlyArray<any> = []): T`](#usecomputedfunc---t-inputs-readonlyarrayany---t)
-    -   [`useObservableEffect<D extends IReactionDisposer>(disposerGenerator: () => D, inputs: ReadonlyArray<any> = []): D`](#useobservableeffectd-extends-ireactiondisposerdisposergenerator---d-inputs-readonlyarrayany---d)
+    -   [`useDisposable<D extends IReactionDisposer>(disposerGenerator: () => D, inputs: ReadonlyArray<any> = []): D`](#usedisposabled-extends-ireactiondisposerdisposergenerator---d-inputs-readonlyarrayany---d)
 -   [Server Side Rendering with `useStaticRendering`](#server-side-rendering-with-usestaticrendering)
 -   [Why no Provider/inject?](#why-no-providerinject)
 -   [What about smart/dumb components?](#what-about-smartdumb-components)
@@ -202,15 +202,15 @@ Notice that since the computation depends on non-observable value, it has to be 
 
 [![Edit Calculator](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/jzj48v2xry?module=%2Fsrc%2FCalculator.tsx)
 
-### `useObservableEffect<D extends IReactionDisposer>(disposerGenerator: () => D, inputs: ReadonlyArray<any> = []): D`
+### `useDisposable<D extends IReactionDisposer>(disposerGenerator: () => D, inputs: ReadonlyArray<any> = []): D`
 
-Adds an observable (Mobx) effect (`reaction`, `autorun`, `when`, or anything else that returns a disposer) that will be registered upon component creation and disposed upon unmounting.
+The disposable is any kind of function that returns another function to be called on a component unmount to clean up used resources. Use MobX related functions like [`reaction`](https://mobx.js.org/refguide/reaction.html), [`autorun`](https://mobx.js.org/refguide/autorun.html), [`when`](https://mobx.js.org/refguide/when.html), [`observe`](https://mobx.js.org/refguide/observe.html), or anything else that returns a disposer.
 Returns the generated disposer for early disposal.
 
 Example (TypeScript):
 
 ```typescript
-import { observer, useComputed, useObservableEffect } from "mobx-react-lite"
+import { observer, useComputed, useDisposable } from "mobx-react-lite"
 
 const Name = observer((props: { firstName: string; lastName: string }) => {
     const fullName = useComputed(() => `${props.firstName} ${props.lastName}`, [
@@ -219,7 +219,7 @@ const Name = observer((props: { firstName: string; lastName: string }) => {
     ])
 
     // when the name changes then send this info to the server
-    useObservableEffect(() =>
+    useDisposable(() =>
         reaction(
             () => fullName,
             () => {
