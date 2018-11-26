@@ -9,6 +9,7 @@ coverage/
 .editorconfig
 .prettierignore
 .prettierrc
+.browserlistrc
 .travis.yml
 
 empty.js
@@ -16,6 +17,7 @@ build-rollup.js
 jest.config.js
 jest.setup.js
 tsconfig.json
+tsconfig.build.json
 tslint.json
 
 npm-debug.log*
