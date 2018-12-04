@@ -1,0 +1,12 @@
+{
+    "name": "mobx-react-lite-example",
+    "version": "0.0.1",
+    "main": "index.js",
+    "private": true,
+    "devDependencies": {
+        "ts-loader": "^5.3.1",
+        "webpack": "^4.26.1",
+        "webpack-cli": "^3.1.2",
+        "webpack-dev-server": "^3.1.10"
+    }
+}

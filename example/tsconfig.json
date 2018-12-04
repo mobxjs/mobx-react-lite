@@ -1,0 +1,17 @@
+{
+    "compilerOptions": {
+        "outDir": "build",
+        "target": "es6",
+        "module": "esnext",
+        "moduleResolution": "node",
+        "experimentalDecorators": true,
+        "allowSyntheticDefaultImports": true,
+        "esModuleInterop": true,
+        "strict": true,
+        "noImplicitReturns": true,
+        "removeComments": true,
+        "preserveConstEnums": true,
+        "sourceMap": true,
+        "jsx": "react"
+    }
+}

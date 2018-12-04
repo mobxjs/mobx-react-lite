@@ -1,5 +1,6 @@
 /node_modules/
 
+example/
 src/
 test/
 coverage/
