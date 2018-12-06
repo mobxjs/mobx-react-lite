@@ -278,7 +278,7 @@ The React hooks don't force anyone to suddenly have a state inside a _dumb compo
 ```tsx
 import { createSelector } from 'react-selector-hooks'
 
-const userSelector = createSelector(({ user ) => ({
+const userSelector = createSelector(({ user }) => ({
     name: user.name,
     age: user.age
 }))
