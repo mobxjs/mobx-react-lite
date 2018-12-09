@@ -302,17 +302,19 @@ export default () => {
 }
 ```
 
-It may look a bit more verbose than a _classic_ inject, but there is nothing stopping you to make your own `inject` HOC which is so much easier since everything is just a funciton.
+It may look a bit more verbose than a _classic_ inject, but there is nothing stopping you to make your own `inject` HOC which is so much easier since everything is just a function.
 
 ```tsx
 // make universal HOC
 
-function inject(useSelector, baseComponent) {
-    const store = useContext(StoreContext)
-    const selected = useSelector(store)
-    // optional memo essentially making a pure component
-    return React.memo(props => baseComponent({ ...selected, ...props }))
-}
+const inject = (useSelector, baseComponent) => (
+    () => {
+        const store = useContext(StoreContext)
+        const selected = useSelector(store)
+        // optional memo essentially making a pure component
+        return React.memo(props => baseComponent({ ...selected, ...props }))
+    }
+)
 
 // use the HOC with a selector
 
