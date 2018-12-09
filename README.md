@@ -292,16 +292,14 @@ function UiComponent({ name, age }) {
     )
 }
 
-export default () => (
-    () => {
-        // you may extract these two lines into a custom hook
-        const store = useContext(StoreContext)
-        const data = userSelector(store)
-        return UiComponent({...data})
-        // perhaps wrap it inside observer in here?
-        return observer(UiComponent({...data}))
-    }
-)
+export default () => {
+    // you may extract these two lines into a custom hook
+    const store = useContext(StoreContext)
+    const data = userSelector(store)
+    return UiComponent({...data})
+    // perhaps wrap it inside observer in here?
+    return observer(UiComponent({...data}))
+}
 ```
 
 It may look a bit more verbose than a _classic_ inject, but there is nothing stopping you to make your own `inject` HOC which is so much easier since everything is just a function.
@@ -310,12 +308,12 @@ It may look a bit more verbose than a _classic_ inject, but there is nothing sto
 // make universal HOC
 
 const inject = (useSelector, baseComponent) => (
-    () => {
+    React.useMemo((props) => {
         const store = useContext(StoreContext)
         const selected = useSelector(store)
         // optional memo essentially making a pure component
-        return React.memo(props => baseComponent({ ...selected, ...props }))
-    }
+        return baseComponent({ ...selected, ...props })
+    })
 )
 
 // use the HOC with a selector
