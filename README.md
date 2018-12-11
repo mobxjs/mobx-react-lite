@@ -311,7 +311,7 @@ const inject = (useSelector, baseComponent) => (
     React.useMemo((props) => {
         const store = useContext(StoreContext)
         const selected = useSelector(store)
-        // optional memo essentially making a pure component
+        
         return baseComponent({ ...selected, ...props })
     })
 )
