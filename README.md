@@ -33,7 +33,7 @@ The rendering in the function will be tracked and automatically re-rendered when
 This can come in handy when needing to pass render function to external components (for example the React Native listview), or if you want to observe only relevant parts of the output for a performance reasons.
 
 ```jsx
-import { Observer } from "mobx-react-lite"
+import { Observer, useObservable } from "mobx-react-lite"
 
 function ObservePerson(props) {
     const person = useObservable({ name: "John" })
@@ -53,7 +53,8 @@ In case you are a fan of render props, you can use that instead of children. Be 
 Example
 
 ```jsx
-import { Observer } from "mobx-react-lite"
+import { Observer, useObservable } from "mobx-react-lite"
+
 
 function ObservePerson(props) {
     const person = useObservable({ name: "John" })
