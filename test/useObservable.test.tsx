@@ -1,6 +1,7 @@
 import * as React from 'react'
 import { cleanup, fireEvent, render } from 'react-testing-library'
 
+import { observable } from "mobx"
 import { observer, useObservable } from '../src'
 
 afterEach(cleanup)
@@ -107,4 +108,40 @@ describe("is used to keep observable within component body", () => {
         fireEvent.click(div)
         expect(div.textContent).toBe("initial - 10later - 20")
     })
+
+    it("create observable by function", () => {
+
+        const obsArr = observable({
+            arr:[3,4,5,6]
+        }) // init prop
+        let currentObsRef = null
+        const TestComponent = observer((props) => {
+
+            const obs = useObservable(()=>({
+                a:obsArr.arr,
+                b:obsArr.arr.shift(),
+            } as any)) as any
+            currentObsRef = obs
+
+            return (
+                <div onClick={() => (obs.b = obsArr.arr.shift())}>
+                    {obs.b}
+                </div>
+            )
+        })
+        const { container } = render(<TestComponent />)
+        const lastObsRef = currentObsRef
+        const div = container.querySelector("div")!
+        expect(div.textContent).toBe("3")
+        expect(obsArr.arr.length).toBe(3)
+        expect(lastObsRef).toBe(currentObsRef)
+        fireEvent.click(div)
+        expect(div.textContent).toBe("4")
+        expect(obsArr.arr.length).toBe(2)
+        fireEvent.click(div)
+        expect(div.textContent).toBe("5")
+        expect(obsArr.arr.length).toBe(1)
+
+    })
+
 })
