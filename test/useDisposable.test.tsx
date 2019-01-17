@@ -68,56 +68,58 @@ test("reactions run and dispose properly", async () => {
     })
 
     const { rerender, unmount } = render(<Component store={store} />)
+    expect(reactions1Created).toBe(1)
     expect(reaction1DisposerCalls).toBe(0)
+    expect(reactions2Created).toBe(1)
     expect(reaction2DisposerCalls).toBe(0)
     expect(renders).toBe(1)
     expect(reactions1).toBe(0)
     expect(reactions2).toBe(0)
-    expect(reactions1Created).toBe(1)
-    expect(reactions2Created).toBe(1)
 
     store.prop1 = 1
     rerender(<Component store={store} />)
+    expect(reactions1Created).toBe(1)
     expect(reaction1DisposerCalls).toBe(0)
+    expect(reactions2Created).toBe(1)
     expect(reaction2DisposerCalls).toBe(0)
     expect(renders).toBe(2)
     expect(reactions1).toBe(1)
     expect(reactions2).toBe(0)
-    expect(reactions1Created).toBe(1)
-    expect(reactions2Created).toBe(1)
 
     store.prop2 = 1
     rerender(<Component store={store} />)
+    expect(reactions1Created).toBe(1)
     expect(reaction1DisposerCalls).toBe(0)
+    expect(reactions2Created).toBe(1)
     expect(reaction2DisposerCalls).toBe(0)
     expect(renders).toBe(3)
     expect(reactions1).toBe(1)
     expect(reactions2).toBe(1)
-    expect(reactions1Created).toBe(1)
-    expect(reactions2Created).toBe(1)
 
     // early dispose one of them, it shouldn't be re-created when one of the dependent inputs change
     firstReaction()
+    expect(reactions1Created).toBe(1)
     expect(reaction1DisposerCalls).toBe(1) // early disposal
+    expect(reactions2Created).toBe(1)
     expect(reaction2DisposerCalls).toBe(0) // this one is not early disposed
 
     rerender(<Component store={store} a={1} />)
-    expect(reaction1DisposerCalls).toBe(1) // depends on a, but was early disposed, so it should not increment
-    expect(reaction2DisposerCalls).toBe(1) // depends on a, so it gets re-created
+    expect(reactions1Created).toBe(1) // depends on a, but was early disposed, so it should not increment
+    expect(reaction1DisposerCalls).toBe(1)
+    expect(reactions2Created).toBe(2) // depends on a, so it gets re-created
+    expect(reaction2DisposerCalls).toBe(1)
     expect(renders).toBe(4)
     expect(reactions1).toBe(1)
     expect(reactions2).toBe(1)
-    expect(reactions1Created).toBe(1)
-    expect(reactions2Created).toBe(2)
 
     unmount()
+    expect(reactions1Created).toBe(1)
     expect(reaction1DisposerCalls).toBe(1)
+    expect(reactions2Created).toBe(2)
     expect(reaction2DisposerCalls).toBe(2)
     expect(renders).toBe(4)
     expect(reactions1).toBe(1)
     expect(reactions2).toBe(1)
-    expect(reactions1Created).toBe(1)
-    expect(reactions2Created).toBe(2)
 })
 
 test("disposer needs to be a function", async () => {
