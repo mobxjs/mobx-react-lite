@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from "react"
+import { useEffect, useRef } from "react"
 
 type TDisposable = () => void
 
@@ -16,20 +16,23 @@ export function useDisposable<D extends TDisposable>(
     disposerGenerator: () => D,
     inputs: ReadonlyArray<any> = []
 ): D {
-    const disposerRef = useRef<D | undefined>(undefined)
+    const disposer = useRef<D | undefined>(undefined)
 
-    useMemo(() => {
-        disposerRef.current = disposerGenerator()
+    useEffect(() => {
+        return lazyCreateDisposer()
     }, inputs)
 
-    useEffect(
-        () => () => {
-            if (disposerRef.current && typeof disposerRef.current === "function") {
-                disposerRef.current()
+    const lazyCreateDisposer = () => {
+        if (!disposer.current) {
+            disposer.current = disposerGenerator()
+        }
+        return () => {
+            if (typeof disposer.current === "function") {
+                disposer.current()
             }
-        },
-        inputs
-    )
+            disposer.current = undefined
+        }
+    }
 
-    return disposerRef.current!
+    return lazyCreateDisposer() as D
 }
