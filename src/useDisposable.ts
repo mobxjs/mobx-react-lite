@@ -2,6 +2,10 @@ import { useEffect, useRef } from "react"
 
 type TDisposable = () => void
 
+const doNothingDisposer = () => {
+    // empty
+}
+
 /**
  * Adds an observable effect (reaction, autorun, or anything else that returns a disposer) that will be registered upon component creation and disposed upon unmounting.
  * Returns the generated disposer for early disposal.
@@ -17,12 +21,18 @@ export function useDisposable<D extends TDisposable>(
     inputs: ReadonlyArray<any> = []
 ): D {
     const disposer = useRef<D | undefined>(undefined)
+    const earlyDisposed = useRef(false)
 
     useEffect(() => {
-        return lazyCreateDisposer()
+        return lazyCreateDisposer(false)
     }, inputs)
 
-    const lazyCreateDisposer = () => {
+    const lazyCreateDisposer = (earlyDisposal: boolean) => {
+        // ensure that we won't create a new disposer if it was early disposed
+        if (earlyDisposed.current) {
+            return doNothingDisposer
+        }
+
         if (!disposer.current) {
             disposer.current = disposerGenerator()
         }
@@ -31,8 +41,11 @@ export function useDisposable<D extends TDisposable>(
                 disposer.current()
             }
             disposer.current = undefined
+            if (earlyDisposal) {
+                earlyDisposed.current = true
+            }
         }
     }
 
-    return lazyCreateDisposer() as D
+    return lazyCreateDisposer(true) as D
 }
