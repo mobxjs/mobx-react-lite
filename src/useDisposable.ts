@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react"
+import { useLayoutEffect, useRef } from "react"
 
 type TDisposable = () => void
 
@@ -23,7 +23,8 @@ export function useDisposable<D extends TDisposable>(
     const disposer = useRef<D | undefined>(undefined)
     const earlyDisposed = useRef(false)
 
-    useEffect(() => {
+    // we need to use layout effect since disposals need to be run synchronously
+    useLayoutEffect(() => {
         return lazyCreateDisposer(false)
     }, inputs)
 

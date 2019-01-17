@@ -1,7 +1,7 @@
-import { useEffect } from "react"
+import { useLayoutEffect } from "react"
 
 const EMPTY_ARRAY: any[] = []
 
 export function useUnmount(fn: () => void) {
-    useEffect(() => fn, EMPTY_ARRAY)
+    useLayoutEffect(() => fn, EMPTY_ARRAY)
 }

@@ -7,6 +7,7 @@
 This is a next iteration of [mobx-react](https://github.com/mobxjs/mobx-react) coming from introducing React hooks which simplifies a lot of internal workings of this package. Class based components **are not supported** except using `<Observer>` directly in its `render` method.
 
 **You need React version 16.7.0-alpha.2 or 16.8.0-alpha.0 which is highly experimental and not recommended for production.**
+
 **Do not use React 16.7 as it's [missing Hooks support](https://reactjs.org/blog/2018/12/19/react-v-16-7.html)!**
 
 [![NPM](https://nodei.co/npm/mobx-react-lite.png)](https://www.npmjs.com/package/mobx-react-lite)
@@ -19,7 +20,7 @@ Project is written in TypeScript and provides type safety out of the box. No Flo
     -   [`useObserver<T>(fn: () => T, baseComponentName = "observed"): T`](#useobservertfn---t-basecomponentname--%22observed%22-t)
     -   [`useObservable<T>(initialValue: T): T`](#useobservabletinitialvalue-t-t)
     -   [`useComputed(func: () => T, inputs: ReadonlyArray<any> = []): T`](#usecomputedfunc---t-inputs-readonlyarrayany---t)
-    -   [`useDisposable<D extends IReactionDisposer>(disposerGenerator: () => D, inputs: ReadonlyArray<any> = []): D`](#usedisposabled-extends-ireactiondisposerdisposergenerator---d-inputs-readonlyarrayany---d)
+    -   [`useDisposable<D extends TDisposable>(disposerGenerator: () => D, inputs: ReadonlyArray<any> = []): D`](#usedisposabled-extends-ireactiondisposerdisposergenerator---d-inputs-readonlyarrayany---d)
 -   [Server Side Rendering with `useStaticRendering`](#server-side-rendering-with-usestaticrendering)
 -   [Why no Provider/inject?](#why-no-providerinject)
 -   [What about smart/dumb components?](#what-about-smartdumb-components)
@@ -203,7 +204,7 @@ Notice that since the computation depends on non-observable value, it has to be 
 
 [![Edit Calculator](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/jzj48v2xry?module=%2Fsrc%2FCalculator.tsx)
 
-### `useDisposable<D extends IReactionDisposer>(disposerGenerator: () => D, inputs: ReadonlyArray<any> = []): D`
+### `useDisposable<D extends TDisposable>(disposerGenerator: () => D, inputs: ReadonlyArray<any> = []): D`
 
 The disposable is any kind of function that returns another function to be called on a component unmount to clean up used resources. Use MobX related functions like [`reaction`](https://mobx.js.org/refguide/reaction.html), [`autorun`](https://mobx.js.org/refguide/autorun.html), [`when`](https://mobx.js.org/refguide/when.html), [`observe`](https://mobx.js.org/refguide/observe.html), or anything else that returns a disposer.
 Returns the generated disposer for early disposal.
@@ -277,7 +278,7 @@ function App({ children }) {
 The React hooks don't force anyone to suddenly have a state inside a _dumb component_ that is supposed to only render stuff. You can separate your concerns in a similar fashion.
 
 ```tsx
-import { createSelector } from 'react-selector-hooks'
+import { createSelector } from "react-selector-hooks"
 
 const userSelector = createSelector(({ user }) => ({
     name: user.name,
@@ -297,9 +298,9 @@ export default () => {
     // you may extract these two lines into a custom hook
     const store = useContext(StoreContext)
     const data = userSelector(store)
-    return UiComponent({...data})
+    return UiComponent({ ...data })
     // perhaps wrap it inside observer in here?
-    return observer(UiComponent({...data}))
+    return observer(UiComponent({ ...data }))
 }
 ```
 
@@ -308,14 +309,13 @@ It may look a bit more verbose than a _classic_ inject, but there is nothing sto
 ```tsx
 // make universal HOC
 
-const inject = (useSelector, baseComponent) => (
-    React.useMemo((props) => {
+const inject = (useSelector, baseComponent) =>
+    React.useMemo(props => {
         const store = useContext(StoreContext)
         const selected = useSelector(store)
-        
+
         return baseComponent({ ...selected, ...props })
     })
-)
 
 // use the HOC with a selector
 
