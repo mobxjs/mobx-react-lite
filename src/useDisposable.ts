@@ -35,11 +35,11 @@ export function useDisposable<D extends TDisposable>(
         }
 
         if (!disposerRef.current) {
-            disposerRef.current = disposerGenerator()
-            if (typeof disposerRef.current !== "function") {
-                disposerRef.current = undefined
+            const newDisposer = disposerGenerator()
+            if (typeof newDisposer !== "function") {
                 throw new Error("generated disposer must be a function")
             }
+            disposerRef.current = newDisposer
         }
         return () => {
             if (disposerRef.current) {
