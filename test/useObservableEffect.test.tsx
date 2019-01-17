@@ -2,6 +2,7 @@ import { IReactionDisposer, observable, reaction } from "mobx"
 import * as React from "react"
 import { cleanup, render } from "react-testing-library"
 import { observer, useObservableEffect } from "../src"
+import { withoutConsoleError } from "./utils"
 
 afterEach(cleanup)
 
@@ -80,21 +81,16 @@ test("reactions run and dispose properly", async () => {
     expect(reactions2).toBe(1)
 })
 
-test("an undefined disposer works", async () => {
-    let renders = 0
-
+test("an undefined disposer throws", async () => {
     const Component = observer(() => {
         useObservableEffect(() => {
             return undefined as any
         })
 
-        renders++
         return <div>test</div>
     })
 
-    const { rerender } = render(<Component />)
-    expect(renders).toBe(1)
-
-    rerender(<div />)
-    expect(renders).toBe(1)
+    await withoutConsoleError(async () => {
+        expect(() => render(<Component />)).toThrow("generated disposer must be a function")
+    })
 })

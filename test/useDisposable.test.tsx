@@ -3,6 +3,7 @@ import * as React from "react"
 import { cleanup, render } from "react-testing-library"
 
 import { observer, useDisposable } from "../src"
+import { withoutConsoleError } from "./utils"
 
 afterEach(cleanup)
 
@@ -122,25 +123,30 @@ test("reactions run and dispose properly", async () => {
     expect(reactions2).toBe(1)
 })
 
-test("disposer needs to be a function", async () => {
-    let renders = 0
+test("disposer needs to be a function or else throws", async () => {
+    const error = "generated disposer must be a function"
 
-    const Component = observer(() => {
+    const Component1 = observer(() => {
         useDisposable(() => {
             return undefined as any
         })
-
-        useDisposable(() => {
-            return "I am not a disposer" as any
-        })
-
-        renders++
         return <div>test</div>
     })
 
-    const { unmount } = render(<Component />)
-    expect(renders).toBe(1)
+    const Component2 = observer(() => {
+        useDisposable(() => {
+            return "string" as any
+        })
+        return <div>test</div>
+    })
 
-    unmount()
-    expect(renders).toBe(1)
+    await withoutConsoleError(async () => {
+        expect(() => {
+            render(<Component1 />)
+        }).toThrow(error)
+
+        expect(() => {
+            render(<Component2 />)
+        }).toThrow(error)
+    })
 })

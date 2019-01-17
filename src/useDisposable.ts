@@ -20,30 +20,34 @@ export function useDisposable<D extends TDisposable>(
     disposerGenerator: () => D,
     inputs: ReadonlyArray<any> = []
 ): D {
-    const disposer = useRef<D | undefined>(undefined)
-    const earlyDisposed = useRef(false)
+    const disposerRef = useRef<D | undefined>(undefined)
+    const earlyDisposedRef = useRef(false)
 
     // we need to use layout effect since disposals need to be run synchronously
     useLayoutEffect(() => {
         return lazyCreateDisposer(false)
     }, inputs)
 
-    const lazyCreateDisposer = (earlyDisposal: boolean) => {
+    function lazyCreateDisposer(earlyDisposal: boolean) {
         // ensure that we won't create a new disposer if it was early disposed
-        if (earlyDisposed.current) {
+        if (earlyDisposedRef.current) {
             return doNothingDisposer
         }
 
-        if (!disposer.current) {
-            disposer.current = disposerGenerator()
+        if (!disposerRef.current) {
+            disposerRef.current = disposerGenerator()
+            if (typeof disposerRef.current !== "function") {
+                disposerRef.current = undefined
+                throw new Error("generated disposer must be a function")
+            }
         }
         return () => {
-            if (typeof disposer.current === "function") {
-                disposer.current()
+            if (disposerRef.current) {
+                disposerRef.current()
+                disposerRef.current = undefined
             }
-            disposer.current = undefined
             if (earlyDisposal) {
-                earlyDisposed.current = true
+                earlyDisposedRef.current = true
             }
         }
     }
