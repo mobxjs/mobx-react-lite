@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef } from "react"
+import { useEffect, useRef } from "react"
 
 type TDisposable = () => void
 
@@ -23,8 +23,7 @@ export function useDisposable<D extends TDisposable>(
     const disposerRef = useRef<D | undefined>(undefined)
     const earlyDisposedRef = useRef(false)
 
-    // we need to use layout effect since disposals need to be run synchronously
-    useLayoutEffect(() => {
+    useEffect(() => {
         return lazyCreateDisposer(false)
     }, inputs)
 
@@ -36,9 +35,17 @@ export function useDisposable<D extends TDisposable>(
 
         if (!disposerRef.current) {
             const newDisposer = disposerGenerator()
+
             if (typeof newDisposer !== "function") {
-                throw new Error("generated disposer must be a function")
+                if (process.env.NODE_ENV !== "production") {
+                    throw new Error("generated disposer must be a function")
+                } else {
+                    // tslint:disable-next-line:no-console
+                    console.error("generated disposer must be a function")
+                    return doNothingDisposer
+                }
             }
+
             disposerRef.current = newDisposer
         }
         return () => {

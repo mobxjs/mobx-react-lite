@@ -1,9 +1,9 @@
+import mockConsole from "jest-mock-console"
 import { observable, reaction } from "mobx"
 import * as React from "react"
-import { cleanup, render } from "react-testing-library"
+import { cleanup, flushEffects, render } from "react-testing-library"
 
 import { observer, useDisposable } from "../src"
-import { withoutConsoleError } from "./utils"
 
 afterEach(cleanup)
 
@@ -105,6 +105,7 @@ test("reactions run and dispose properly", async () => {
     expect(reaction2DisposerCalls).toBe(0) // this one is not early disposed
 
     rerender(<Component store={store} a={1} />)
+    flushEffects()
     expect(reactions1Created).toBe(1) // depends on a, but was early disposed, so it should not increment
     expect(reaction1DisposerCalls).toBe(1)
     expect(reactions2Created).toBe(2) // depends on a, so it gets re-created
@@ -140,13 +141,17 @@ test("disposer needs to be a function or else throws", async () => {
         return <div>test</div>
     })
 
-    await withoutConsoleError(async () => {
-        expect(() => {
-            render(<Component1 />)
-        }).toThrow(error)
+    const restoreConsole = mockConsole()
 
-        expect(() => {
-            render(<Component2 />)
-        }).toThrow(error)
-    })
+    expect(() => {
+        render(<Component1 />)
+        flushEffects()
+    }).toThrow(error)
+
+    expect(() => {
+        render(<Component2 />)
+        flushEffects()
+    }).toThrow(error)
+
+    restoreConsole()
 })
