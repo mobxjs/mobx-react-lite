@@ -1,6 +1,10 @@
-import { useEffect, useMemo, useRef } from "react"
+import { useEffect, useRef } from "react"
 
 type TDisposable = () => void
+
+const doNothingDisposer = () => {
+    // empty
+}
 
 /**
  * Adds an observable effect (reaction, autorun, or anything else that returns a disposer) that will be registered upon component creation and disposed upon unmounting.
@@ -17,19 +21,44 @@ export function useDisposable<D extends TDisposable>(
     inputs: ReadonlyArray<any> = []
 ): D {
     const disposerRef = useRef<D | undefined>(undefined)
+    const earlyDisposedRef = useRef(false)
 
-    useMemo(() => {
-        disposerRef.current = disposerGenerator()
+    useEffect(() => {
+        return lazyCreateDisposer(false)
     }, inputs)
 
-    useEffect(
-        () => () => {
-            if (disposerRef.current && typeof disposerRef.current === "function") {
-                disposerRef.current()
-            }
-        },
-        inputs
-    )
+    function lazyCreateDisposer(earlyDisposal: boolean) {
+        // ensure that we won't create a new disposer if it was early disposed
+        if (earlyDisposedRef.current) {
+            return doNothingDisposer
+        }
 
-    return disposerRef.current!
+        if (!disposerRef.current) {
+            const newDisposer = disposerGenerator()
+
+            if (typeof newDisposer !== "function") {
+                const error = new Error("generated disposer must be a function")
+                if (process.env.NODE_ENV !== "production") {
+                    throw error
+                } else {
+                    // tslint:disable-next-line:no-console
+                    console.error(error)
+                    return doNothingDisposer
+                }
+            }
+
+            disposerRef.current = newDisposer
+        }
+        return () => {
+            if (disposerRef.current) {
+                disposerRef.current()
+                disposerRef.current = undefined
+            }
+            if (earlyDisposal) {
+                earlyDisposedRef.current = true
+            }
+        }
+    }
+
+    return lazyCreateDisposer(true) as D
 }
