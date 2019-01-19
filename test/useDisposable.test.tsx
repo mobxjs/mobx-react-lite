@@ -4,6 +4,7 @@ import * as React from "react"
 import { cleanup, flushEffects, render } from "react-testing-library"
 
 import { observer, useDisposable } from "../src"
+import { productionMode } from "./utils"
 
 afterEach(cleanup)
 
@@ -124,7 +125,7 @@ test("reactions run and dispose properly", async () => {
     expect(reactions2).toBe(1)
 })
 
-test("disposer needs to be a function or else throws", async () => {
+test("disposer needs to be a function or else throws/console.error", async () => {
     const error = "generated disposer must be a function"
 
     const Component1 = observer(() => {
@@ -142,6 +143,8 @@ test("disposer needs to be a function or else throws", async () => {
     })
 
     const restoreConsole = mockConsole()
+    // tslint:disable-next-line:no-console
+    const mockConsoleError = console.error as jest.Mock<{}>
 
     expect(() => {
         render(<Component1 />)
@@ -153,5 +156,16 @@ test("disposer needs to be a function or else throws", async () => {
         flushEffects()
     }).toThrow(error)
 
+    productionMode(() => {
+        mockConsoleError.mockClear()
+        render(<Component1 />)
+        flushEffects()
+        expect(mockConsoleError.mock.calls[0][0].message).toEqual(error)
+
+        mockConsoleError.mockClear()
+        render(<Component2 />)
+        flushEffects()
+        expect(mockConsoleError.mock.calls[0][0].message).toEqual(error)
+    })
     restoreConsole()
 })

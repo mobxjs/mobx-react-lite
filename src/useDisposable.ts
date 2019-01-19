@@ -37,11 +37,12 @@ export function useDisposable<D extends TDisposable>(
             const newDisposer = disposerGenerator()
 
             if (typeof newDisposer !== "function") {
+                const error = new Error("generated disposer must be a function")
                 if (process.env.NODE_ENV !== "production") {
-                    throw new Error("generated disposer must be a function")
+                    throw error
                 } else {
                     // tslint:disable-next-line:no-console
-                    console.error("generated disposer must be a function")
+                    console.error(error)
                     return doNothingDisposer
                 }
             }
