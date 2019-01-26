@@ -20,7 +20,7 @@ Project is written in TypeScript and provides type safety out of the box. No Flo
     -   [`useObserver<T>(fn: () => T, baseComponentName = "observed"): T`](#useobservertfn---t-basecomponentname--%22observed%22-t)
     -   [`useObservable<T>(initialValue: T): T`](#useobservabletinitialvalue-t-t)
     -   [`useComputed(func: () => T, inputs: ReadonlyArray<any> = []): T`](#usecomputedfunc---t-inputs-readonlyarrayany---t)
-    -   [`useDisposable<D extends TDisposable>(disposerGenerator: () => D, inputs: ReadonlyArray<any> = []): D`](#usedisposabled-extends-ireactiondisposerdisposergenerator---d-inputs-readonlyarrayany---d)
+    -   [`useDisposable<D extends TDisposable>(disposerGenerator: () => D, inputs: ReadonlyArray<any> = []): D`](#usedisposabled-extends-tdisposabledisposergenerator---d-inputs-readonlyarrayany---d)
 -   [Server Side Rendering with `useStaticRendering`](#server-side-rendering-with-usestaticrendering)
 -   [Why no Provider/inject?](#why-no-providerinject)
 -   [What about smart/dumb components?](#what-about-smartdumb-components)
@@ -136,14 +136,14 @@ const Person = memo(props => {
 
 ### `useObservable<T>(initialValue: T): T`
 
-React hook that allows creating observable object within a component body and keeps track of it over renders. Gets all the benefits from [observable objects](https://mobx.js.org/refguide/object.html) including computed properties and methods. You can also use arrays and Map which are useful to track dynamic list/table of information. The Set is not supported (see https://github.com/mobxjs/mobx/issues/69).
+React hook that allows creating observable object within a component body and keeps track of it over renders. Gets all the benefits from [observable objects](https://mobx.js.org/refguide/object.html) including computed properties and methods. You can also use arrays, Map and Set.
 
-Warning: With current implementation you also need to wrap your component to `observer` otherwise the rerender on update won't happen.
+Warning: With current implementation you also need to wrap your component to `observer`. It's also possible to have `useObserver` only in case you are not expecting rerender of the whole component.
 
 ```tsx
 import { observer, useObservable } from "mobx-react-lite"
 
-const TodoList = observer(() => {
+const TodoList = () => {
     const todos = useObservable(new Map<string, boolean>())
     const todoRef = React.useRef()
     const addTodo = React.useCallback(() => {
@@ -154,7 +154,7 @@ const TodoList = observer(() => {
         todos.set(todo, !todos.get(todo))
     }, [])
 
-    return (
+    return useObserver(() => (
         <div>
             {Array.from(todos).map(([todo, done]) => (
                 <div onClick={() => toggleTodo(todo)} key={todo}>
@@ -165,7 +165,25 @@ const TodoList = observer(() => {
             <input ref={todoRef} />
             <button onClick={addTodo}>Add todo</button>
         </div>
-    )
+    ))
+})
+```
+
+#### Lazy initialization
+
+Lazy initialization (similar to `React.useState`) is not available. In most cases your observable state should be a plain object which is cheap to create. With `useObserver` the component won't even rerender and state won't be recreated. In case you really want a more complex state or you need to use `observer`, it's very simple to use MobX directly.
+
+```tsx
+import { observer } from "mobx-react-lite"
+import { observable } from "mobx"
+import { useState } from "react"
+
+const WithComplexState = observer(() => {
+    const [complexState] = useState(() => observable(new HeavyState()))
+    if (complexState.loading) {
+        return <Loading />
+    }
+    return <div>{complexState.heavyName}</div>
 })
 ```
 
