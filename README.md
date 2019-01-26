@@ -166,7 +166,7 @@ const TodoList = () => {
             <button onClick={addTodo}>Add todo</button>
         </div>
     ))
-})
+}
 ```
 
 #### Lazy initialization
