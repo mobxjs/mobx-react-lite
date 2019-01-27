@@ -17,7 +17,7 @@ Project is written in TypeScript and provides type safety out of the box. No Flo
 -   [API documentation](#api-documentation)
     -   [`<Observer/>`](#observer)
     -   [`observer<P>(baseComponent: FunctionComponent<P>, options?: IObserverOptions): FunctionComponent<P>`](#observerpbasecomponent-functioncomponentp-options-iobserveroptions-functioncomponentp)
-    -   [`useObserver<T>(fn: () => T, baseComponentName = "observed"): T`](#useobservertfn---t-basecomponentname--%22observed%22-t)
+    -   [`useObserver<T>(fn: () => T, baseComponentName = "observed"): T`](#useobservertfn---t-basecomponentname--observed-t)
     -   [`useObservable<T>(initialValue: T): T`](#useobservabletinitialvalue-t-t)
     -   [`useComputed(func: () => T, inputs: ReadonlyArray<any> = []): T`](#usecomputedfunc---t-inputs-readonlyarrayany---t)
     -   [`useDisposable<D extends TDisposable>(disposerGenerator: () => D, inputs: ReadonlyArray<any> = []): D`](#usedisposabled-extends-tdisposabledisposergenerator---d-inputs-readonlyarrayany---d)
@@ -121,7 +121,7 @@ It allows you to use an `observer` like behaviour, but still allowing you to opt
 
 ```tsx
 import { memo } from "react"
-import { useObserver } from "mobx-react-lite"
+import { useObserver, useObservable } from "mobx-react-lite"
 
 const Person = memo(props => {
     const person = useObservable({ name: "John" })
@@ -141,7 +141,7 @@ React hook that allows creating observable object within a component body and ke
 Warning: With current implementation you also need to wrap your component to `observer`. It's also possible to have `useObserver` only in case you are not expecting rerender of the whole component.
 
 ```tsx
-import { observer, useObservable } from "mobx-react-lite"
+import { observer, useObservable, useObserver } from "mobx-react-lite"
 
 const TodoList = () => {
     const todos = useObservable(new Map<string, boolean>())
@@ -230,6 +230,7 @@ Returns the generated disposer for early disposal.
 Example (TypeScript):
 
 ```typescript
+import {reaction} from 'mobx'
 import { observer, useComputed, useDisposable } from "mobx-react-lite"
 
 const Name = observer((props: { firstName: string; lastName: string }) => {
