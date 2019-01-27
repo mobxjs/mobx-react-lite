@@ -20,7 +20,7 @@ export function useDisposable<D extends TDisposable>(
     disposerGenerator: () => D,
     inputs: ReadonlyArray<any> = []
 ): D {
-    const disposerRef = useRef<D | undefined>(undefined)
+    const disposerRef = useRef<D | null>(null)
     const earlyDisposedRef = useRef(false)
 
     useEffect(() => {
@@ -52,7 +52,7 @@ export function useDisposable<D extends TDisposable>(
         return () => {
             if (disposerRef.current) {
                 disposerRef.current()
-                disposerRef.current = undefined
+                disposerRef.current = null
             }
             if (earlyDisposal) {
                 earlyDisposedRef.current = true

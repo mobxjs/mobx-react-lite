@@ -1,34 +1,24 @@
 import { Reaction } from "mobx"
-import { useCallback, useRef, useState } from "react"
+import { useRef } from "react"
 import { isUsingStaticRendering } from "./staticRendering"
-import { useUnmount } from "./utils"
-
-function useForceUpdate() {
-    const [tick, setTick] = useState(1)
-
-    const update = useCallback(() => {
-        setTick(tick + 1)
-    }, [])
-
-    return update
-}
+import { useForceUpdate, useUnmount } from "./utils"
 
 export function useObserver<T>(fn: () => T, baseComponentName = "observed"): T {
     if (isUsingStaticRendering()) {
         return fn()
     }
 
-    // forceUpdate 2.0
     const forceUpdate = useForceUpdate()
 
-    const reaction = useRef(
-        new Reaction(`observer(${baseComponentName})`, () => {
+    const reaction = useRef<Reaction | null>(null)
+    if (!reaction.current) {
+        reaction.current = new Reaction(`observer(${baseComponentName})`, () => {
             forceUpdate()
         })
-    )
+    }
 
     useUnmount(() => {
-        reaction.current.dispose()
+        reaction.current!.dispose()
     })
 
     // render the original component, but have the
