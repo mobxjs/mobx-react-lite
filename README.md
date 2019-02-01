@@ -6,7 +6,7 @@
 
 This is a next iteration of [mobx-react](https://github.com/mobxjs/mobx-react) coming from introducing React hooks which simplifies a lot of internal workings of this package. Class based components **are not supported** except using `<Observer>` directly in its `render` method.
 
-**You need React version 16.7.0-alpha.2 or 16.8.0-alpha.0 which is highly experimental and not recommended for production.**
+**You need React version 16.8.0-alpha.1 which is highly experimental and not recommended for production.**
 
 **Do not use React 16.7 as it's [missing Hooks support](https://reactjs.org/blog/2018/12/19/react-v-16-7.html)!**
 

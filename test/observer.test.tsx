@@ -414,7 +414,7 @@ test("useImperativeMethods and forwardRef should work with observer", () => {
     const FancyInput = observer(
         (props: IProps, ref: React.Ref<IMethods>) => {
             const inputRef = React.useRef<HTMLInputElement>(null)
-            React.useImperativeMethods(
+            React.useImperativeHandle(
                 ref,
                 () => ({
                     focus: () => {
@@ -447,7 +447,7 @@ test("useImperativeMethods and forwardRef should work with useObserver", () => {
     const FancyInput = React.memo(
         React.forwardRef((props: IProps, ref: React.Ref<IMethods>) => {
             const inputRef = React.useRef<HTMLInputElement>(null)
-            React.useImperativeMethods(
+            React.useImperativeHandle(
                 ref,
                 () => ({
                     focus: () => {
