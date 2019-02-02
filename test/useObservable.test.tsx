@@ -1,7 +1,8 @@
-import * as React from 'react'
-import { cleanup, fireEvent, render } from 'react-testing-library'
+import * as mobx from 'mobx';
+import * as React from 'react';
+import { cleanup, fireEvent, render } from 'react-testing-library';
+import { observer, useObservable } from '../src';
 
-import { observer, useObservable } from '../src'
 
 afterEach(cleanup)
 
@@ -28,7 +29,13 @@ describe("is used to keep observable within component body", () => {
     })
 
     it("works with observer as well", () => {
+        const spyObservable = jest.spyOn(mobx, 'observable');
+
+        let renderCount = 0;
+
         const TestComponent = observer(() => {
+            renderCount++
+
             const obs = useObservable({
                 x: 1,
                 y: 2
@@ -46,6 +53,12 @@ describe("is used to keep observable within component body", () => {
         expect(div.textContent).toBe("2-2")
         fireEvent.click(div)
         expect(div.textContent).toBe("3-2")
+
+        // though render 3 times, mobx.observable only called once
+        expect(renderCount).toBe(3)
+        expect(spyObservable.mock.calls.length).toBe(1)
+
+        spyObservable.mockRestore()
     })
 
     it("actions can be used", () => {

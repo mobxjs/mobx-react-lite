@@ -469,6 +469,26 @@ test("useImperativeMethods and forwardRef should work with useObserver", () => {
     expect(typeof cr.current!.focus).toBe("function")
 })
 
+it('should only called new Reaction once', () => {
+    let renderCount = 0;
+    // mock the Reaction class
+    const spy = jest.spyOn(mobx, 'Reaction').mockImplementation(() => (
+        { track: (fn: any) => { fn() }, dispose: () => {/* nothing */ } }
+    ))
+    const TestComponent = observer((props: any) => {
+        renderCount++
+        return (
+            <div></div>
+        )
+    })
+    const { rerender } = render(<TestComponent a="1" />)
+    rerender(<TestComponent a="2" />)
+    rerender(<TestComponent a="3" />)
+    expect(renderCount).toBe(3);
+    expect(spy.mock.calls.length).toBe(1)
+    spy.mockRestore()
+})
+
 // test("parent / childs render in the right order", done => {
 //     // See: https://jsfiddle.net/gkaemmer/q1kv7hbL/13/
 //     let events = []
