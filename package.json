@@ -1,6 +1,6 @@
 {
   "name": "mobx-react-lite",
-  "version": "0.3.6",
+  "version": "0.3.7",
   "description": "Lightweight React bindings for MobX based on experimental React hooks",
   "main": "dist/index.js",
   "jsnext:main": "dist/index.module.js",
