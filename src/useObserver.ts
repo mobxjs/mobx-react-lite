@@ -33,6 +33,8 @@ export function useObserver<T>(fn: () => T, baseComponentName = "observed"): T {
             exception = e
         }
     })
-    if (exception) throw exception // re-throw any exceptions catched during rendering
+    if (exception) {
+        throw exception // re-throw any exceptions catched during rendering
+    }
     return rendering
 }
