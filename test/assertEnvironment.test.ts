@@ -6,7 +6,7 @@ afterEach(() => {
 it("throws if react is not installed", () => {
     jest.mock("react", () => ({}))
     expect(() => require("../src/assertEnvironment.ts")).toThrowErrorMatchingInlineSnapshot(
-        `"mobx-react-lite requires React with Hooks support (alpha versions)"`
+        `"mobx-react-lite requires React with Hooks support"`
     )
 })
 

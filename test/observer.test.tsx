@@ -1,6 +1,6 @@
 import * as mobx from "mobx"
 import * as React from "react"
-import { cleanup, fireEvent, render } from "react-testing-library"
+import { act, cleanup, fireEvent, render } from "react-testing-library"
 
 import { observer, useObserver, useStaticRendering } from "../src"
 
@@ -72,7 +72,9 @@ function runTestSuite(mode: "observer" | "useObserver") {
 
         test("inner store changed", () => {
             const { store, getAllByText, renderings } = execute()
-            store.todos[0].title += "a"
+            act(() => {
+                store.todos[0].title += "a"
+            })
             expect(renderings.list).toBe(1)
             expect(renderings.item).toBe(2)
             expect(getAllByText("1")).toHaveLength(1)
@@ -83,9 +85,11 @@ function runTestSuite(mode: "observer" | "useObserver") {
 
         test("rerendering with outer store added", () => {
             const { store, container, getAllByText, renderings } = execute()
-            store.todos.push({
-                completed: true,
-                title: "b"
+            act(() => {
+                store.todos.push({
+                    completed: true,
+                    title: "b"
+                })
             })
             expect(container.querySelectorAll("li").length).toBe(2)
             expect(getAllByText("2")).toHaveLength(1)
@@ -98,7 +102,10 @@ function runTestSuite(mode: "observer" | "useObserver") {
 
         test("rerendering with outer store pop", () => {
             const { store, container, renderings } = execute()
-            const oldTodo = store.todos.pop()
+            let oldTodo
+            act(() => {
+                oldTodo = store.todos.pop()
+            })
             expect(renderings.list).toBe(2)
             expect(renderings.item).toBe(1)
             expect(container.querySelectorAll("li").length).toBe(0)
@@ -118,7 +125,9 @@ function runTestSuite(mode: "observer" | "useObserver") {
         test("does not assume React will update due to NaN prop", () => {
             // @ts-ignore Not sure what this test does, the value is not used
             render(<Counter value={NaN} />)
-            store.count++
+            act(() => {
+                store.count++
+            })
             expect(counterRenderings).toBe(2)
         })
     })
@@ -153,7 +162,9 @@ function runTestSuite(mode: "observer" | "useObserver") {
 
         test("rerender should not need a recomputation of data.y", () => {
             const { data, queryByText } = execute()
-            data.z = "hello"
+            act(() => {
+                data.z = "hello"
+            })
             expect(data.yCalcCount).toBe(1)
             expect(queryByText("hello6")).toBeTruthy()
         })
@@ -187,7 +198,9 @@ function runTestSuite(mode: "observer" | "useObserver") {
 
         test("no re-rendering on static rendering", () => {
             const { getRenderCount, getByText, data } = execute()
-            data.z = "hello"
+            act(() => {
+                data.z = "hello"
+            })
             expect(getRenderCount()).toBe(1)
             expect(getByText("hi")).toBeTruthy()
             expect(getDNode(data, "z").observers.size).toBe(0)
@@ -243,10 +256,12 @@ function runTestSuite(mode: "observer" | "useObserver") {
         test("run transaction", () => {
             const data = createData()
             const { container } = render(<Table data={data} />)
-            mobx.transaction(() => {
-                data.items[1].name = "boe"
-                data.items.splice(0, 2, { name: "soup" })
-                data.selected = "tea"
+            act(() => {
+                mobx.transaction(() => {
+                    data.items[1].name = "boe"
+                    data.items.splice(0, 2, { name: "soup" })
+                    data.selected = "tea"
+                })
             })
             expect(container).toMatchSnapshot()
         })
@@ -268,7 +283,9 @@ function runTestSuite(mode: "observer" | "useObserver") {
             return <div>{data.get()}</div>
         })
         const { container } = render(<Comp />)
-        data.set(3)
+        act(() => {
+            data.set(3)
+        })
         expect(container).toMatchSnapshot()
         mobx._resetGlobalState()
     })
@@ -391,7 +408,9 @@ function runTestSuite(mode: "observer" | "useObserver") {
 
         test("after odata change", async () => {
             const { container, renderings, odata } = execute()
-            odata.y++
+            act(() => {
+                odata.y++
+            })
             expect(renderings.parent).toBe(2)
             expect(renderings.child).toBe(1)
             expect(container.querySelector("span")!.innerHTML).toBe("1")
@@ -402,7 +421,7 @@ function runTestSuite(mode: "observer" | "useObserver") {
 runTestSuite("observer")
 runTestSuite("useObserver")
 
-test("useImperativeMethods and forwardRef should work with observer", () => {
+test("useImperativeHandle and forwardRef should work with observer", () => {
     interface IMethods {
         focus(): void
     }
@@ -414,7 +433,7 @@ test("useImperativeMethods and forwardRef should work with observer", () => {
     const FancyInput = observer(
         (props: IProps, ref: React.Ref<IMethods>) => {
             const inputRef = React.useRef<HTMLInputElement>(null)
-            React.useImperativeMethods(
+            React.useImperativeHandle(
                 ref,
                 () => ({
                     focus: () => {
@@ -435,7 +454,7 @@ test("useImperativeMethods and forwardRef should work with observer", () => {
     expect(typeof cr.current!.focus).toBe("function")
 })
 
-test("useImperativeMethods and forwardRef should work with useObserver", () => {
+test("useImperativeHandle and forwardRef should work with useObserver", () => {
     interface IMethods {
         focus(): void
     }
@@ -447,7 +466,7 @@ test("useImperativeMethods and forwardRef should work with useObserver", () => {
     const FancyInput = React.memo(
         React.forwardRef((props: IProps, ref: React.Ref<IMethods>) => {
             const inputRef = React.useRef<HTMLInputElement>(null)
-            React.useImperativeMethods(
+            React.useImperativeHandle(
                 ref,
                 () => ({
                     focus: () => {
@@ -469,22 +488,25 @@ test("useImperativeMethods and forwardRef should work with useObserver", () => {
     expect(typeof cr.current!.focus).toBe("function")
 })
 
-it('should only called new Reaction once', () => {
-    let renderCount = 0;
+it("should only called new Reaction once", () => {
+    let renderCount = 0
     // mock the Reaction class
-    const spy = jest.spyOn(mobx, 'Reaction').mockImplementation(() => (
-        { track: (fn: any) => { fn() }, dispose: () => {/* nothing */ } }
-    ))
+    const spy = jest.spyOn(mobx, "Reaction").mockImplementation(() => ({
+        track: (fn: any) => {
+            fn()
+        },
+        dispose: () => {
+            /* nothing */
+        }
+    }))
     const TestComponent = observer((props: any) => {
         renderCount++
-        return (
-            <div></div>
-        )
+        return <div />
     })
     const { rerender } = render(<TestComponent a="1" />)
     rerender(<TestComponent a="2" />)
     rerender(<TestComponent a="3" />)
-    expect(renderCount).toBe(3);
+    expect(renderCount).toBe(3)
     expect(spy.mock.calls.length).toBe(1)
     spy.mockRestore()
 })

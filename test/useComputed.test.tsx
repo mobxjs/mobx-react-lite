@@ -1,8 +1,8 @@
-import { observable } from 'mobx'
-import * as React from 'react'
-import { cleanup, render } from 'react-testing-library'
+import { observable } from "mobx"
+import * as React from "react"
+import { act, cleanup, render } from "react-testing-library"
 
-import { observer, useComputed } from '../src'
+import { observer, useComputed } from "../src"
 
 afterEach(cleanup)
 
@@ -16,9 +16,13 @@ describe("is used to rerender based on a computed value change", () => {
         const { container } = render(<TestComponent store={store} />)
         const div = container.querySelector("div")!
         expect(div.textContent).toBe("10")
-        store.y = 2
+        act(() => {
+            store.y = 2
+        })
         expect(div.textContent).toBe("15")
-        store.x = 10
+        act(() => {
+            store.x = 10
+        })
         expect(div.textContent).toBe("20")
     })
 
@@ -33,7 +37,9 @@ describe("is used to rerender based on a computed value change", () => {
         expect(div.textContent).toBe("10")
         rerender(<TestComponent store={store} y={2} />)
         expect(div.textContent).toBe("15")
-        store.x = 10
+        act(() => {
+            store.x = 10
+        })
         expect(div.textContent).toBe("20")
     })
 })

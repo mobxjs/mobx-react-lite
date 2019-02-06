@@ -7,10 +7,10 @@ export function useUnmount(fn: () => void) {
 }
 
 export function useForceUpdate() {
-    const [, setTick] = useState(null)
+    const [, setTick] = useState(0)
 
     const update = useCallback(() => {
-        setTick(null)
+        setTick(tick => tick + 1)
     }, [])
 
     return update

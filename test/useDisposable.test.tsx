@@ -1,7 +1,7 @@
 import mockConsole from "jest-mock-console"
 import { observable, reaction } from "mobx"
 import * as React from "react"
-import { cleanup, flushEffects, render } from "react-testing-library"
+import { act, cleanup, render } from "react-testing-library"
 
 import { observer, useDisposable } from "../src"
 import { productionMode } from "./utils"
@@ -25,41 +25,35 @@ test("reactions run and dispose properly", async () => {
     let firstReaction!: () => void
 
     const Component = observer((props: { store: typeof store; a?: number }) => {
-        firstReaction = useDisposable(
-            () => {
-                reactions1Created++
-                const disposer = reaction(
-                    () => props.store.prop1,
-                    () => {
-                        reactions1++
-                    }
-                )
-
-                return () => {
-                    reaction1DisposerCalls++
-                    disposer()
+        firstReaction = useDisposable(() => {
+            reactions1Created++
+            const disposer = reaction(
+                () => props.store.prop1,
+                () => {
+                    reactions1++
                 }
-            },
-            [props.a]
-        )
+            )
 
-        useDisposable(
-            () => {
-                reactions2Created++
-                const disposer = reaction(
-                    () => props.store.prop2,
-                    () => {
-                        reactions2++
-                    }
-                )
+            return () => {
+                reaction1DisposerCalls++
+                disposer()
+            }
+        }, [props.a])
 
-                return () => {
-                    reaction2DisposerCalls++
-                    disposer()
+        useDisposable(() => {
+            reactions2Created++
+            const disposer = reaction(
+                () => props.store.prop2,
+                () => {
+                    reactions2++
                 }
-            },
-            [props.a]
-        )
+            )
+
+            return () => {
+                reaction2DisposerCalls++
+                disposer()
+            }
+        }, [props.a])
 
         renders++
         return (
@@ -78,8 +72,9 @@ test("reactions run and dispose properly", async () => {
     expect(reactions1).toBe(0)
     expect(reactions2).toBe(0)
 
-    store.prop1 = 1
-    rerender(<Component store={store} />)
+    act(() => {
+        store.prop1 = 1
+    })
     expect(reactions1Created).toBe(1)
     expect(reaction1DisposerCalls).toBe(0)
     expect(reactions2Created).toBe(1)
@@ -88,8 +83,9 @@ test("reactions run and dispose properly", async () => {
     expect(reactions1).toBe(1)
     expect(reactions2).toBe(0)
 
-    store.prop2 = 1
-    rerender(<Component store={store} />)
+    act(() => {
+        store.prop2 = 1
+    })
     expect(reactions1Created).toBe(1)
     expect(reaction1DisposerCalls).toBe(0)
     expect(reactions2Created).toBe(1)
@@ -106,7 +102,6 @@ test("reactions run and dispose properly", async () => {
     expect(reaction2DisposerCalls).toBe(0) // this one is not early disposed
 
     rerender(<Component store={store} a={1} />)
-    flushEffects()
     expect(reactions1Created).toBe(1) // depends on a, but was early disposed, so it should not increment
     expect(reaction1DisposerCalls).toBe(1)
     expect(reactions2Created).toBe(2) // depends on a, so it gets re-created
@@ -148,23 +143,19 @@ test("disposer needs to be a function or else throws/console.error", async () =>
 
     expect(() => {
         render(<Component1 />)
-        flushEffects()
     }).toThrow(error)
 
     expect(() => {
         render(<Component2 />)
-        flushEffects()
     }).toThrow(error)
 
     productionMode(() => {
         mockConsoleError.mockClear()
         render(<Component1 />)
-        flushEffects()
         expect(mockConsoleError.mock.calls[0][0].message).toEqual(error)
 
         mockConsoleError.mockClear()
         render(<Component2 />)
-        flushEffects()
         expect(mockConsoleError.mock.calls[0][0].message).toEqual(error)
     })
     restoreConsole()

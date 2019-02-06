@@ -1,8 +1,8 @@
-import * as mobx from 'mobx';
-import * as React from 'react';
-import { cleanup, fireEvent, render } from 'react-testing-library';
-import { observer, useObservable } from '../src';
+import * as mobx from "mobx"
+import * as React from "react"
+import { cleanup, fireEvent, render } from "react-testing-library"
 
+import { observer, useObservable } from "../src"
 
 afterEach(cleanup)
 
@@ -29,9 +29,9 @@ describe("is used to keep observable within component body", () => {
     })
 
     it("works with observer as well", () => {
-        const spyObservable = jest.spyOn(mobx, 'observable');
+        const spyObservable = jest.spyOn(mobx, "observable")
 
-        let renderCount = 0;
+        let renderCount = 0
 
         const TestComponent = observer(() => {
             renderCount++
