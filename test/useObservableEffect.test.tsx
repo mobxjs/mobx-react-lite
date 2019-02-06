@@ -1,7 +1,8 @@
 import mockConsole from "jest-mock-console"
 import { IReactionDisposer, observable, reaction } from "mobx"
 import * as React from "react"
-import { cleanup, flushEffects, render } from "react-testing-library"
+import { cleanup, render } from "react-testing-library"
+
 import { observer, useObservableEffect } from "../src"
 
 afterEach(cleanup)
@@ -94,7 +95,6 @@ test("an undefined disposer throws", async () => {
 
     expect(() => {
         render(<Component />)
-        flushEffects()
     }).toThrow("generated disposer must be a function")
 
     restoreConsole()

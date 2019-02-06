@@ -3773,10 +3773,10 @@ react-dom@16.8.0:
     prop-types "^15.6.2"
     scheduler "^0.13.0"
 
-react-testing-library@^5.2.3:
-  version "5.4.4"
-  resolved "https://registry.yarnpkg.com/react-testing-library/-/react-testing-library-5.4.4.tgz#3fa787999492be94b228e4540a7211556bf4fd94"
-  integrity sha512-/TiERZ+URSNhZQfjrUXh0VLsiLSmhqP1WP+2e2wWqWqrRIWpcAxrfuBxzlT75LYMDNmicEikaXJqRDi/pqCEDg==
+react-testing-library@^5.5.0:
+  version "5.5.0"
+  resolved "https://registry.yarnpkg.com/react-testing-library/-/react-testing-library-5.5.0.tgz#757c8cf46b54bf7b626f0a39e85900820efcd3b1"
+  integrity sha512-58X5frBnjcgTckZUcp9+1D1P/uunIuceIfzne8/p0rGn/vhIodFEKGpkaOAEHE2k+t5cXFJ0fufjlc/ukblIOw==
   dependencies:
     dom-testing-library "^3.13.1"
 
