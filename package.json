@@ -30,7 +30,7 @@
   "homepage": "https://mobxjs.github.io/mobx",
   "peerDependencies": {
     "mobx": "^4.0.0 || ^5.0.0",
-    "react": "16.8.0"
+    "react": "^16.8.0"
   },
   "devDependencies": {
     "@types/jest": "23.3.12",
@@ -47,8 +47,8 @@
     "lodash": "^4.17.11",
     "mobx": "^5.0.0",
     "prettier": "^1.16.4",
-    "react": "16.8.0",
-    "react-dom": "16.8.0",
+    "react": "^16.8.0",
+    "react-dom": "^16.8.0",
     "react-testing-library": "^5.5.3",
     "rimraf": "^2.6.2",
     "rollup": "^1.1.2",
