@@ -402,7 +402,7 @@ function runTestSuite(mode: "observer" | "useObserver") {
 runTestSuite("observer")
 runTestSuite("useObserver")
 
-test("useImperativeMethods and forwardRef should work with observer", () => {
+test("useImperativeHandle and forwardRef should work with observer", () => {
     interface IMethods {
         focus(): void
     }
@@ -414,7 +414,7 @@ test("useImperativeMethods and forwardRef should work with observer", () => {
     const FancyInput = observer(
         (props: IProps, ref: React.Ref<IMethods>) => {
             const inputRef = React.useRef<HTMLInputElement>(null)
-            React.useImperativeMethods(
+            React.useImperativeHandle(
                 ref,
                 () => ({
                     focus: () => {
@@ -435,7 +435,7 @@ test("useImperativeMethods and forwardRef should work with observer", () => {
     expect(typeof cr.current!.focus).toBe("function")
 })
 
-test("useImperativeMethods and forwardRef should work with useObserver", () => {
+test("useImperativeHandle and forwardRef should work with useObserver", () => {
     interface IMethods {
         focus(): void
     }
@@ -447,7 +447,7 @@ test("useImperativeMethods and forwardRef should work with useObserver", () => {
     const FancyInput = React.memo(
         React.forwardRef((props: IProps, ref: React.Ref<IMethods>) => {
             const inputRef = React.useRef<HTMLInputElement>(null)
-            React.useImperativeMethods(
+            React.useImperativeHandle(
                 ref,
                 () => ({
                     focus: () => {
@@ -469,22 +469,25 @@ test("useImperativeMethods and forwardRef should work with useObserver", () => {
     expect(typeof cr.current!.focus).toBe("function")
 })
 
-it('should only called new Reaction once', () => {
-    let renderCount = 0;
+it("should only called new Reaction once", () => {
+    let renderCount = 0
     // mock the Reaction class
-    const spy = jest.spyOn(mobx, 'Reaction').mockImplementation(() => (
-        { track: (fn: any) => { fn() }, dispose: () => {/* nothing */ } }
-    ))
+    const spy = jest.spyOn(mobx, "Reaction").mockImplementation(() => ({
+        track: (fn: any) => {
+            fn()
+        },
+        dispose: () => {
+            /* nothing */
+        }
+    }))
     const TestComponent = observer((props: any) => {
         renderCount++
-        return (
-            <div></div>
-        )
+        return <div />
     })
     const { rerender } = render(<TestComponent a="1" />)
     rerender(<TestComponent a="2" />)
     rerender(<TestComponent a="3" />)
-    expect(renderCount).toBe(3);
+    expect(renderCount).toBe(3)
     expect(spy.mock.calls.length).toBe(1)
     spy.mockRestore()
 })
