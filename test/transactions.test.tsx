@@ -1,6 +1,6 @@
 import * as mobx from "mobx"
 import * as React from "react"
-import { render } from "react-testing-library"
+import { act, render } from "react-testing-library"
 
 import { observer } from "../src"
 
@@ -32,7 +32,9 @@ test("mobx issue 50", done => {
     render(<Test />)
 
     setImmediate(() => {
-        flipStuff()
+        act(() => {
+            flipStuff()
+        })
         expect(asText).toBe("false:true:true")
         expect(document.getElementById("x")!.innerHTML).toBe("false,true,true")
         expect(willReactCount).toBe(2)
@@ -55,10 +57,12 @@ it("should respect transaction", async () => {
 
     const { container } = render(<Component />)
 
-    mobx.transaction(() => {
-        a.set(3)
-        a.set(4)
-        loaded.set(true)
+    act(() => {
+        mobx.transaction(() => {
+            a.set(3)
+            a.set(4)
+            loaded.set(true)
+        })
     })
 
     expect(container.textContent!.replace(/\s+/g, "")).toBe("4")

@@ -1,7 +1,7 @@
 import mockConsole from "jest-mock-console"
 import * as mobx from "mobx"
 import * as React from "react"
-import { cleanup, render } from "react-testing-library"
+import { act, cleanup, render } from "react-testing-library"
 
 import { Observer } from "../src"
 
@@ -27,7 +27,9 @@ describe("regions should rerender component", () => {
 
     test("set the data to hello", async () => {
         const { container, data } = execute()
-        data.set("hello")
+        act(() => {
+            data.set("hello")
+        })
         expect(container.querySelector("span")!.innerHTML).toBe("hello")
         expect(container.querySelector("li")!.innerHTML).toBe("hi")
     })

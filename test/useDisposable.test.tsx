@@ -1,7 +1,7 @@
 import mockConsole from "jest-mock-console"
 import { observable, reaction } from "mobx"
 import * as React from "react"
-import { cleanup, render } from "react-testing-library"
+import { act, cleanup, render } from "react-testing-library"
 
 import { observer, useDisposable } from "../src"
 import { productionMode } from "./utils"
@@ -25,41 +25,35 @@ test("reactions run and dispose properly", async () => {
     let firstReaction!: () => void
 
     const Component = observer((props: { store: typeof store; a?: number }) => {
-        firstReaction = useDisposable(
-            () => {
-                reactions1Created++
-                const disposer = reaction(
-                    () => props.store.prop1,
-                    () => {
-                        reactions1++
-                    }
-                )
-
-                return () => {
-                    reaction1DisposerCalls++
-                    disposer()
+        firstReaction = useDisposable(() => {
+            reactions1Created++
+            const disposer = reaction(
+                () => props.store.prop1,
+                () => {
+                    reactions1++
                 }
-            },
-            [props.a]
-        )
+            )
 
-        useDisposable(
-            () => {
-                reactions2Created++
-                const disposer = reaction(
-                    () => props.store.prop2,
-                    () => {
-                        reactions2++
-                    }
-                )
+            return () => {
+                reaction1DisposerCalls++
+                disposer()
+            }
+        }, [props.a])
 
-                return () => {
-                    reaction2DisposerCalls++
-                    disposer()
+        useDisposable(() => {
+            reactions2Created++
+            const disposer = reaction(
+                () => props.store.prop2,
+                () => {
+                    reactions2++
                 }
-            },
-            [props.a]
-        )
+            )
+
+            return () => {
+                reaction2DisposerCalls++
+                disposer()
+            }
+        }, [props.a])
 
         renders++
         return (
@@ -78,8 +72,9 @@ test("reactions run and dispose properly", async () => {
     expect(reactions1).toBe(0)
     expect(reactions2).toBe(0)
 
-    store.prop1 = 1
-    rerender(<Component store={store} />)
+    act(() => {
+        store.prop1 = 1
+    })
     expect(reactions1Created).toBe(1)
     expect(reaction1DisposerCalls).toBe(0)
     expect(reactions2Created).toBe(1)
@@ -88,8 +83,9 @@ test("reactions run and dispose properly", async () => {
     expect(reactions1).toBe(1)
     expect(reactions2).toBe(0)
 
-    store.prop2 = 1
-    rerender(<Component store={store} />)
+    act(() => {
+        store.prop2 = 1
+    })
     expect(reactions1Created).toBe(1)
     expect(reaction1DisposerCalls).toBe(0)
     expect(reactions2Created).toBe(1)
