@@ -70,7 +70,11 @@
     "react-component",
     "react",
     "reactjs",
-    "reactive"
+    "reactive",
+    "hooks",
+    "observer",
+    "useObserver",
+    "useComputer"
   ],
   "lint-staged": {
     "*.{ts,js}": [
