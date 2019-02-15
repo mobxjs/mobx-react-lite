@@ -1,3 +1,4 @@
+import mockConsole from "jest-mock-console"
 import * as mobx from "mobx"
 import * as React from "react"
 import { act, cleanup, fireEvent, render } from "react-testing-library"
@@ -414,6 +415,58 @@ function runTestSuite(mode: "observer" | "useObserver") {
             expect(renderings.parent).toBe(2)
             expect(renderings.child).toBe(1)
             expect(container.querySelector("span")!.innerHTML).toBe("1")
+        })
+    })
+
+    describe("error handling", () => {
+        test("errors should propagate", () => {
+            const x = mobx.observable.box(1)
+            const errorsSeen: any[] = []
+
+            class ErrorBoundary extends React.Component {
+                public static getDerivedStateFromError() {
+                    return { hasError: true }
+                }
+
+                public state = {
+                    hasError: false
+                }
+
+                public componentDidCatch(error: any, info: any) {
+                    errorsSeen.push("" + error)
+                }
+
+                public render() {
+                    if (this.state.hasError) {
+                        return <span>Saw error!</span>
+                    }
+                    return this.props.children
+                }
+            }
+
+            const C = obsComponent(() => {
+                if (x.get() === 42) {
+                    throw new Error("The meaning of life!")
+                }
+                return <span>{x.get()}</span>
+            })
+
+            const restoreConsole = mockConsole()
+            try {
+                const rendered = render(
+                    <ErrorBoundary>
+                        <C />
+                    </ErrorBoundary>
+                )
+                expect(rendered.container.querySelector("span")!.innerHTML).toBe("1")
+                act(() => {
+                    x.set(42)
+                })
+                expect(errorsSeen).toEqual(["Error: The meaning of life!"])
+                expect(rendered.container.querySelector("span")!.innerHTML).toBe("Saw error!")
+            } finally {
+                restoreConsole()
+            }
         })
     })
 }

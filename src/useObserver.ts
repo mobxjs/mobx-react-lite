@@ -25,8 +25,16 @@ export function useObserver<T>(fn: () => T, baseComponentName = "observed"): T {
     // reaction track the observables, so that rendering
     // can be invalidated (see above) once a dependency changes
     let rendering!: T
+    let exception
     reaction.current.track(() => {
-        rendering = fn()
+        try {
+            rendering = fn()
+        } catch (e) {
+            exception = e
+        }
     })
+    if (exception) {
+        throw exception // re-throw any exceptions catched during rendering
+    }
     return rendering
 }
