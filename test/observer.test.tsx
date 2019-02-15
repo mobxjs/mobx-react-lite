@@ -436,7 +436,7 @@ function runTestSuite(mode: "observer" | "useObserver") {
                 }
 
                 render() {
-                    if (this.state.hasError) return null
+                    if (this.state.hasError) return <span>Saw error!</span>
                     return this.props.children
                 }
             }
@@ -459,6 +459,7 @@ function runTestSuite(mode: "observer" | "useObserver") {
                     x.set(42)
                 })
                 expect(errorsSeen).toEqual(["The meaning of life!"])
+                expect(rendered.container.querySelector("span")!.innerHTML).toBe("Saw error!")
             } finally {
                 console.error = origErrorLogger
             }
