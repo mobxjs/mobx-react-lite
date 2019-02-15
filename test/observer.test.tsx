@@ -420,34 +420,41 @@ function runTestSuite(mode: "observer" | "useObserver") {
     describe("error handling", () => {
         test("errors should propagate", () => {
             const x = mobx.observable.box(1)
-            let errorsSeen: any[] = []
+            const errorsSeen: any[] = []
 
             class ErrorBoundary extends React.Component {
-                state = {
+                public state = {
                     hasError: false
                 }
 
-                componentDidCatch(error: any, info: any) {
-                    errorsSeen.push(error)
+                public componentDidCatch(error: any, info: any) {
+                    errorsSeen.push("" + error)
                 }
 
-                static getDerivedStateFromError() {
+                public static getDerivedStateFromError() {
                     return { hasError: true }
                 }
 
-                render() {
-                    if (this.state.hasError) return <span>Saw error!</span>
+                public render() {
+                    if (this.state.hasError) {
+                        return <span>Saw error!</span>
+                    }
                     return this.props.children
                 }
             }
 
             const C = obsComponent(() => {
-                if (x.get() === 42) throw "The meaning of life!"
+                if (x.get() === 42) {
+                    throw new Error("The meaning of life!")
+                }
                 return <span>{x.get()}</span>
             })
 
             const origErrorLogger = console.error
-            console.error = function() {} // supress printing warnings that React always prints in DEV, even with error boundaries...
+            // tslint:disable-next-line
+            console.error = function() {
+                // supress printing warnings that React always prints in DEV, even with error boundaries...
+            }
             try {
                 const rendered = render(
                     <ErrorBoundary>
@@ -461,6 +468,7 @@ function runTestSuite(mode: "observer" | "useObserver") {
                 expect(errorsSeen).toEqual(["The meaning of life!"])
                 expect(rendered.container.querySelector("span")!.innerHTML).toBe("Saw error!")
             } finally {
+                // tslint:disable-next-line
                 console.error = origErrorLogger
             }
         })
