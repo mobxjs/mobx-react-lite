@@ -1,3 +1,4 @@
+import mockConsole from "jest-mock-console"
 import * as mobx from "mobx"
 import * as React from "react"
 import { act, cleanup, fireEvent, render } from "react-testing-library"
@@ -450,12 +451,7 @@ function runTestSuite(mode: "observer" | "useObserver") {
                 return <span>{x.get()}</span>
             })
 
-            // tslint:disable-next-line
-            const origErrorLogger = console.error
-            // tslint:disable-next-line
-            console.error = function() {
-                // supress printing warnings that React always prints in DEV, even with error boundaries...
-            }
+            const restoreConsole = mockConsole()
             try {
                 const rendered = render(
                     <ErrorBoundary>
@@ -469,8 +465,7 @@ function runTestSuite(mode: "observer" | "useObserver") {
                 expect(errorsSeen).toEqual(["Error: The meaning of life!"])
                 expect(rendered.container.querySelector("span")!.innerHTML).toBe("Saw error!")
             } finally {
-                // tslint:disable-next-line
-                console.error = origErrorLogger
+                restoreConsole()
             }
         })
     })
