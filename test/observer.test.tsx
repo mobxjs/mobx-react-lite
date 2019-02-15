@@ -466,7 +466,7 @@ function runTestSuite(mode: "observer" | "useObserver") {
                 act(() => {
                     x.set(42)
                 })
-                expect(errorsSeen).toEqual(["The meaning of life!"])
+                expect(errorsSeen).toEqual(["Error: The meaning of life!"])
                 expect(rendered.container.querySelector("span")!.innerHTML).toBe("Saw error!")
             } finally {
                 // tslint:disable-next-line
