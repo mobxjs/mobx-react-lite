@@ -423,16 +423,16 @@ function runTestSuite(mode: "observer" | "useObserver") {
             const errorsSeen: any[] = []
 
             class ErrorBoundary extends React.Component {
+                public static getDerivedStateFromError() {
+                    return { hasError: true }
+                }
+
                 public state = {
                     hasError: false
                 }
 
                 public componentDidCatch(error: any, info: any) {
                     errorsSeen.push("" + error)
-                }
-
-                public static getDerivedStateFromError() {
-                    return { hasError: true }
                 }
 
                 public render() {
@@ -450,6 +450,7 @@ function runTestSuite(mode: "observer" | "useObserver") {
                 return <span>{x.get()}</span>
             })
 
+            // tslint:disable-next-line
             const origErrorLogger = console.error
             // tslint:disable-next-line
             console.error = function() {
