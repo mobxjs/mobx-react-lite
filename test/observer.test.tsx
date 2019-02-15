@@ -416,6 +416,54 @@ function runTestSuite(mode: "observer" | "useObserver") {
             expect(container.querySelector("span")!.innerHTML).toBe("1")
         })
     })
+
+    describe("error handling", () => {
+        test("errors should propagate", () => {
+            const x = mobx.observable.box(1)
+            let errorsSeen: any[] = []
+
+            class ErrorBoundary extends React.Component {
+                state = {
+                    hasError: false
+                }
+
+                componentDidCatch(error: any, info: any) {
+                    errorsSeen.push(error)
+                }
+
+                static getDerivedStateFromError() {
+                    return { hasError: true }
+                }
+
+                render() {
+                    if (this.state.hasError) return null
+                    return this.props.children
+                }
+            }
+
+            const C = obsComponent(() => {
+                if (x.get() === 42) throw "The meaning of life!"
+                return <span>{x.get()}</span>
+            })
+
+            const origErrorLogger = console.error
+            console.error = function() {} // supress printing warnings that React always prints in DEV, even with error boundaries...
+            try {
+                const rendered = render(
+                    <ErrorBoundary>
+                        <C />
+                    </ErrorBoundary>
+                )
+                expect(rendered.container.querySelector("span")!.innerHTML).toBe("1")
+                act(() => {
+                    x.set(42)
+                })
+                expect(errorsSeen).toEqual(["The meaning of life!"])
+            } finally {
+                console.error = origErrorLogger
+            }
+        })
+    })
 }
 
 runTestSuite("observer")
