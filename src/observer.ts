@@ -6,16 +6,21 @@ export interface IObserverOptions {
     readonly forwardRef?: boolean
 }
 
+export interface IMobXReactObserver {
+    isMobXReactObserver: true
+}
+
 export function observer<P extends object, TRef = {}>(
     baseComponent: React.RefForwardingComponent<TRef, P>,
     options: IObserverOptions & { forwardRef: true }
 ): React.MemoExoticComponent<
     React.ForwardRefExoticComponent<React.PropsWithoutRef<P> & React.RefAttributes<TRef>>
->
+> &
+    IMobXReactObserver
 export function observer<P extends object>(
     baseComponent: React.FunctionComponent<P>,
     options?: IObserverOptions
-): React.NamedExoticComponent<P>
+): React.NamedExoticComponent<P> & IMobXReactObserver
 
 // n.b. base case is not used for actual typings or exported in the typing files
 export function observer<P extends object, TRef = {}>(
@@ -53,5 +58,21 @@ export function observer<P extends object, TRef = {}>(
     }
 
     memoComponent.displayName = baseComponentName
+    copyStaticProperties(baseComponent as any, memoComponent as any)
+
     return memoComponent
+}
+
+export function copyStaticProperties(
+    base: React.FunctionComponent,
+    target: React.FunctionComponent
+) {
+    hoistStatics(base, target)
+    if (base.propTypes) {
+        target.propTypes = base.propTypes
+    }
+    if (base.defaultProps) {
+        target.defaultProps = base.defaultProps
+    }
+    ;(target as any).isMobXReactObserver = true
 }
