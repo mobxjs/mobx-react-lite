@@ -35,6 +35,7 @@ export function useObserver<T>(fn: () => T, baseComponentName = "observed"): T {
         }
     })
     if (exception) {
+        reaction.current.dispose()
         throw exception // re-throw any exceptions catched during rendering
     }
     return rendering
