@@ -564,6 +564,20 @@ it("should only called new Reaction once", () => {
     spy.mockRestore()
 })
 
+it("should support hoisting", () => {
+    function MyHipsterComponent() {
+        return null
+    }
+    MyHipsterComponent.defaultProps = { x: 3 }
+    MyHipsterComponent.randomStaticThing = 3
+
+    const wrapped = observer(MyHipsterComponent)
+    expect(wrapped.isMobXReactObserver).toBe(true)
+    expect((wrapped as any).defaultProps).toEqual({ x: 3 })
+    expect(wrapped.displayName).toBe("observer(MyHipsterComponent)")
+    expect((wrapped as any).randomStaticThing).toEqual(undefined) // Lost!
+})
+
 // test("parent / childs render in the right order", done => {
 //     // See: https://jsfiddle.net/gkaemmer/q1kv7hbL/13/
 //     let events = []

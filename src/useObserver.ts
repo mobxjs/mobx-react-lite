@@ -1,5 +1,5 @@
-import { Reaction, getDependencyTree, IDependencyTree } from "mobx"
-import { useRef, useDebugValue } from "react"
+import { getDependencyTree, Reaction } from "mobx"
+import { useDebugValue, useRef } from "react"
 import { isUsingStaticRendering } from "./staticRendering"
 import { useForceUpdate, useUnmount } from "./utils"
 

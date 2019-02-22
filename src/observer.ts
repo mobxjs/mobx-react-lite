@@ -57,17 +57,17 @@ export function observer<P extends object, TRef = {}>(
         memoComponent = memo(wrappedComponent)
     }
 
-    memoComponent.displayName = baseComponentName
+    memoComponent.displayName = `observer(${baseComponentName})`
     copyStaticProperties(baseComponent as any, memoComponent as any)
 
     return memoComponent
 }
 
-export function copyStaticProperties(
-    base: React.FunctionComponent,
-    target: React.FunctionComponent
-) {
-    hoistStatics(base, target)
+function copyStaticProperties(base: React.FunctionComponent, target: React.FunctionComponent) {
+    // From all the potential static properties in React, propTypes and defaultProps are the only ones that work
+    // (modern) for function components
+    // One could wonder whether custom defined static fields should be copied over.
+    // However, at this moment it doesn't seem common to establish custom fields on function components.
     if (base.propTypes) {
         target.propTypes = base.propTypes
     }
