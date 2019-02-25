@@ -1,5 +1,6 @@
-import { getDependencyTree, Reaction } from "mobx"
+import { Reaction } from "mobx"
 import { useDebugValue, useRef } from "react"
+import { printDebugValue } from "./printDebugValue"
 import { isUsingStaticRendering } from "./staticRendering"
 import { useForceUpdate, useUnmount } from "./utils"
 
@@ -39,11 +40,4 @@ export function useObserver<T>(fn: () => T, baseComponentName = "observed"): T {
         throw exception // re-throw any exceptions catched during rendering
     }
     return rendering
-}
-
-function printDebugValue(v: React.MutableRefObject<Reaction | null>) {
-    if (!v.current) {
-        return "<unknown>"
-    }
-    return getDependencyTree(v.current)
 }
