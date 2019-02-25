@@ -1,5 +1,6 @@
 import { Reaction } from "mobx"
-import { useRef } from "react"
+import { useDebugValue, useRef } from "react"
+import { printDebugValue } from "./printDebugValue"
 import { isUsingStaticRendering } from "./staticRendering"
 import { useForceUpdate, useUnmount } from "./utils"
 
@@ -7,7 +8,6 @@ export function useObserver<T>(fn: () => T, baseComponentName = "observed"): T {
     if (isUsingStaticRendering()) {
         return fn()
     }
-
     const forceUpdate = useForceUpdate()
 
     const reaction = useRef<Reaction | null>(null)
@@ -16,6 +16,8 @@ export function useObserver<T>(fn: () => T, baseComponentName = "observed"): T {
             forceUpdate()
         })
     }
+
+    useDebugValue(reaction, printDebugValue)
 
     useUnmount(() => {
         reaction.current!.dispose()
@@ -34,6 +36,7 @@ export function useObserver<T>(fn: () => T, baseComponentName = "observed"): T {
         }
     })
     if (exception) {
+        reaction.current.dispose()
         throw exception // re-throw any exceptions catched during rendering
     }
     return rendering

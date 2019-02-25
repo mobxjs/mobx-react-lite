@@ -16,7 +16,6 @@ export function observer<P extends object>(
     baseComponent: React.FunctionComponent<P>,
     options?: IObserverOptions
 ): React.NamedExoticComponent<P>
-
 // n.b. base case is not used for actual typings or exported in the typing files
 export function observer<P extends object, TRef = {}>(
     baseComponent: React.RefForwardingComponent<TRef, P>,
@@ -52,6 +51,24 @@ export function observer<P extends object, TRef = {}>(
         memoComponent = memo(wrappedComponent)
     }
 
+    copyStaticProperties(baseComponent, memoComponent)
     memoComponent.displayName = baseComponentName
+
     return memoComponent
+}
+
+// based on https://github.com/mridgway/hoist-non-react-statics/blob/master/src/index.js
+const hoistBlackList: any = {
+    $$typeof: true,
+    render: true,
+    compare: true,
+    type: true
+}
+
+function copyStaticProperties(base: any, target: any) {
+    Object.keys(base).forEach(key => {
+        if (base.hasOwnProperty(key) && !hoistBlackList[key]) {
+            Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(base, key)!)
+        }
+    })
 }
