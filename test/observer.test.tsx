@@ -564,7 +564,7 @@ it("should only called new Reaction once", () => {
     spy.mockRestore()
 })
 
-it("should support hoisting", () => {
+it("should hoist known statics only", () => {
     function isNumber() {
         return null
     }
