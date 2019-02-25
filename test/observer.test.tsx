@@ -565,17 +565,22 @@ it("should only called new Reaction once", () => {
 })
 
 it("should support hoisting", () => {
+    function isNumber() {
+        return null
+    }
+
     function MyHipsterComponent() {
         return null
     }
     MyHipsterComponent.defaultProps = { x: 3 }
+    MyHipsterComponent.propTypes = { x: isNumber }
     MyHipsterComponent.randomStaticThing = 3
 
     const wrapped = observer(MyHipsterComponent)
-    expect(wrapped.isMobXReactObserver).toBe(true)
+    expect(wrapped.displayName).toBe("MyHipsterComponent")
+    expect((wrapped as any).randomStaticThing).toEqual(3)
     expect((wrapped as any).defaultProps).toEqual({ x: 3 })
-    expect(wrapped.displayName).toBe("observer(MyHipsterComponent)")
-    expect((wrapped as any).randomStaticThing).toEqual(undefined) // Lost!
+    expect((wrapped as any).propTypes).toEqual({ x: isNumber })
 })
 
 // test("parent / childs render in the right order", done => {

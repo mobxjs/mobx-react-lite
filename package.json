@@ -33,6 +33,7 @@
     "react": "^16.8.0"
   },
   "devDependencies": {
+    "@types/hoist-non-react-statics": "^3.0.1",
     "@types/jest": "23.3.12",
     "@types/node": "^10.12.21",
     "@types/react": "^16.8.2",
@@ -86,5 +87,8 @@
     "hooks": {
       "pre-commit": "lint-staged"
     }
+  },
+  "dependencies": {
+    "hoist-non-react-statics": "^3.3.0"
   }
 }

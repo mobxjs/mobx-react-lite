@@ -1,13 +1,10 @@
 import { forwardRef, memo } from "react"
 import { isUsingStaticRendering } from "./staticRendering"
 import { useObserver } from "./useObserver"
+import hoistStatics from "hoist-non-react-statics"
 
 export interface IObserverOptions {
     readonly forwardRef?: boolean
-}
-
-export interface IMobXReactObserver {
-    isMobXReactObserver: true
 }
 
 export function observer<P extends object, TRef = {}>(
@@ -15,13 +12,11 @@ export function observer<P extends object, TRef = {}>(
     options: IObserverOptions & { forwardRef: true }
 ): React.MemoExoticComponent<
     React.ForwardRefExoticComponent<React.PropsWithoutRef<P> & React.RefAttributes<TRef>>
-> &
-    IMobXReactObserver
+>
 export function observer<P extends object>(
     baseComponent: React.FunctionComponent<P>,
     options?: IObserverOptions
-): React.NamedExoticComponent<P> & IMobXReactObserver
-
+): React.NamedExoticComponent<P>
 // n.b. base case is not used for actual typings or exported in the typing files
 export function observer<P extends object, TRef = {}>(
     baseComponent: React.RefForwardingComponent<TRef, P>,
@@ -57,22 +52,19 @@ export function observer<P extends object, TRef = {}>(
         memoComponent = memo(wrappedComponent)
     }
 
-    memoComponent.displayName = `observer(${baseComponentName})`
     copyStaticProperties(baseComponent as any, memoComponent as any)
+    memoComponent.displayName = baseComponentName
 
     return memoComponent
 }
 
 function copyStaticProperties(base: React.FunctionComponent, target: React.FunctionComponent) {
-    // From all the potential static properties in React, propTypes and defaultProps are the only ones that work
-    // (modern) for function components
-    // One could wonder whether custom defined static fields should be copied over.
-    // However, at this moment it doesn't seem common to establish custom fields on function components.
+    hoistStatics(target, base) // See #32
+    // propTypes and defaultProps need to be hoisted as well since we wrap and invoke the component as function, not as type
     if (base.propTypes) {
         target.propTypes = base.propTypes
     }
     if (base.defaultProps) {
         target.defaultProps = base.defaultProps
     }
-    ;(target as any).isMobXReactObserver = true
 }
