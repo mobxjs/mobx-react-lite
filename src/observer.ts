@@ -1,4 +1,3 @@
-import hoistStatics from "hoist-non-react-statics"
 import { forwardRef, memo } from "react"
 import { isUsingStaticRendering } from "./staticRendering"
 import { useObserver } from "./useObserver"
@@ -52,19 +51,24 @@ export function observer<P extends object, TRef = {}>(
         memoComponent = memo(wrappedComponent)
     }
 
-    copyStaticProperties(baseComponent as any, memoComponent as any)
+    copyStaticProperties(baseComponent, memoComponent)
     memoComponent.displayName = baseComponentName
 
     return memoComponent
 }
 
-function copyStaticProperties(base: React.FunctionComponent, target: React.FunctionComponent) {
-    hoistStatics(target, base) // See #32
-    // propTypes and defaultProps need to be hoisted as well since we wrap and invoke the component as function, not as type
-    if (base.propTypes) {
-        target.propTypes = base.propTypes
-    }
-    if (base.defaultProps) {
-        target.defaultProps = base.defaultProps
-    }
+// based on https://github.com/mridgway/hoist-non-react-statics/blob/master/src/index.js
+const hoistBlackList: any = {
+    $$typeof: true,
+    render: true,
+    compare: true,
+    type: true
+}
+
+function copyStaticProperties(base: any, target: any) {
+    Object.keys(base).forEach(key => {
+        if (base.hasOwnProperty(key) && !hoistBlackList[key]) {
+            Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(base, key)!)
+        }
+    })
 }

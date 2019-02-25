@@ -575,12 +575,18 @@ it("should hoist known statics only", () => {
     MyHipsterComponent.defaultProps = { x: 3 }
     MyHipsterComponent.propTypes = { x: isNumber }
     MyHipsterComponent.randomStaticThing = 3
+    MyHipsterComponent.type = "Nope!"
+    MyHipsterComponent.compare = "Nope!"
+    MyHipsterComponent.render = "Nope!"
 
     const wrapped = observer(MyHipsterComponent)
     expect(wrapped.displayName).toBe("MyHipsterComponent")
     expect((wrapped as any).randomStaticThing).toEqual(3)
     expect((wrapped as any).defaultProps).toEqual({ x: 3 })
     expect((wrapped as any).propTypes).toEqual({ x: isNumber })
+    expect((wrapped as any).type).toBeInstanceOf(Function) // And not "Nope!"; this is the wrapped component, the property is introduced by memo
+    expect((wrapped as any).compare).toBe(null) // another memo field
+    expect((wrapped as any).render).toBe(undefined)
 })
 
 // test("parent / childs render in the right order", done => {
