@@ -1,7 +1,7 @@
+import hoistStatics from "hoist-non-react-statics"
 import { forwardRef, memo } from "react"
 import { isUsingStaticRendering } from "./staticRendering"
 import { useObserver } from "./useObserver"
-import hoistStatics from "hoist-non-react-statics"
 
 export interface IObserverOptions {
     readonly forwardRef?: boolean
