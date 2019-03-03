@@ -120,4 +120,25 @@ describe("is used to keep observable within component body", () => {
         fireEvent.click(div)
         expect(div.textContent).toBe("initial - 10later - 20")
     })
+
+    it("should work with lazy initialization", () => {
+        const TestComponent = () => {
+            const obs = useObservable(() => ({
+                x: 1,
+                y: 2
+            }))
+            return (
+                <div onClick={() => (obs.x += 1)}>
+                    {obs.x}-{obs.y}
+                </div>
+            )
+        }
+        const { container, rerender } = render(<TestComponent />)
+        const div = container.querySelector("div")!
+        expect(div.textContent).toBe("1-2")
+        fireEvent.click(div)
+        // observer not used, need to render from outside
+        rerender(<TestComponent />)
+        expect(div.textContent).toBe("2-2")
+    })
 })
