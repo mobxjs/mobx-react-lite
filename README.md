@@ -171,15 +171,13 @@ const TodoList = () => {
 
 #### Lazy initialization
 
-Lazy initialization (similar to `React.useState`) is not available. In most cases your observable state should be a plain object which is cheap to create. With `useObserver` the component won't even rerender and state won't be recreated. In case you really want a more complex state or you need to use `observer`, it's very simple to use MobX directly.
+Lazy initialization (similar to `React.useState`) is available. If your observable state is complex and expensive to create, just provide a function which return it.
 
 ```tsx
-import { observer } from "mobx-react-lite"
-import { observable } from "mobx"
-import { useState } from "react"
+import { observer, useObservable } from "mobx-react-lite"
 
 const WithComplexState = observer(() => {
-    const [complexState] = useState(() => observable(new HeavyState()))
+    const complexState = useObservable(() => new HeavyState())
     if (complexState.loading) {
         return <Loading />
     }
