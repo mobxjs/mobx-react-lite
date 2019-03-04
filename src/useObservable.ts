@@ -6,7 +6,7 @@ type SupportedValues = object | Map<any, any> | any[]
 // The two overloads below seems strange. But if I combine them to `initialValue: (() => T) | T)`,
 // typescript would infer a wrong return type. tslint tells me to combine them, so just ignore tslint.
 export function useObservable<T extends SupportedValues>(initialValue: () => T): T
-// tslint:disable-next-line
+// tslint:disable-next-line unified-signatures
 export function useObservable<T extends SupportedValues>(initialValue: T): T
 export function useObservable<T extends SupportedValues>(initialValue: (() => T) | T): T {
     const observableRef = useRef<T | null>(null)

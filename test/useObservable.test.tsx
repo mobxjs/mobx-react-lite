@@ -125,7 +125,13 @@ describe("is used to keep observable within component body", () => {
         const TestComponent = () => {
             const obs = useObservable(() => ({
                 x: 1,
-                y: 2
+                y: 2,
+                get z() {
+                    return obs.x + obs.y
+                },
+                inc() {
+                    obs.x += 1
+                }
             }))
             return (
                 <div onClick={() => (obs.x += 1)}>
