@@ -544,7 +544,7 @@ test("useImperativeHandle and forwardRef should work with useObserver", () => {
 it("should only called new Reaction once", () => {
     let renderCount = 0
     // mock the Reaction class
-    const spy = jest.spyOn(mobx, "Reaction").mockImplementation(() => ({
+    const spy = jest.spyOn(mobx, "Reaction" as any).mockImplementation(() => ({
         track: (fn: any) => {
             fn()
         },
