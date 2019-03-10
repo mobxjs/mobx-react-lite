@@ -36,6 +36,7 @@ export function observer<P extends object, TRef = {}>(
     const wrappedComponent = (props: P, ref: React.Ref<TRef>) => {
         return useObserver(() => baseComponent(props, ref), baseComponentName)
     }
+    wrappedComponent.displayName = baseComponentName
 
     // memo; we are not intested in deep updates
     // in props; we assume that if deep objects are changed,

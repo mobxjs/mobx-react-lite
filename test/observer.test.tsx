@@ -589,6 +589,14 @@ it("should hoist known statics only", () => {
     expect((wrapped as any).render).toBe(undefined)
 })
 
+it("should have the correct displayName", () => {
+    const TestComponent = observer(function MyComponent() {
+        return null
+    })
+
+    expect((TestComponent as any).type.displayName).toBe("MyComponent")
+})
+
 // test("parent / childs render in the right order", done => {
 //     // See: https://jsfiddle.net/gkaemmer/q1kv7hbL/13/
 //     let events = []
