@@ -49,7 +49,7 @@
     "prettier": "1.16.4",
     "react": "16.8.4",
     "react-dom": "16.8.4",
-    "react-testing-library": "6.0.0",
+    "react-testing-library": "6.0.1",
     "rimraf": "2.6.3",
     "rollup": "1.6.0",
     "rollup-plugin-alias": "1.5.1",
