@@ -2,12 +2,27 @@ import { observable, runInAction } from "mobx"
 import * as React from "react"
 import { useState } from "react"
 import { cleanup, render } from "react-testing-library"
-import { useObserver, useSkipForceUpdate } from "../src"
+import { useObserver } from "../src"
 
 afterEach(cleanup)
 
 describe("is used to make calls to force update skip re-renderings on demand", () => {
-    it("does not over-rerender when an observable changes inside the component", () => {
+    it("can be used to skip updates", () => {
+        let skippingForceUpdate = 0
+
+        function useSkipForceUpdate<T>(fn: () => T): T {
+            skippingForceUpdate++
+            try {
+                return fn()
+            } finally {
+                skippingForceUpdate--
+            }
+        }
+
+        function shouldForceUpdate() {
+            return skippingForceUpdate === 0
+        }
+
         let renderCount = 0
 
         function useObservableProps(props: { x: number }) {
@@ -31,7 +46,7 @@ describe("is used to make calls to force update skip re-renderings on demand", (
 
             renderCount++
 
-            return useObserver(() => <div>{obs.x}</div>)
+            return useObserver(() => <div>{obs.x}</div>, undefined, shouldForceUpdate)
         }
 
         const { container, rerender } = render(<TestComponent x={1} />)
@@ -46,7 +61,7 @@ describe("is used to make calls to force update skip re-renderings on demand", (
         expect(renderCount).toBe(2)
     })
 
-    it("does over-rerender when an observable changes inside the component and it is not used", () => {
+    it("does over-rerender when an observable changes inside the component when it is not used", () => {
         let renderCount = 0
 
         function useObservableProps(props: { x: number }) {

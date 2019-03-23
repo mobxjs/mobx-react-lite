@@ -1,10 +1,9 @@
 import "./assertEnvironment"
 
-export { useSkipForceUpdate } from "./utils"
 export { useObservable } from "./useObservable"
 export { useComputed } from "./useComputed"
 export { useDisposable } from "./useDisposable"
 export { isUsingStaticRendering, useStaticRendering } from "./staticRendering"
 export { observer, IObserverOptions } from "./observer"
-export { useObserver } from "./useObserver"
+export { useObserver, ShouldForceUpdate } from "./useObserver"
 export { Observer } from "./ObserverComponent"
