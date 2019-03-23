@@ -12,9 +12,7 @@ export function useObserver<T>(fn: () => T, baseComponentName = "observed"): T {
 
     const reaction = useRef<Reaction | null>(null)
     if (!reaction.current) {
-        reaction.current = new Reaction(`observer(${baseComponentName})`, () => {
-            forceUpdate()
-        })
+        reaction.current = new Reaction(`observer(${baseComponentName})`, forceUpdate)
     }
 
     useDebugValue(reaction, printDebugValue)
