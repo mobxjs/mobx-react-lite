@@ -1,6 +1,6 @@
 # mobx-react-lite <!-- omit in toc -->
 
-[![Build Status](https://travis-ci.org/mobxjs/mobx-react-lite.svg?branch=master)](https://travis-ci.org/mobxjs/mobx-react)[![Coverage Status](https://coveralls.io/repos/github/mobxjs/mobx-react-lite/badge.svg)](https://coveralls.io/github/mobxjs/mobx-react-lite)
+[![Build Status](https://travis-ci.org/mobxjs/mobx-react-lite.svg?branch=master)](https://travis-ci.org/mobxjs/mobx-react-lite)[![Coverage Status](https://coveralls.io/repos/github/mobxjs/mobx-react-lite/badge.svg)](https://coveralls.io/github/mobxjs/mobx-react-lite)
 
 [![Join the chat at https://gitter.im/mobxjs/mobx](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/mobxjs/mobx?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
@@ -14,16 +14,17 @@ Class based components **are not supported** except using `<Observer>` directly 
 
 Project is written in TypeScript and provides type safety out of the box. No Flow Type support is planned at this moment, but feel free to contribute.
 
--   [API documentation](#api-documentation)
-    -   [`<Observer/>`](#observer)
-    -   [`observer<P>(baseComponent: FunctionComponent<P>, options?: IObserverOptions): FunctionComponent<P>`](#observerpbasecomponent-functioncomponentp-options-iobserveroptions-functioncomponentp)
-    -   [`useObserver<T>(fn: () => T, baseComponentName = "observed"): T`](#useobservertfn---t-basecomponentname--observed-t)
-    -   [`useObservable<T>(initialValue: T): T`](#useobservabletinitialvalue-t-t)
-    -   [`useComputed(func: () => T, inputs: ReadonlyArray<any> = []): T`](#usecomputedfunc---t-inputs-readonlyarrayany---t)
-    -   [`useDisposable<D extends TDisposable>(disposerGenerator: () => D, inputs: ReadonlyArray<any> = []): D`](#usedisposabled-extends-tdisposabledisposergenerator---d-inputs-readonlyarrayany---d)
--   [Server Side Rendering with `useStaticRendering`](#server-side-rendering-with-usestaticrendering)
--   [Why no Provider/inject?](#why-no-providerinject)
--   [What about smart/dumb components?](#what-about-smartdumb-components)
+- [API documentation](#api-documentation)
+  - [`<Observer/>`](#observer)
+  - [`observer<P>(baseComponent: FunctionComponent<P>, options?: IObserverOptions): FunctionComponent<P>`](#observerpbasecomponent-functioncomponentp-options-iobserveroptions-functioncomponentp)
+  - [`useObserver<T>(fn: () => T, baseComponentName = "observed", shouldForceUpdate?: () => boolean): T`](#useobservertfn---t-basecomponentname--%22observed%22-shouldforceupdate---boolean-t)
+  - [`useObservable<T>(initialValue: T): T`](#useobservabletinitialvalue-t-t)
+    - [Lazy initialization](#lazy-initialization)
+  - [`useComputed(func: () => T, inputs: ReadonlyArray<any> = []): T`](#usecomputedfunc---t-inputs-readonlyarrayany---t)
+  - [`useDisposable<D extends TDisposable>(disposerGenerator: () => D, inputs: ReadonlyArray<any> = []): D`](#usedisposabled-extends-tdisposabledisposergenerator---d-inputs-readonlyarrayany---d)
+- [Server Side Rendering with `useStaticRendering`](#server-side-rendering-with-usestaticrendering)
+- [Why no Provider/inject?](#why-no-providerinject)
+- [What about smart/dumb components?](#what-about-smartdumb-components)
 
 ## API documentation
 
@@ -76,6 +77,7 @@ Function that converts a function component into a reactive component, which tra
 As for options, it is an optional object with the following optional properties:
 
 -   `forwardRef`: pass `true` to use [`forwardRef`](https://reactjs.org/docs/forwarding-refs.html) over the inner component, pass `false` (the default) otherwise.
+-   `shouldForceUpdate`: pass a function that returns a boolean to add some custom logic to decide if it should re-render or not the next time updates are detected.
 
 ```tsx
 import { observer, useObservable } from "mobx-react-lite"
@@ -114,10 +116,15 @@ const FriendlyComponent = observer(() => {
 
 [![Edit FriendlyComponent](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/jzj48v2xry?module=%2Fsrc%2FFriendlyComponent.tsx)
 
-### `useObserver<T>(fn: () => T, baseComponentName = "observed"): T`
+### `useObserver<T>(fn: () => T, baseComponentName = "observed", shouldForceUpdate?: () => boolean): T`
 
 Low level implementation used internally by `observer`.
 It allows you to use an `observer` like behaviour, but still allowing you to optimize the component in any way you want (e.g. using `memo` with a custom `areEqual`, using `forwardRef`, etc.) and to declare exactly the part that is observed (the render phase). One good thing about this is that if any hook changes an observable for some reason then the component won't rerender twice unnecessarily.
+
+The following optional parameters are available:
+
+-   `baseComponentName`: a string that will be used as part of the reaction name.
+-   `shouldForceUpdate`: pass a function that returns a boolean to add some custom logic to decide if it should re-render or not the next time updates are detected.
 
 ```tsx
 import { memo } from "react"
