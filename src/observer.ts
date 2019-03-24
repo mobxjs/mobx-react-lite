@@ -1,10 +1,10 @@
 import { forwardRef, memo } from "react"
 import { isUsingStaticRendering } from "./staticRendering"
-import { ShouldForceUpdate, useObserver } from "./useObserver"
+import { ForceUpdateHook, useObserver } from "./useObserver"
 
 export interface IObserverOptions {
     readonly forwardRef?: boolean
-    readonly shouldForceUpdate?: ShouldForceUpdate
+    readonly customForceUpdateHook?: ForceUpdateHook
 }
 
 export function observer<P extends object, TRef = {}>(
@@ -33,10 +33,14 @@ export function observer<P extends object, TRef = {}>(
     }
 
     const baseComponentName = baseComponent.displayName || baseComponent.name
-    const shouldForceUpdate = options ? options.shouldForceUpdate : undefined
+    const customForceUpdateHook = options ? options.customForceUpdateHook : undefined
 
     const wrappedComponent = (props: P, ref: React.Ref<TRef>) => {
-        return useObserver(() => baseComponent(props, ref), baseComponentName, shouldForceUpdate)
+        return useObserver(
+            () => baseComponent(props, ref),
+            baseComponentName,
+            customForceUpdateHook
+        )
     }
     wrappedComponent.displayName = baseComponentName
 

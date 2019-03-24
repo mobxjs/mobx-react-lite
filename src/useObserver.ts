@@ -4,29 +4,23 @@ import { printDebugValue } from "./printDebugValue"
 import { isUsingStaticRendering } from "./staticRendering"
 import { useForceUpdate, useUnmount } from "./utils"
 
-export type ShouldForceUpdate = () => boolean
+export type ForceUpdateHook = () => () => void
 
 export function useObserver<T>(
     fn: () => T,
     baseComponentName?: string,
-    shouldForceUpdate?: ShouldForceUpdate
+    customForceUpdateHook?: ForceUpdateHook
 ): T {
     if (isUsingStaticRendering()) {
         return fn()
     }
 
-    const forceUpdate = useForceUpdate()
-
-    const shouldForceUpdateRef = useRef<ShouldForceUpdate | undefined>()
-    shouldForceUpdateRef.current = shouldForceUpdate
+    const forceUpdate = customForceUpdateHook ? customForceUpdateHook() : useForceUpdate()
 
     const reaction = useRef<Reaction | null>(null)
     if (!reaction.current) {
         reaction.current = new Reaction(`observer(${baseComponentName || "observed"})`, () => {
-            const shouldForceUpdateFn = shouldForceUpdateRef.current
-            if (!shouldForceUpdateFn || shouldForceUpdateFn()) {
-                forceUpdate()
-            }
+            forceUpdate()
         })
     }
 

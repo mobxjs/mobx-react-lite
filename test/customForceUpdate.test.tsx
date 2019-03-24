@@ -1,6 +1,6 @@
 import { observable, runInAction } from "mobx"
 import * as React from "react"
-import { useState } from "react"
+import { useCallback, useState } from "react"
 import { cleanup, render } from "react-testing-library"
 import { useObserver } from "../src"
 
@@ -19,8 +19,16 @@ describe("is used to make calls to force update skip re-renderings on demand", (
             }
         }
 
-        function shouldForceUpdate() {
-            return skippingForceUpdate === 0
+        function useCustomForceUpdate() {
+            const [, setTick] = useState(0)
+
+            const update = useCallback(() => {
+                if (skippingForceUpdate === 0) {
+                    setTick(tick => tick + 1)
+                }
+            }, [])
+
+            return update
         }
 
         let renderCount = 0
@@ -46,7 +54,7 @@ describe("is used to make calls to force update skip re-renderings on demand", (
 
             renderCount++
 
-            return useObserver(() => <div>{obs.x}</div>, undefined, shouldForceUpdate)
+            return useObserver(() => <div>{obs.x}</div>, undefined, useCustomForceUpdate)
         }
 
         const { container, rerender } = render(<TestComponent x={1} />)
