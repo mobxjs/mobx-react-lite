@@ -15,7 +15,16 @@ export function useObserver<T>(
         return fn()
     }
 
-    const forceUpdate = customForceUpdateHook ? customForceUpdateHook() : useForceUpdate()
+    const wantedForceUpdateHook = customForceUpdateHook || useForceUpdate
+    if (process.env.NODE_ENV !== "production") {
+        const forceUpdateRef = useRef<ForceUpdateHook>(wantedForceUpdateHook)
+        if (forceUpdateRef.current !== wantedForceUpdateHook) {
+            throw new Error(
+                "a custom force update hook cannot be switched to another one once used"
+            )
+        }
+    }
+    const forceUpdate = wantedForceUpdateHook()
 
     const reaction = useRef<Reaction | null>(null)
     if (!reaction.current) {

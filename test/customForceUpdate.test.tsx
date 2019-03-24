@@ -1,8 +1,9 @@
+import mockConsole from "jest-mock-console"
 import { observable, runInAction } from "mobx"
 import * as React from "react"
 import { useCallback, useState } from "react"
 import { cleanup, render } from "react-testing-library"
-import { useObserver } from "../src"
+import { useForceUpdate, useObserver } from "../src"
 
 afterEach(cleanup)
 
@@ -20,15 +21,13 @@ describe("is used to make calls to force update skip re-renderings on demand", (
         }
 
         function useCustomForceUpdate() {
-            const [, setTick] = useState(0)
+            const update = useForceUpdate()
 
-            const update = useCallback(() => {
+            return useCallback(() => {
                 if (skippingForceUpdate === 0) {
-                    setTick(tick => tick + 1)
+                    update()
                 }
             }, [])
-
-            return update
         }
 
         let renderCount = 0
@@ -104,5 +103,29 @@ describe("is used to make calls to force update skip re-renderings on demand", (
         // now that the reaction is set it will re-render until it stabilizes
         expect(div.textContent).toBe("2")
         expect(renderCount).toBe(3)
+    })
+
+    it("should not be possible to switch custom force update hooks on the fly", () => {
+        function useCustomForceUpdate() {
+            return useForceUpdate()
+        }
+
+        const TestComponent = (props: { custom: boolean }) => {
+            return useObserver(
+                () => <div />,
+                undefined,
+                props.custom ? useCustomForceUpdate : useForceUpdate
+            )
+        }
+
+        const { rerender } = render(<TestComponent custom={false} />)
+        const restoreConsole = mockConsole()
+        try {
+            expect(() => {
+                rerender(<TestComponent custom={true} />)
+            }).toThrow("a custom force update hook cannot be switched to another one once used")
+        } finally {
+            restoreConsole()
+        }
     })
 })
