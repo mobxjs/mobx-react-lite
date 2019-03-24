@@ -1,7 +1,7 @@
 import { observable } from "mobx"
 import * as React from "react"
 import { act, cleanup, render } from "react-testing-library"
-import { useForceUpdate, useObserver } from "../src"
+import { IUseObserverOptions, useForceUpdate, useObserver } from "../src"
 
 afterEach(cleanup)
 
@@ -15,8 +15,8 @@ it("a custom force update method can be used", () => {
             update()
         }
     }
-    const opts = {
-        customForceUpdateHook: useCustomForceUpdate
+    const opts: IUseObserverOptions = {
+        useForceUpdate: useCustomForceUpdate
     }
 
     const obs = observable.box(0)

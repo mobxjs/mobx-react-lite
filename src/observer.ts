@@ -4,7 +4,7 @@ import { ForceUpdateHook, useObserver } from "./useObserver"
 
 export interface IObserverOptions {
     readonly forwardRef?: boolean
-    readonly customForceUpdateHook?: ForceUpdateHook
+    readonly useForceUpdate?: ForceUpdateHook
 }
 
 export function observer<P extends object, TRef = {}>(
@@ -33,9 +33,9 @@ export function observer<P extends object, TRef = {}>(
     }
 
     const baseComponentName = baseComponent.displayName || baseComponent.name
-    const customForceUpdateHook = options ? options.customForceUpdateHook : undefined
+    const customForceUpdateHook = options ? options.useForceUpdate : undefined
     const useObserverOptions = {
-        customForceUpdateHook
+        useForceUpdate: customForceUpdateHook
     }
 
     const wrappedComponent = (props: P, ref: React.Ref<TRef>) => {

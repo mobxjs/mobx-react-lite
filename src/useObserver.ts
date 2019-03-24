@@ -7,24 +7,24 @@ import { useForceUpdate, useUnmount } from "./utils"
 export type ForceUpdateHook = () => () => void
 
 export interface IUseObserverOptions {
-    customForceUpdateHook?: ForceUpdateHook
+    useForceUpdate?: ForceUpdateHook
 }
 
 export function useObserver<T>(
     fn: () => T,
-    baseComponentName?: string,
+    baseComponentName: string = "observed",
     options?: IUseObserverOptions
 ): T {
     if (isUsingStaticRendering()) {
         return fn()
     }
 
-    const wantedForceUpdateHook = (options && options.customForceUpdateHook) || useForceUpdate
+    const wantedForceUpdateHook = (options && options.useForceUpdate) || useForceUpdate
     const forceUpdate = wantedForceUpdateHook()
 
     const reaction = useRef<Reaction | null>(null)
     if (!reaction.current) {
-        reaction.current = new Reaction(`observer(${baseComponentName || "observed"})`, () => {
+        reaction.current = new Reaction(`observer(${baseComponentName})`, () => {
             forceUpdate()
         })
     }
