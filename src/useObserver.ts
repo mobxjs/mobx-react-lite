@@ -6,24 +6,20 @@ import { useForceUpdate, useUnmount } from "./utils"
 
 export type ForceUpdateHook = () => () => void
 
+export interface IUseObserverOptions {
+    customForceUpdateHook?: ForceUpdateHook
+}
+
 export function useObserver<T>(
     fn: () => T,
     baseComponentName?: string,
-    customForceUpdateHook?: ForceUpdateHook
+    options?: IUseObserverOptions
 ): T {
     if (isUsingStaticRendering()) {
         return fn()
     }
 
-    const wantedForceUpdateHook = customForceUpdateHook || useForceUpdate
-    if (process.env.NODE_ENV !== "production") {
-        const forceUpdateRef = useRef<ForceUpdateHook>(wantedForceUpdateHook)
-        if (forceUpdateRef.current !== wantedForceUpdateHook) {
-            throw new Error(
-                "a custom force update hook cannot be switched to another one once used"
-            )
-        }
-    }
+    const wantedForceUpdateHook = (options && options.customForceUpdateHook) || useForceUpdate
     const forceUpdate = wantedForceUpdateHook()
 
     const reaction = useRef<Reaction | null>(null)

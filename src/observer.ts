@@ -34,13 +34,12 @@ export function observer<P extends object, TRef = {}>(
 
     const baseComponentName = baseComponent.displayName || baseComponent.name
     const customForceUpdateHook = options ? options.customForceUpdateHook : undefined
+    const useObserverOptions = {
+        customForceUpdateHook
+    }
 
     const wrappedComponent = (props: P, ref: React.Ref<TRef>) => {
-        return useObserver(
-            () => baseComponent(props, ref),
-            baseComponentName,
-            customForceUpdateHook
-        )
+        return useObserver(() => baseComponent(props, ref), baseComponentName, useObserverOptions)
     }
     wrappedComponent.displayName = baseComponentName
 

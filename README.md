@@ -17,7 +17,7 @@ Project is written in TypeScript and provides type safety out of the box. No Flo
 - [API documentation](#api-documentation)
   - [`<Observer/>`](#observer)
   - [`observer<P>(baseComponent: FunctionComponent<P>, options?: IObserverOptions): FunctionComponent<P>`](#observerpbasecomponent-functioncomponentp-options-iobserveroptions-functioncomponentp)
-  - [`useObserver<T>(fn: () => T, baseComponentName = "observed", useCustomForceUpdate?: () => () => void): T`](#useobservertfn---t-basecomponentname--%22observed%22-usecustomforceupdate-----void-t)
+  - [`useObserver<T>(fn: () => T, baseComponentName = "observed", options?: IUseObserverOptions): T`](#useobservertfn---t-basecomponentname--%22observed%22-options-iuseobserveroptions-t)
   - [`useObservable<T>(initialValue: T): T`](#useobservabletinitialvalue-t-t)
     - [Lazy initialization](#lazy-initialization)
   - [`useComputed(func: () => T, inputs: ReadonlyArray<any> = []): T`](#usecomputedfunc---t-inputs-readonlyarrayany---t)
@@ -77,7 +77,7 @@ Function that converts a function component into a reactive component, which tra
 As for options, it is an optional object with the following optional properties:
 
 -   `forwardRef`: pass `true` to use [`forwardRef`](https://reactjs.org/docs/forwarding-refs.html) over the inner component, pass `false` (the default) otherwise.
--   `useCustomForceUpdate`: pass a custom hook that should make a component re-render (or not) when changes are detected.
+-   `customForceUpdateHook`: pass a custom hook that should make a component re-render (or not) when changes are detected.
 
 ```tsx
 import { observer, useObservable } from "mobx-react-lite"
@@ -116,7 +116,7 @@ const FriendlyComponent = observer(() => {
 
 [![Edit FriendlyComponent](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/jzj48v2xry?module=%2Fsrc%2FFriendlyComponent.tsx)
 
-### `useObserver<T>(fn: () => T, baseComponentName = "observed", useCustomForceUpdate?: () => () => void): T`
+### `useObserver<T>(fn: () => T, baseComponentName = "observed", options?: IUseObserverOptions): T`
 
 Low level implementation used internally by `observer`.
 It allows you to use an `observer` like behaviour, but still allowing you to optimize the component in any way you want (e.g. using `memo` with a custom `areEqual`, using `forwardRef`, etc.) and to declare exactly the part that is observed (the render phase). One good thing about this is that if any hook changes an observable for some reason then the component won't rerender twice unnecessarily.
@@ -124,7 +124,10 @@ It allows you to use an `observer` like behaviour, but still allowing you to opt
 The following optional parameters are available:
 
 -   `baseComponentName`: a string that will be used as part of the reaction name.
--   `useCustomForceUpdate`: pass a custom hook that should make a component re-render (or not) when changes are detected.
+
+As for the options, the following are available:
+
+-   `customForceUpdateHook`: pass a custom hook that should make a component re-render (or not) when changes are detected.
 
 ```tsx
 import { memo } from "react"
