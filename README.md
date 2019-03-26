@@ -77,7 +77,6 @@ Function that converts a function component into a reactive component, which tra
 As for options, it is an optional object with the following optional properties:
 
 -   `forwardRef`: pass `true` to use [`forwardRef`](https://reactjs.org/docs/forwarding-refs.html) over the inner component, pass `false` (the default) otherwise.
--   `useForceUpdate`: pass a custom hook that should make a component re-render (or not) when changes are detected.
 
 ```tsx
 import { observer, useObservable } from "mobx-react-lite"
@@ -127,7 +126,7 @@ The following optional parameters are available:
 
 As for the options, the following are available:
 
--   `useForceUpdate`: pass a custom hook that should make a component re-render (or not) when changes are detected.
+-   `useForceUpdate`: optional custom hook that should make a component re-render (or not) when changes are detected.
 
 ```tsx
 import { memo } from "react"
