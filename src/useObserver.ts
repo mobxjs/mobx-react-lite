@@ -10,16 +10,18 @@ export interface IUseObserverOptions {
     useForceUpdate?: ForceUpdateHook
 }
 
+const EMPTY_OBJECT = {}
+
 export function useObserver<T>(
     fn: () => T,
     baseComponentName: string = "observed",
-    options?: IUseObserverOptions
+    options: IUseObserverOptions = EMPTY_OBJECT
 ): T {
     if (isUsingStaticRendering()) {
         return fn()
     }
 
-    const wantedForceUpdateHook = (options && options.useForceUpdate) || useForceUpdate
+    const wantedForceUpdateHook = options.useForceUpdate || useForceUpdate
     const forceUpdate = wantedForceUpdateHook()
 
     const reaction = useRef<Reaction | null>(null)
