@@ -134,6 +134,10 @@ const Person = memo(props => {
 })
 ```
 
+# Notice of deprecation
+
+We are considering deprecation and removal of following utilities from the package. Come join the discussion: https://github.com/mobxjs/mobx-react-lite/issues/94
+
 ### `useObservable<T>(initialValue: T): T`
 
 React hook that allows creating observable object within a component body and keeps track of it over renders. Gets all the benefits from [observable objects](https://mobx.js.org/refguide/object.html) including computed properties and methods. You can also use arrays, Map and Set.
