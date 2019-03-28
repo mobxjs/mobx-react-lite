@@ -1,6 +1,7 @@
 /node_modules/
 
 dist/
+/macro/
 coverage/
 
 .rpt2_cache

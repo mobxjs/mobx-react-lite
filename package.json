@@ -19,8 +19,8 @@
     "test": "jest --watch",
     "test:travis": "yarn validate && yarn lint && yarn coverage",
     "coverage": "jest --coverage",
-    "prebuild": "rimraf dist",
-    "build": "node build-rollup.js"
+    "prebuild": "rimraf dist macro",
+    "build": "node build-rollup.js && tsc -b tsconfig.build.macro.json"
   },
   "author": "Daniel K.",
   "license": "MIT",
@@ -37,6 +37,8 @@
     "@types/node": "11.13.2",
     "@types/react": "16.8.8",
     "@types/react-dom": "16.8.3",
+    "babel-plugin-macros": "^2.5.0",
+    "babel-plugin-tester": "^6.0.1",
     "coveralls": "3.0.3",
     "husky": "1.3.1",
     "jest": "24.7.1",

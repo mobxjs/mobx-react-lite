@@ -1,0 +1,58 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`macros 1. macros: 1. macros 1`] = `
+"
+import {useObserver} from './useCustomObserver.macro'
+
+export const MyComponent = (props) => {
+  const {useObservable, useComputed} = useObserver();
+  const foo = useObservable({foo: 1});
+  const bar = useComputed(() => foo.foo + 1);
+  return null;
+};
+
+export const MyComponent2 = (props) => {
+  // a comment
+  const {useObservable} = useObserver();
+  const foo = useObservable({foo: 1});
+  return null;
+};
+
+export const MyComponent3 = (props) => {
+  useObserver();
+  return null;
+};
+
+      ↓ ↓ ↓ ↓ ↓ ↓
+
+import { useCustomObserver } from \\"./useCustomObserver\\";
+export const MyComponent = props => {
+  return useCustomObserver(function useObserverRenderHook({
+    useObservable,
+    useComputed
+  }) {
+    const foo = useObservable({
+      foo: 1
+    });
+    const bar = useComputed(() => foo.foo + 1);
+    return null;
+  });
+};
+export const MyComponent2 = props => {
+  // a comment
+  return useCustomObserver(function useObserverRenderHook({
+    useObservable
+  }) {
+    const foo = useObservable({
+      foo: 1
+    });
+    return null;
+  });
+};
+export const MyComponent3 = props => {
+  return useCustomObserver(function useObserverRenderHook() {
+    return null;
+  });
+};
+"
+`;

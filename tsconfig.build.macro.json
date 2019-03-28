@@ -1,0 +1,13 @@
+{
+    "extends": "./tsconfig.json",
+    "compilerOptions": {
+        "module": "commonjs",
+        "stripInternal": true,
+        "declaration": true,
+        "declarationDir": "macro",
+        "sourceMap": true,
+        "outDir": "macro"
+    },
+    "include": ["src/macro/**/*"],
+    "exclude": ["node_modules"]
+}
