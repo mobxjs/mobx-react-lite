@@ -1,6 +1,6 @@
-const { createUseObserverMacro } = require("../src/macro/createUseObserverMacro")
+const { createUseObserver } = require("../src/macro/createUseObserver")
 const path = require("path")
-module.exports = createUseObserverMacro({
+module.exports = createUseObserver({
     importSource: path.resolve(__dirname, "./useCustomObserver"),
     importSpecifier: "useCustomObserver"
 })

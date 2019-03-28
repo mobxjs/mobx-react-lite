@@ -2,7 +2,7 @@
 import { createMacro } from "babel-plugin-macros"
 import path from "path"
 
-interface ICreateUseObserverMacroConfig {
+interface ICreateUseObserverConfig {
     /**
      * provide an absolute path if this file is in your application, OR
      * provide a library import name.
@@ -29,9 +29,9 @@ interface ICreateUseObserverMacroConfig {
  * ```javascript
  * // myapp/src/lib/customUseObserver.macro.js:
  *
- * const { createUseObserverMacro } = require("mobx-react-lite/macro/createUseObserverMacro")
+ * const { createUseObserver } = require("mobx-react-lite/macro/createUseObserver")
  * const path = require("path")
- * module.exports = createUseObserverMacro({
+ * module.exports = createUseObserver({
  *     importSource: path.resolve(__dirname, "./customUseObserver"),
  *     importSpecifier: "useCustomObserver"
  * })
@@ -92,7 +92,7 @@ interface ICreateUseObserverMacroConfig {
  * }
  * ```
  */
-export function createUseObserverMacro(config: ICreateUseObserverMacroConfig) {
+export function createUseObserver(config: ICreateUseObserverConfig) {
     return createMacro(function useObserverMacro({
         references,
         state: {
