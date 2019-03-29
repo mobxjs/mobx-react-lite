@@ -143,6 +143,26 @@ const Person = memo(props => {
 })
 ```
 
+### **(Macro Version)** `useObserver<T>(baseComponentName = "observed", options?: IUseObserverOptions): T`
+
+Think of the macro version of `useObserver` like you would think of `observer` from mobx-react, just with different syntax.
+
+```tsx
+import { useObserver } from "mobx-react-lite/macro"
+import { useObservable } from "mobx-react-lite"
+
+const Person = props => {
+    useObserver()
+    const person = useObservable({ name: "John" })
+    return (
+        <div>
+            {person.name}
+            <button onClick={() => (person.name = "Mike")}>No! I am Mike</button>
+        </div>
+    )
+}
+```
+
 # Notice of deprecation
 
 We are considering deprecation and removal of following utilities from the package. Come join the discussion: https://github.com/mobxjs/mobx-react-lite/issues/94

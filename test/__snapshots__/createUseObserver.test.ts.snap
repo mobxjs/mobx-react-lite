@@ -2,10 +2,11 @@
 
 exports[`macros 1. macros: 1. macros 1`] = `
 "
-import {useObserver} from './useCustomObserver.macro'
+import {useObserver} from '../src/macro'
+import {useObservable, useComputed} from '../src';
 
 export const MyComponent = (props) => {
-  const {useObservable, useComputed} = useObserver();
+  useObserver();
   const foo = useObservable({foo: 1});
   const bar = useComputed(() => foo.foo + 1);
   return null;
@@ -13,7 +14,7 @@ export const MyComponent = (props) => {
 
 export const MyComponent2 = (props) => {
   // a comment
-  const {useObservable} = useObserver();
+  useObserver();
   const foo = useObservable({foo: 1});
   return null;
 };
@@ -23,14 +24,22 @@ export const MyComponent3 = (props) => {
   return null;
 };
 
+export const MyComponent4 = (props) => {
+  useObserver('baseComponentName');
+  return null;
+};
+
+export const MyComponent5 = (props) => {
+  useObserver('baseComponentName', { useForceUpdate: true });
+  return null;
+};
+
       ↓ ↓ ↓ ↓ ↓ ↓
 
-import { useCustomObserver } from \\"./useCustomObserver\\";
+import { useObserver } from \\"mobx-react-lite\\";
+import { useObservable, useComputed } from '../src';
 export const MyComponent = props => {
-  return useCustomObserver(function useObserverRenderHook({
-    useObservable,
-    useComputed
-  }) {
+  return useObserver(function useObserverRenderHook() {
     const foo = useObservable({
       foo: 1
     });
@@ -40,9 +49,7 @@ export const MyComponent = props => {
 };
 export const MyComponent2 = props => {
   // a comment
-  return useCustomObserver(function useObserverRenderHook({
-    useObservable
-  }) {
+  return useObserver(function useObserverRenderHook() {
     const foo = useObservable({
       foo: 1
     });
@@ -50,8 +57,20 @@ export const MyComponent2 = props => {
   });
 };
 export const MyComponent3 = props => {
-  return useCustomObserver(function useObserverRenderHook() {
+  return useObserver(function useObserverRenderHook() {
     return null;
+  });
+};
+export const MyComponent4 = props => {
+  return useObserver(function useObserverRenderHook() {
+    return null;
+  }, 'baseComponentName');
+};
+export const MyComponent5 = props => {
+  return useObserver(function useObserverRenderHook() {
+    return null;
+  }, 'baseComponentName', {
+    useForceUpdate: true
   });
 };
 "

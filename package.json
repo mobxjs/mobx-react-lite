@@ -20,7 +20,7 @@
     "test:travis": "yarn validate && yarn lint && yarn coverage",
     "coverage": "jest --coverage",
     "prebuild": "rimraf dist macro",
-    "build": "node build-rollup.js && tsc -b tsconfig.build.macro.json"
+    "build": "node build-rollup.js && tsc -b tsconfig.build.macro.json && cp src/macro/index.* macro/"
   },
   "author": "Daniel K.",
   "license": "MIT",

@@ -9,10 +9,11 @@ pluginTester({
     babelOptions: { filename: __filename },
     tests: [
         `
-      import {useObserver} from './useCustomObserver.macro'
+      import {useObserver} from '../src/macro'
+      import {useObservable, useComputed} from '../src';
 
       export const MyComponent = (props) => {
-        const {useObservable, useComputed} = useObserver();
+        useObserver();
         const foo = useObservable({foo: 1});
         const bar = useComputed(() => foo.foo + 1);
         return null;
@@ -20,7 +21,7 @@ pluginTester({
 
       export const MyComponent2 = (props) => {
         // a comment
-        const {useObservable} = useObserver();
+        useObserver();
         const foo = useObservable({foo: 1});
         return null;
       };
@@ -30,6 +31,16 @@ pluginTester({
         return null;
       };
 
+      export const MyComponent4 = (props) => {
+        useObserver('baseComponentName');
+        return null;
+      };
+
+      export const MyComponent5 = (props) => {
+        useObserver('baseComponentName', { useForceUpdate: true });
+        return null;
+      };
+      
       `
     ]
 })
