@@ -1,5 +1,5 @@
 // @ts-ignore
-import { createMacro } from "babel-plugin-macros"
+import { createMacro, MacroError } from "babel-plugin-macros"
 import path from "path"
 
 interface ICreateUseObserverConfig {
@@ -40,6 +40,14 @@ export function createUseObserver(config: ICreateUseObserverConfig) {
             // program is the top scope of the file
             const program = referencePath.scope.getProgramParent().path
             const line = referencePath.getStatementParent()
+            if (line.key !== 0) {
+                throw new MacroError(
+                    `${path.basename(filename)}:${line.node.loc.start.line}: ` +
+                        "useObserver() provided by the macro must be the first line of the FunctionComponent."
+                )
+            }
+            // lineVars is the `{a, b}` in: const {a, b} = useObserver();
+            const lineVars = line.node.declarations ? line.node.declarations[0].id : null
             const lineArgs = referencePath.container.arguments
             // get all lines in the scope that follow.  these get moved automatically
             const linesAfter = line.container.splice(
@@ -47,14 +55,14 @@ export function createUseObserver(config: ICreateUseObserverConfig) {
                 line.container.length - line.key - 1
             )
 
-            // return a new function containing linesAfter.
+            // return a new function taking lineVars as args, containing linesAfter.
             // the name `useObserverRenderHook` is not important.
             line.insertAfter(
                 t.returnStatement(
                     t.callExpression(t.identifier(config.importSpecifier), [
                         t.functionExpression(
                             t.identifier("useObserverRenderHook"),
-                            [],
+                            lineVars ? [lineVars] : [],
                             t.blockStatement(linesAfter),
                             false,
                             false

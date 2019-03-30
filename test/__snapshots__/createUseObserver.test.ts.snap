@@ -34,6 +34,13 @@ export const MyComponent5 = (props) => {
   return null;
 };
 
+export const MyComponent6 = (props) => {
+
+  useObserver();
+  const foo = useObservable({foo: 1});
+  return null;
+};
+
       ↓ ↓ ↓ ↓ ↓ ↓
 
 import { useObserver } from \\"mobx-react-lite\\";
@@ -73,5 +80,31 @@ export const MyComponent5 = props => {
     useForceUpdate: true
   });
 };
+export const MyComponent6 = props => {
+  return useObserver(function useObserverRenderHook() {
+    const foo = useObservable({
+      foo: 1
+    });
+    return null;
+  });
+};
+"
+`;
+
+exports[`macros 2. macros: 2. macros 1`] = `
+"
+import {useObserver} from '../src/macro'
+import {useObservable, useComputed} from '../src';
+
+export const MyComponent7 = (props) => {
+  dontDoThis();
+  useObserver();
+  const foo = useObservable({foo: 1});
+  return null;
+};
+
+      ↓ ↓ ↓ ↓ ↓ ↓
+
+MacroError: createUseObserver.test.ts:6: useObserver() provided by the macro must be the first line of the FunctionComponent.
 "
 `;

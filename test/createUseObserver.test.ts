@@ -40,7 +40,27 @@ pluginTester({
         useObserver('baseComponentName', { useForceUpdate: true });
         return null;
       };
-      
+
+      export const MyComponent6 = (props) => {
+
+        useObserver();
+        const foo = useObservable({foo: 1});
+        return null;
+      };
+      `,
+        {
+            error: true,
+            code: `
+      import {useObserver} from '../src/macro'
+      import {useObservable, useComputed} from '../src';
+
+      export const MyComponent7 = (props) => {
+        dontDoThis();
+        useObserver();
+        const foo = useObservable({foo: 1});
+        return null;
+      };
       `
+        }
     ]
 })
