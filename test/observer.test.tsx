@@ -115,6 +115,52 @@ function runTestSuite(mode: "observer" | "useObserver") {
         })
     })
 
+    describe("double-rendering/StrictMode behavior", () => {
+        // tslint:disable: no-console
+        let originalConsoleError: typeof console.error
+        const consoleErrors: any[] = []
+        beforeEach(() => {
+            originalConsoleError = console.error
+            console.error = (msg: any, ...args: any[]) => {
+                consoleErrors.push(msg)
+                originalConsoleError.call(console, msg, ...args)
+            }
+        })
+        afterEach(() => {
+            console.error = originalConsoleError
+        })
+        // tslint:enable: no-console
+
+        test("rendering and unmounting disposes of reactions fully", () => {
+            const store = mobx.observable({ count: 0 })
+
+            const TestComponent = obsComponent(function RawComponent() {
+                return <div>{store.count}</div>
+            })
+
+            // Render our observing component wrapped in StrictMode
+            const rendering = render(
+                <React.StrictMode>
+                    <TestComponent />
+                </React.StrictMode>
+            )
+
+            // That will have caused our component to have been rendered
+            // more than once, but when we unmount it'll only unmount once.
+            rendering.unmount()
+
+            // Trigger a change to the observable. If the reactions were
+            // not disposed correctly, we'll see some console errors from
+            // React StrictMode.
+            act(() => {
+                store.count++
+            })
+
+            // Check to see if any console errors were reported.
+            expect(consoleErrors).toEqual([])
+        })
+    })
+
     describe("isObjectShallowModified detects when React will update the component", () => {
         const store = mobx.observable({ count: 0 })
         let counterRenderings = 0
