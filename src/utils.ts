@@ -1,10 +1,4 @@
-import { useCallback, useEffect, useState } from "react"
-
-const EMPTY_ARRAY: any[] = []
-
-export function useUnmount(fn: () => void) {
-    useEffect(() => fn, EMPTY_ARRAY)
-}
+import { useCallback, useState } from "react"
 
 export function useForceUpdate() {
     const [, setTick] = useState(0)

@@ -544,7 +544,7 @@ test("useImperativeHandle and forwardRef should work with useObserver", () => {
 it("should only called new Reaction once", () => {
     let renderCount = 0
     // mock the Reaction class
-    const spy = jest.spyOn(mobx, "Reaction").mockImplementation(() => ({
+    const spy = jest.spyOn(mobx, "Reaction" as any).mockImplementation(() => ({
         track: (fn: any) => {
             fn()
         },
@@ -562,6 +562,39 @@ it("should only called new Reaction once", () => {
     expect(renderCount).toBe(3)
     expect(spy.mock.calls.length).toBe(1)
     spy.mockRestore()
+})
+
+it("should hoist known statics only", () => {
+    function isNumber() {
+        return null
+    }
+
+    function MyHipsterComponent() {
+        return null
+    }
+    MyHipsterComponent.defaultProps = { x: 3 }
+    MyHipsterComponent.propTypes = { x: isNumber }
+    MyHipsterComponent.randomStaticThing = 3
+    MyHipsterComponent.type = "Nope!"
+    MyHipsterComponent.compare = "Nope!"
+    MyHipsterComponent.render = "Nope!"
+
+    const wrapped = observer(MyHipsterComponent)
+    expect(wrapped.displayName).toBe("MyHipsterComponent")
+    expect((wrapped as any).randomStaticThing).toEqual(3)
+    expect((wrapped as any).defaultProps).toEqual({ x: 3 })
+    expect((wrapped as any).propTypes).toEqual({ x: isNumber })
+    expect((wrapped as any).type).toBeInstanceOf(Function) // And not "Nope!"; this is the wrapped component, the property is introduced by memo
+    expect((wrapped as any).compare).toBe(null) // another memo field
+    expect((wrapped as any).render).toBe(undefined)
+})
+
+it("should have the correct displayName", () => {
+    const TestComponent = observer(function MyComponent() {
+        return null
+    })
+
+    expect((TestComponent as any).type.displayName).toBe("MyComponent")
 })
 
 // test("parent / childs render in the right order", done => {
