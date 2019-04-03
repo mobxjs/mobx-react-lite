@@ -15,7 +15,7 @@ export function observer<P extends object, TRef = {}>(
 export function observer<P extends object>(
     baseComponent: React.FunctionComponent<P>,
     options?: IObserverOptions
-): React.NamedExoticComponent<P>
+): React.FunctionComponent<P>
 // n.b. base case is not used for actual typings or exported in the typing files
 export function observer<P extends object, TRef = {}>(
     baseComponent: React.RefForwardingComponent<TRef, P>,
