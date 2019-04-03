@@ -40,3 +40,25 @@ test("uncommitted observing components should not attempt state changes", () => 
         restoreConsole()
     }
 })
+
+test("uncommitted components should not leak observations", () => {
+    const store = mobx.observable({ count: 0 })
+
+    // Track whether count is observed
+    let countIsObserved = false
+    mobx.onBecomeObserved(store, "count", () => (countIsObserved = true))
+    mobx.onBecomeUnobserved(store, "count", () => (countIsObserved = false))
+
+    const TestComponent = () => useObserver(() => <div>{store.count}</div>)
+
+    // Render and unmount
+    const rendering = render(
+        <React.StrictMode>
+            <TestComponent />
+        </React.StrictMode>
+    )
+    rendering.unmount()
+
+    // We've unmounted so there should be no outstanding observations of count.
+    expect(countIsObserved).toBeFalsy()
+})
