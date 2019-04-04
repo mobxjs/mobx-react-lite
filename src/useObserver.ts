@@ -78,10 +78,11 @@ let reactionCleanupHandle: number | undefined
 
 function scheduleCleanupOfReactionIfNotCommitted(reaction: Reaction) {
     uncommittedReactions.push(reaction)
-    if (!reactionCleanupHandle) {
-        // We currently have no cleanup timer running; schedule one
-        reactionCleanupHandle = window.setTimeout(cleanUncommittedReactions, 100)
+    if (reactionCleanupHandle) {
+        window.clearTimeout(reactionCleanupHandle)
     }
+    // We currently have no cleanup timer running; schedule one
+    reactionCleanupHandle = window.setTimeout(cleanUncommittedReactions, 100)
 }
 
 function recordReactionAsCommitted(reaction: Reaction) {
