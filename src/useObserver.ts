@@ -109,6 +109,16 @@ function cleanUncommittedReactions() {
 /**
  * Only to be used by test functions; do not export outside of mobx-react-lite
  */
+export function forceCleanupTimerToRunNowForTests() {
+    // This allows us to control the execution of the cleanup timer
+    // to force it to run at awkward times in unit tests.
+    if (reactionCleanupHandle) {
+        clearTimeout(reactionCleanupHandle)
+        reactionCleanupHandle = undefined
+        cleanUncommittedReactions()
+    }
+}
+
 export function resetCleanupScheduleForTests() {
     if (reactionCleanupHandle) {
         clearTimeout(reactionCleanupHandle)

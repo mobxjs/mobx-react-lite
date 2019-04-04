@@ -5,7 +5,7 @@ import { act, cleanup, render } from "react-testing-library"
 
 import ReactDOM from "react-dom"
 import { useObserver } from "../src"
-import { resetCleanupScheduleForTests } from "../src/useObserver"
+import { forceCleanupTimerToRunNowForTests, resetCleanupScheduleForTests } from "../src/useObserver"
 
 afterEach(cleanup)
 
@@ -109,4 +109,62 @@ test("uncommitted components should not leak observations", async () => {
     // but count2 should have had its reaction cleaned up.
     expect(count1IsObserved).toBeTruthy()
     expect(count2IsObserved).toBeFalsy()
+})
+
+test("cleanup timer should not clean up recently-pended reactions", () => {
+    // If we're not careful with timings, it's possible to get the
+    // following scenario:
+    // 1. Component instance A is being created; it renders, we put its reaction R1 into the cleanup list
+    // 2. Strict/Concurrent mode causes that render to be thrown away
+    // 3. Component instance A is being created; it renders, we put its reaction R2 into the cleanup list
+    // 4. The MobX reaction timer from 5 seconds ago kicks in and cleans up all reactions from uncommitted
+    //    components, including R1 and R2
+    // 5. The commit phase runs for component A, but reaction R2 has already been disposed. Game over.
+
+    // This unit test attempts to replicate that scenario:
+    resetCleanupScheduleForTests()
+    jest.useFakeTimers()
+
+    const store = mobx.observable({ count: 0 })
+
+    // Track whether the count is observed
+    let countIsObserved = false
+    mobx.onBecomeObserved(store, "count", () => (countIsObserved = true))
+    mobx.onBecomeUnobserved(store, "count", () => (countIsObserved = false))
+
+    const TestComponent1 = () => useObserver(() => <div>{store.count}</div>)
+
+    // We're going to render directly using ReactDOM, not react-testing-library, because we want
+    // to be able to get in and do nasty things before everything (including useEffects) have completed,
+    // and react-testing-library waits for all that, using act().
+
+    const rootNode = document.createElement("div")
+
+    // N.B. We use raw ReactDOM.render here rather than react-testing-library because we want to
+    // get in before the full render+commit cycle has completed.
+    ReactDOM.render(
+        // We use StrictMode here, but it would be helpful to switch this to use real
+        // concurrent mode: we don't have a true async render right now so this test
+        // isn't as thorough as it could be.
+        <React.StrictMode>
+            <TestComponent1 />
+        </React.StrictMode>,
+        rootNode
+    )
+
+    // We need to trigger our cleanup timer to run. We can't do this simply
+    // by running all jest's faked timers as that would allow the scheduled
+    // `useEffect` calls to run, and we want to simulate our cleanup timer
+    // getting in between those stages.
+    forceCleanupTimerToRunNowForTests()
+
+    // Allow the useEffect calls to run to completion.
+    jest.runAllTimers()
+    act(() => {
+        // no-op
+    })
+
+    // count1 should still be being observed by Component1,
+    // but count2 should have had its reaction cleaned up.
+    expect(countIsObserved).toBeTruthy()
 })
