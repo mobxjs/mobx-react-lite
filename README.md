@@ -14,17 +14,18 @@ Class based components **are not supported** except using `<Observer>` directly 
 
 Project is written in TypeScript and provides type safety out of the box. No Flow Type support is planned at this moment, but feel free to contribute.
 
-- [API documentation](#api-documentation)
-  - [`<Observer/>`](#observer)
-  - [`observer<P>(baseComponent: FunctionComponent<P>, options?: IObserverOptions): FunctionComponent<P>`](#observerpbasecomponent-functioncomponentp-options-iobserveroptions-functioncomponentp)
-  - [`useObserver<T>(fn: () => T, baseComponentName = "observed", options?: IUseObserverOptions): T`](#useobservertfn---t-basecomponentname--%22observed%22-options-iuseobserveroptions-t)
-  - [`useObservable<T>(initialValue: T): T`](#useobservabletinitialvalue-t-t)
-    - [Lazy initialization](#lazy-initialization)
-  - [`useComputed(func: () => T, inputs: ReadonlyArray<any> = []): T`](#usecomputedfunc---t-inputs-readonlyarrayany---t)
-  - [`useDisposable<D extends TDisposable>(disposerGenerator: () => D, inputs: ReadonlyArray<any> = []): D`](#usedisposabled-extends-tdisposabledisposergenerator---d-inputs-readonlyarrayany---d)
-- [Server Side Rendering with `useStaticRendering`](#server-side-rendering-with-usestaticrendering)
-- [Why no Provider/inject?](#why-no-providerinject)
-- [What about smart/dumb components?](#what-about-smartdumb-components)
+-   [API documentation](#api-documentation)
+    -   [`<Observer/>`](#observer)
+    -   [`observer<P>(baseComponent: FunctionComponent<P>, options?: IObserverOptions): FunctionComponent<P>`](#observerpbasecomponent-functioncomponentp-options-iobserveroptions-functioncomponentp)
+    -   [`useObserver<T>(fn: () => T, baseComponentName = "observed", options?: IUseObserverOptions): T`](#useobservertfn---t-basecomponentname--%22observed%22-options-iuseobserveroptions-t)
+    -   [`useObservable<T>(initialValue: T): T`](#useobservabletinitialvalue-t-t)
+        -   [Lazy initialization](#lazy-initialization)
+    -   [`useComputed(func: () => T, inputs: ReadonlyArray<any> = []): T`](#usecomputedfunc---t-inputs-readonlyarrayany---t)
+    -   [`useDisposable<D extends TDisposable>(disposerGenerator: () => D, inputs: ReadonlyArray<any> = []): D`](#usedisposabled-extends-tdisposabledisposergenerator---d-inputs-readonlyarrayany---d)
+-   [Macro Version](#macro-version)
+-   [Server Side Rendering with `useStaticRendering`](#server-side-rendering-with-usestaticrendering)
+-   [Why no Provider/inject?](#why-no-providerinject)
+-   [What about smart/dumb components?](#what-about-smartdumb-components)
 
 ## API documentation
 
@@ -141,26 +142,6 @@ const Person = memo(props => {
         </div>
     ))
 })
-```
-
-### **(Macro Version)** `useObserver<T>(baseComponentName = "observed", options?: IUseObserverOptions): T`
-
-Think of the macro version of `useObserver` like you would think of `observer` from mobx-react, just with different syntax.
-
-```tsx
-import { useObserver } from "mobx-react-lite/macro"
-import { useObservable } from "mobx-react-lite"
-
-const Person = props => {
-    useObserver()
-    const person = useObservable({ name: "John" })
-    return (
-        <div>
-            {person.name}
-            <button onClick={() => (person.name = "Mike")}>No! I am Mike</button>
-        </div>
-    )
-}
 ```
 
 # Notice of deprecation
@@ -286,6 +267,58 @@ const Name = observer((props: { firstName: string; lastName: string }) => {
     return `Your full name is ${props.firstName} ${props.lastName}`
 })
 ```
+
+## Macro Version
+
+Think of the macro version of `useObserver` like you would think of `observer` from mobx-react, just with different syntax.
+
+### `useObserver<T>(baseComponentName = "observed", options?: IUseObserverOptions): T`
+
+```tsx
+// useObserver comes from the macro
+import { useObserver } from "mobx-react-lite/macro"
+
+// other hooks come as normal from the main library
+import { useObservable } from "mobx-react-lite"
+
+const Person = props => {
+    useObserver()
+    const person = useObservable({ name: "John" })
+    return (
+        <div>
+            {person.name}
+            <button onClick={() => (person.name = "Mike")}>No! I am Mike</button>
+        </div>
+    )
+}
+```
+
+The macro rewrites your code at build/compile-time into the following:
+
+```tsx
+import { useObserver } from "mobx-react-lite"
+import { useObservable } from "mobx-react-lite"
+
+// NOTE: MACRO GENERATED TRANSFORMATION:
+const Person = props => {
+    return useObserver(function useObserverRenderHook() {
+        const person = useObservable({ name: "John" })
+        return (
+            <div>
+                {person.name}
+                <button onClick={() => (person.name = "Mike")}>No! I am Mike</button>
+            </div>
+        )
+    })
+}
+```
+
+The macro solves a few problems:
+
+-   More hook-like code structure, less verbosity.
+-   If you use `observer(props => ...break a hook rule)` you will not be warned - you may think you've done everything correctly until you eventually realize the linter is not analyzing these for you.
+-   If you use `useObserver(() => ...useX())` directly, you are breaking a rule of hooks as per the current linting rules (calling a hook inside of a callback). You can get around this and please the linter by naming your inner function such as the macro output demonstrates above, but that leads to additional code vebosity.
+-   By sticking to this simple pattern for components that handle observable data you can avoid many pitfalls associated with using `Observer` or `useObserver` directly as the last return but not sole statement. The pitfalls are related to expecting reactions in scopes that are not under observation. The macro enforces expected behavior.
 
 ## Server Side Rendering with `useStaticRendering`
 
