@@ -24,13 +24,12 @@ Project is written in TypeScript and provides type safety out of the box. No Flo
   - [`useDisposable<D extends TDisposable>(disposerGenerator: () => D, inputs: ReadonlyArray<any> = []): D`](#usedisposabled-extends-tdisposabledisposergenerator---d-inputs-readonlyarrayany---d)
 - [Server Side Rendering with `useStaticRendering`](#server-side-rendering-with-usestaticrendering)
 - [Why no Provider/inject?](#why-no-providerinject)
-- [What about smart/dumb components?](#what-about-smartdumb-components)
 
 ## API documentation
 
 ### `<Observer/>`
 
-`Observer` is a React component, which applies `observer` to an anonymous region in your component.
+`Observer` is a React component, which applies observer to an anonymous region in your component.
 It takes as children a single, argumentless function which should return exactly one React component.
 The rendering in the function will be tracked and automatically re-rendered when needed.
 This can come in handy when needing to pass render function to external components (for example the React Native listview), or if you want to observe only relevant parts of the output for a performance reasons.
@@ -303,53 +302,4 @@ const StoreContext = React.createContext()
 function App({ children }) {
     return <StoreContext.Provider value={createStore()}>{children}</StoreContext.Provider>
 }
-```
-
-## What about smart/dumb components?
-
-The React hooks don't force anyone to suddenly have a state inside a _dumb component_ that is supposed to only render stuff. You can separate your concerns in a similar fashion.
-
-```tsx
-import { createSelector } from "react-selector-hooks"
-
-const userSelector = createSelector(({ user }) => ({
-    name: user.name,
-    age: user.age
-}))
-
-function UiComponent({ name, age }) {
-    return (
-        <div>
-            <div>Name: {name}</div>
-            <div>Age: {age}</div>
-        </div>
-    )
-}
-
-export default () => {
-    // you may extract these two lines into a custom hook
-    const store = useContext(StoreContext)
-    const data = userSelector(store)
-    return UiComponent({ ...data })
-    // perhaps wrap it inside observer in here?
-    return observer(UiComponent({ ...data }))
-}
-```
-
-It may look a bit more verbose than a _classic_ inject, but there is nothing stopping you to make your own `inject` HOC which is so much easier since everything is just a function.
-
-```tsx
-// make universal HOC
-
-const inject = (useSelector, baseComponent) =>
-    React.useMemo(props => {
-        const store = useContext(StoreContext)
-        const selected = useSelector(store)
-
-        return baseComponent({ ...selected, ...props })
-    })
-
-// use the HOC with a selector
-
-export default inject(userSelector, UiComponent)
 ```
