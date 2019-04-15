@@ -14,16 +14,16 @@ Class based components **are not supported** except using `<Observer>` directly 
 
 Project is written in TypeScript and provides type safety out of the box. No Flow Type support is planned at this moment, but feel free to contribute.
 
-- [API documentation](#api-documentation)
-  - [`<Observer/>`](#observer)
-  - [`observer<P>(baseComponent: FunctionComponent<P>, options?: IObserverOptions): FunctionComponent<P>`](#observerpbasecomponent-functioncomponentp-options-iobserveroptions-functioncomponentp)
-  - [`useObserver<T>(fn: () => T, baseComponentName = "observed", options?: IUseObserverOptions): T`](#useobservertfn---t-basecomponentname--%22observed%22-options-iuseobserveroptions-t)
-  - [`useObservable<T>(initialValue: T): T`](#useobservabletinitialvalue-t-t)
-    - [Lazy initialization](#lazy-initialization)
-  - [`useComputed(func: () => T, inputs: ReadonlyArray<any> = []): T`](#usecomputedfunc---t-inputs-readonlyarrayany---t)
-  - [`useDisposable<D extends TDisposable>(disposerGenerator: () => D, inputs: ReadonlyArray<any> = []): D`](#usedisposabled-extends-tdisposabledisposergenerator---d-inputs-readonlyarrayany---d)
-- [Server Side Rendering with `useStaticRendering`](#server-side-rendering-with-usestaticrendering)
-- [Why no Provider/inject?](#why-no-providerinject)
+-   [API documentation](#api-documentation)
+    -   [`<Observer/>`](#observer)
+    -   [`observer<P>(baseComponent: FunctionComponent<P>, options?: IObserverOptions): FunctionComponent<P>`](#observerpbasecomponent-functioncomponentp-options-iobserveroptions-functioncomponentp)
+    -   [`useObserver<T>(fn: () => T, baseComponentName = "observed", options?: IUseObserverOptions): T`](#useobservertfn---t-basecomponentname--%22observed%22-options-iuseobserveroptions-t)
+    -   [`useObservable<T>(initialValue: T): T`](#useobservabletinitialvalue-t-t)
+        -   [Lazy initialization](#lazy-initialization)
+    -   [`useComputed(func: () => T, inputs: ReadonlyArray<any> = []): T`](#usecomputedfunc---t-inputs-readonlyarrayany---t)
+    -   [`useDisposable<D extends TDisposable>(disposerGenerator: () => D, inputs: ReadonlyArray<any> = []): D`](#usedisposabled-extends-tdisposabledisposergenerator---d-inputs-readonlyarrayany---d)
+-   [Server Side Rendering with `useStaticRendering`](#server-side-rendering-with-usestaticrendering)
+-   [Why no Provider/inject?](#why-no-providerinject)
 
 ## API documentation
 
@@ -140,6 +140,132 @@ const Person = memo(props => {
         </div>
     ))
 })
+```
+
+### `useLocalStore<T>(initializer: () => T): T`
+
+`useLocalStore` creates a local, observable store that is initialized once, and can be used throughout the life-cycle of the component. Use it if you want to use mobx-powered, local store.
+For simple cases it is recommended to use `React.setState`, but if your component requires complex view models, consider creating a local mobx store by using this hook.
+
+If the returned value is a plain object, it will be automatically be passed through `observable`, turning fields into observable properties, and `get` based property accessors in computed values, and functions in bound actions.
+
+If new class instances are returned from the initializer, they will be kept as is. Quick example:
+
+```typescript
+function Counter() {
+    const store = useLocalStore(() => ({
+        count: 0,
+        inc() {
+            store.count += 1
+        }
+    }))
+
+    return useObserver(() => (
+        <div>
+            Count: {store.count}
+            <button onClick={store.inc}>Increment</button>
+        </div>
+    ))
+}
+```
+
+It is important to realize that the store is created only once! It is not possible to specify dependencies to force re-creation, _nor should you directly be referring to props for the initializer function_, as changes in those won't propagate.
+
+Instead, if your store needs to refer to props (or `useState` based local state), the `useLocalStore` should be combined with the `useAsObservableSource` hook, see below.
+
+### `useAsObservableSource<T>(state: T): T`
+
+The `useAsObservableSource` hook can be used to turn any set of values into an observable object that has a stable reference (the same object is returned every time from the hook).
+The goal of this hook is to trap React primitives such as props or state into a local, observable object
+so that the `store` initializer can safely refer to it, and get notified if any of the values change.
+
+Example:
+
+```typescript
+function Counter({ multiplier }) {
+    const observableProps = useAsObservableSource({ multiplier })
+    const store = useLocalStore(() => ({
+        count: 0,
+        get multiplied() {
+            return observableProps.multiplier * this.count
+        },
+        inc() {
+            store.count += 1
+        }
+    }))
+
+    return useObserver(() => (
+        <div>
+            Multiplied count: {store.multiplied}
+            <button onClick={store.inc}>Increment</button>
+        </div>
+    ))
+}
+```
+
+In the above example, any change to `multiplier` prop will show up in the `observableProps` observable object, and be picked up by the `store`.
+
+Reading properties for the returned observable object, should always be done _inside_ the store initializer (respectively side-effect, see below), to avoid values being trapped in the closure.
+In other words: _the return value of `useAsObservableSource` should never be deconstructed! So, don't write: `const {multiplier} = useAsObservableSource({ multiplier })`!_
+
+Note that the value passed to `useAsObservableSource` should always be an object, and is made only shallowly observable.
+
+### Creating MobX reactions inside hook components
+
+If needed, it is possible to create MobX based side effects in hook based components using the standard APIs. For example:
+
+```typescript
+function Counter() {
+    const store = useLocalStore(() => ({
+        count: 0,
+        inc() {
+            store.count += 1
+        }
+    }))
+
+    useEffect(
+        () =>
+            autorun(() => {
+                document.title = "Ticked: " + store.count
+            }),
+        []
+    )
+
+    return /* etc */
+}
+```
+
+Note that the disposer function of `autorun` should be returned to `useEffect` so that the effect is cleaned up properly by React.
+
+Secondly, when using MobX based side effects, you typically don't want to re-create them after each rendering, so make sure to pass in an empty array `[]` as deps to `useEffect`.
+
+This will yield the same limitation as when using `useStore`: changes to props used by the side-effect won't be picked up automatically, so don't refer to them directly. Instead, leverage `useAsObservableSource` again:
+
+```typescript
+function Counter({ prefix }) {
+    const observableProps = useAsObservableSource({ prefix })
+    const store = useLocalStore(() => ({
+        count: 0,
+        inc() {
+            store.count += 1
+        }
+    }))
+
+    useEffect(
+        () =>
+            autorun(() => {
+                document.title = `${observableProps.prefix}: ${store.count}`
+            }),
+        []
+    )
+
+    return useObserver(() => (
+        <div>
+            Count: {store.count}
+            <button onClick={store.inc}>Increment</button>
+        </div>
+    ))
+}
 ```
 
 # Notice of deprecation
