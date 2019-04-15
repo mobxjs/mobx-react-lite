@@ -156,7 +156,7 @@ function Counter() {
     const store = useLocalStore(() => ({
         count: 0,
         inc() {
-            store.count += 1
+            this.count += 1
         }
     }))
 
@@ -209,6 +209,9 @@ Reading properties for the returned observable object, should always be done _in
 In other words: _the return value of `useAsObservableSource` should never be deconstructed! So, don't write: `const {multiplier} = useAsObservableSource({ multiplier })`!_
 
 Note that the value passed to `useAsObservableSource` should always be an object, and is made only shallowly observable.
+
+The object returned by `useAsObservableSource`, although observable, should be considered read-only for all practical purposes.
+Use `useStore` to create local, observable, mutable, state.
 
 ### Creating MobX reactions inside hook components
 
