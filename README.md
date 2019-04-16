@@ -190,7 +190,7 @@ function Counter({ multiplier }) {
             return observableProps.multiplier * this.count
         },
         inc() {
-            store.count += 1
+            this.count += 1
         }
     }))
 
