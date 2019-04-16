@@ -12,7 +12,6 @@ export function useLocalStore<T>(initializer: () => T): T {
                     store[key] = action(value.bind(store))
                 }
             })
-            throw new Error("Not a ")
         }
         return store
     })[0]
