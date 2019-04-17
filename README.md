@@ -20,6 +20,10 @@ Project is written in TypeScript and provides type safety out of the box. No Flo
     -   [`useObserver<T>(fn: () => T, baseComponentName = "observed", options?: IUseObserverOptions): T`](#useobservertfn---t-basecomponentname--%22observed%22-options-iuseobserveroptions-t)
     -   [`useLocalStore<T>(initializer: () => T): T`](#uselocalstoretinitializer---t-t)
     -   [`useAsObservableSource<T>(state: T): T`](#useasobservablesourcetstate-t-t)
+    -   [(deprecated) `useObservable<T>(initialValue: T): T`](#useobservabletinitialvalue-t-t)
+        -   [Lazy initialization](#lazy-initialization)
+    -   [(deprecated) `useComputed(func: () => T, inputs: ReadonlyArray<any> = []): T`](#usecomputedfunc---t-inputs-readonlyarrayany---t)
+    -   [(deprecated) `useDisposable<D extends TDisposable>(disposerGenerator: () => D, inputs: ReadonlyArray<any> = []): D`](#usedisposabled-extends-tdisposabledisposergenerator---d-inputs-readonlyarrayany---d)
 -   [Creating MobX reactions inside hook components](#creating-mobx-reactions-inside-hook-components)
 -   [Server Side Rendering with `useStaticRendering`](#server-side-rendering-with-usestaticrendering)
 -   [Why no Provider/inject?](#why-no-providerinject)
@@ -210,6 +214,136 @@ The value passed to `useAsObservableSource` should always be an object, and is m
 
 The object returned by `useAsObservableSource`, although observable, should be considered read-only for all practical purposes.
 Use `useStore` to create local, observable, mutable, state.
+
+# Notice of deprecation
+
+We are considering deprecation and removal of following utilities from the package. Come join the discussion: https://github.com/mobxjs/mobx-react-lite/issues/94
+
+### `useObservable<T>(initialValue: T): T`
+
+_Deprecated, will be removed in next major_
+
+React hook that allows creating observable object within a component body and keeps track of it over renders. Gets all the benefits from [observable objects](https://mobx.js.org/refguide/object.html) including computed properties and methods. You can also use arrays, Map and Set.
+
+Warning: With current implementation you also need to wrap your component to `observer`. It's also possible to have `useObserver` only in case you are not expecting rerender of the whole component.
+
+```tsx
+import { observer, useObservable, useObserver } from "mobx-react-lite"
+
+const TodoList = () => {
+    const todos = useObservable(new Map<string, boolean>())
+    const todoRef = React.useRef()
+    const addTodo = React.useCallback(() => {
+        todos.set(todoRef.current.value, false)
+        todoRef.current.value = ""
+    }, [])
+    const toggleTodo = React.useCallback((todo: string) => {
+        todos.set(todo, !todos.get(todo))
+    }, [])
+
+    return useObserver(() => (
+        <div>
+            {Array.from(todos).map(([todo, done]) => (
+                <div onClick={() => toggleTodo(todo)} key={todo}>
+                    {todo}
+                    {done ? " ✔" : " ⏲"}
+                </div>
+            ))}
+            <input ref={todoRef} />
+            <button onClick={addTodo}>Add todo</button>
+        </div>
+    ))
+}
+```
+
+#### Lazy initialization
+
+Lazy initialization (similar to `React.useState`) is not available. In most cases your observable state should be a plain object which is cheap to create. With `useObserver` the component won't even rerender and state won't be recreated. In case you really want a more complex state or you need to use `observer`, it's very simple to use MobX directly.
+
+```tsx
+import { observer } from "mobx-react-lite"
+import { observable } from "mobx"
+import { useState } from "react"
+
+const WithComplexState = observer(() => {
+    const [complexState] = useState(() => observable(new HeavyState()))
+    if (complexState.loading) {
+        return <Loading />
+    }
+    return <div>{complexState.heavyName}</div>
+})
+```
+
+[![Edit TodoList](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/jzj48v2xry?module=%2Fsrc%2FTodoList.tsx)
+
+Note that if you want to track a single scalar value (string, number, boolean), you would need [a boxed value](https://mobx.js.org/refguide/boxed.html) which is not recognized by `useObservable`. However, we recommend to just `useState` instead which gives you almost same result (with slightly different API).
+
+### `useComputed(func: () => T, inputs: ReadonlyArray<any> = []): T`
+
+_Deprecated, will be removed in next major_
+
+Another React hook that simplifies computational logic. It's just a tiny wrapper around [MobX computed](https://mobx.js.org/refguide/computed-decorator.html#-computed-expression-as-function) function that runs computation whenever observable values change. In conjuction with `observer` the component will rerender based on such a change.
+
+```tsx
+const Calculator = observer(({ hasExploded }: { hasExploded: boolean }) => {
+    const inputRef = React.useRef()
+    const inputs = useObservable([1, 3, 5])
+    const result = useComputed(
+        () => (hasExploded ? "💣" : inputs.reduce(multiply, 1) * Number(!hasExploded)),
+        [hasExploded]
+    )
+
+    return (
+        <div>
+            <input ref={inputRef} />
+            <button onClick={() => inputs.push(parseInt(inputRef.current.value) | 1)}>
+                Multiply
+            </button>
+            <div>
+                {inputs.join(" * ")} = {result}
+            </div>
+        </div>
+    )
+})
+```
+
+Notice that since the computation depends on non-observable value, it has to be passed as a second argument to `useComputed`. There is [React `useMemo`](https://reactjs.org/docs/hooks-reference.html#usememo) behind the scenes and all rules applies here as well except you don't need to specify dependency on observable values.
+
+[![Edit Calculator](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/jzj48v2xry?module=%2Fsrc%2FCalculator.tsx)
+
+### `useDisposable<D extends TDisposable>(disposerGenerator: () => D, inputs: ReadonlyArray<any> = []): D`
+
+_Deprecated, will be removed in next major_
+
+The disposable is any kind of function that returns another function to be called on a component unmount to clean up used resources. Use MobX related functions like [`reaction`](https://mobx.js.org/refguide/reaction.html), [`autorun`](https://mobx.js.org/refguide/autorun.html), [`when`](https://mobx.js.org/refguide/when.html), [`observe`](https://mobx.js.org/refguide/observe.html), or anything else that returns a disposer.
+Returns the generated disposer for early disposal.
+
+Example (TypeScript):
+
+```typescript
+import { reaction } from "mobx"
+import { observer, useComputed, useDisposable } from "mobx-react-lite"
+
+const Name = observer((props: { firstName: string; lastName: string }) => {
+    const fullName = useComputed(() => `${props.firstName} ${props.lastName}`, [
+        props.firstName,
+        props.lastName
+    ])
+
+    // when the name changes then send this info to the server
+    useDisposable(() =>
+        reaction(
+            () => fullName,
+            () => {
+                // send this to some server
+            }
+        )
+    )
+
+    // render phase
+    return `Your full name is ${props.firstName} ${props.lastName}`
+})
+```
 
 ## Creating MobX reactions inside hook components
 
