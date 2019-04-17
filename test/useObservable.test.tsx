@@ -2,17 +2,17 @@ import * as mobx from "mobx"
 import * as React from "react"
 import { cleanup, fireEvent, render } from "react-testing-library"
 
-import { observer, useObservable } from "../src"
+import { observer, useLocalStore } from "../src"
 
 afterEach(cleanup)
 
 describe("is used to keep observable within component body", () => {
     it("value can be changed over renders", () => {
         const TestComponent = () => {
-            const obs = useObservable({
+            const obs = useLocalStore(() => ({
                 x: 1,
                 y: 2
-            })
+            }))
             return (
                 <div onClick={() => (obs.x += 1)}>
                     {obs.x}-{obs.y}
@@ -36,10 +36,10 @@ describe("is used to keep observable within component body", () => {
         const TestComponent = observer(() => {
             renderCount++
 
-            const obs = useObservable({
+            const obs = useLocalStore(() => ({
                 x: 1,
                 y: 2
-            })
+            }))
             return (
                 <div onClick={() => (obs.x += 1)}>
                     {obs.x}-{obs.y}
@@ -63,13 +63,13 @@ describe("is used to keep observable within component body", () => {
 
     it("actions can be used", () => {
         const TestComponent = observer(() => {
-            const obs = useObservable({
+            const obs = useLocalStore(() => ({
                 x: 1,
                 y: 2,
                 inc() {
                     obs.x += 1
                 }
-            })
+            }))
             return (
                 <div onClick={obs.inc}>
                     {obs.x}-{obs.y}
@@ -85,13 +85,13 @@ describe("is used to keep observable within component body", () => {
 
     it("computed properties works as well", () => {
         const TestComponent = observer(() => {
-            const obs = useObservable({
+            const obs = useLocalStore(() => ({
                 x: 1,
                 y: 2,
                 get z() {
                     return obs.x + obs.y
                 }
-            })
+            }))
             return <div onClick={() => (obs.x += 1)}>{obs.z}</div>
         })
         const { container } = render(<TestComponent />)
@@ -103,7 +103,7 @@ describe("is used to keep observable within component body", () => {
 
     it("Map can used instead of object", () => {
         const TestComponent = observer(() => {
-            const map = useObservable(new Map([["initial", 10]]))
+            const map = useLocalStore(() => new Map([["initial", 10]]))
             return (
                 <div onClick={() => map.set("later", 20)}>
                     {Array.from(map).map(([key, value]) => (
