@@ -147,7 +147,7 @@ test("useAsObservableSource with effects should work", () => {
     expect(thingsSeenByEffect).toEqual([[1, 10, 1], [1, 11, 1], [2, 22, 1]])
 })
 
-test("combining observer with props and stores", () => {
+describe("combining observer with props and stores", () => {
     it("keeps track of observable values", () => {
         const TestComponent = observer((props: any) => {
             const localStore = useLocalStore(() => ({
