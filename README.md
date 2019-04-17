@@ -205,10 +205,9 @@ function Counter({ multiplier }) {
 
 In the above example, any change to `multiplier` prop will show up in the `observableProps` observable object, and be picked up by the `store`.
 
-Reading properties for the returned observable object, should always be done _inside_ the store initializer (respectively side-effect, see below), to avoid values being trapped in the closure.
-In other words: _the return value of `useAsObservableSource` should never be deconstructed! So, don't write: `const {multiplier} = useAsObservableSource({ multiplier })`!_
+Warning: _the return value of `useAsObservableSource` should never be deconstructed! So, don't write: `const {multiplier} = useAsObservableSource({ multiplier })`!_
 
-Note that the value passed to `useAsObservableSource` should always be an object, and is made only shallowly observable.
+The value passed to `useAsObservableSource` should always be an object, and is made only shallowly observable.
 
 The object returned by `useAsObservableSource`, although observable, should be considered read-only for all practical purposes.
 Use `useStore` to create local, observable, mutable, state.
