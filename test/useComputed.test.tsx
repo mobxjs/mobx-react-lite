@@ -2,7 +2,7 @@ import { observable } from "mobx"
 import * as React from "react"
 import { act, cleanup, render } from "react-testing-library"
 
-import { observer, useLocalStore, useAsObservableSource } from "../src"
+import { observer, useAsObservableSource, useLocalStore } from "../src"
 
 afterEach(cleanup)
 
