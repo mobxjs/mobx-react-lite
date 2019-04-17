@@ -197,12 +197,16 @@ function Counter({ multiplier }) {
         }
     }))
 
-    return useObserver(() => (
-        <div>
-            Multiplied count: {store.multiplied}
-            <button onClick={store.inc}>Increment</button>
-        </div>
-    ))
+    return (
+        <Observer>
+            {() => (
+                <div>
+                    Multiplied count: {store.multiplied}
+                    <button onClick={store.inc}>Increment</button>
+                </div>
+            )}
+        </Observer>
+    )
 }
 ```
 
@@ -214,6 +218,8 @@ The value passed to `useAsObservableSource` should always be an object, and is m
 
 The object returned by `useAsObservableSource`, although observable, should be considered read-only for all practical purposes.
 Use `useStore` to create local, observable, mutable, state.
+
+Tip: for optimal performance it is recommend to not use `useAsObservableSource` together on the same component as `useObserver` (or `observer`), as it might trigger double renderings. Instead, use `<Observer>`.
 
 # Notice of deprecation
 
