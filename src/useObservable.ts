@@ -10,7 +10,7 @@ export function useObservable<T extends SupportedValues>(initialValue: T): T {
         warned = true
         // tslint:disable-next-line: no-console
         console.warn(
-            "[mobx-react-lite] useObservable has been deprecated. Use useLocalStore instead"
+            "[mobx-react-lite] useObservable has been deprecated. Use useLocalStore instead."
         )
     }
 
