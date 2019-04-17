@@ -141,7 +141,7 @@ describe("base useAsObservableSource should work", () => {
     it("with Observer()", () => {
         let counterRender = 0
 
-        const Counter = observer(function Counter({ multiplier }: { multiplier: number }) {
+        const Counter = observer(({ multiplier }: { multiplier: number }) => {
             counterRender++
 
             const observableProps = useAsObservableSource({ multiplier })
