@@ -2,7 +2,7 @@ import { Reaction } from "mobx"
 import { useDebugValue, useEffect, useRef } from "react"
 import { printDebugValue } from "./printDebugValue"
 import {
-    CLEANUP_LEAKED_REACTIONS_AFTER_MILLIS,
+    createTrackingData,
     IReactionTracking,
     recordReactionAsCommitted,
     scheduleCleanupOfReactionIfLeaked
@@ -42,27 +42,26 @@ export function useObserver<T>(
     if (!reactionTrackingRef.current) {
         // First render for this component (or first time since a previous
         // reaction from an abandoned render was disposed).
-        const trackingData: IReactionTracking = {
-            cleanAt: Date.now() + CLEANUP_LEAKED_REACTIONS_AFTER_MILLIS,
-            reaction: new Reaction(observerComponentNameFor(baseComponentName), () => {
-                // Observable has changed, meaning we want to re-render
-                // BUT if we're a component that hasn't yet got to the useEffect()
-                // stage, we might be a component that _started_ to render, but
-                // got dropped, and we don't want to make state changes then.
-                // (It triggers warnings in StrictMode, for a start.)
-                if (trackingData.mounted) {
-                    // We have reached useEffect(), so we're mounted, and can trigger an update
-                    forceUpdate()
-                } else {
-                    // We haven't yet reached useEffect(), so we'll need to trigger a re-render
-                    // when (and if) useEffect() arrives.  The easiest way to do that is just to
-                    // drop our current reaction and allow useEffect() to recreate it.
-                    trackingData.reaction.dispose()
-                    reactionTrackingRef.current = null
-                }
-            })
-        }
 
+        const newReaction = new Reaction(observerComponentNameFor(baseComponentName), () => {
+            // Observable has changed, meaning we want to re-render
+            // BUT if we're a component that hasn't yet got to the useEffect()
+            // stage, we might be a component that _started_ to render, but
+            // got dropped, and we don't want to make state changes then.
+            // (It triggers warnings in StrictMode, for a start.)
+            if (trackingData.mounted) {
+                // We have reached useEffect(), so we're mounted, and can trigger an update
+                forceUpdate()
+            } else {
+                // We haven't yet reached useEffect(), so we'll need to trigger a re-render
+                // when (and if) useEffect() arrives.  The easiest way to do that is just to
+                // drop our current reaction and allow useEffect() to recreate it.
+                newReaction.dispose()
+                reactionTrackingRef.current = null
+            }
+        })
+
+        const trackingData = createTrackingData(newReaction)
         reactionTrackingRef.current = trackingData
         scheduleCleanupOfReactionIfLeaked(reactionTrackingRef)
     }

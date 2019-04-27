@@ -22,6 +22,14 @@ export interface IReactionTracking {
     changedBeforeMount?: boolean
 }
 
+export function createTrackingData(reaction: Reaction) {
+    const trackingData: IReactionTracking = {
+        cleanAt: Date.now() + CLEANUP_LEAKED_REACTIONS_AFTER_MILLIS,
+        reaction
+    }
+    return trackingData
+}
+
 /**
  * The minimum time before we'll clean up a Reaction created in a render
  * for a component that hasn't managed to run its effects. This needs to
