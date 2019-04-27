@@ -67,7 +67,7 @@ export function useObserver<T>(
         scheduleCleanupOfReactionIfLeaked(reactionTrackingRef)
     }
 
-    const reaction = reactionTrackingRef.current!.reaction
+    const { reaction } = reactionTrackingRef.current!
     useDebugValue(reaction, printDebugValue)
 
     useEffect(() => {
