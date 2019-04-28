@@ -6,6 +6,8 @@ const doNothingDisposer = () => {
     // empty
 }
 
+let warned = false
+
 /**
  * Adds an observable effect (reaction, autorun, or anything else that returns a disposer) that will be registered upon component creation and disposed upon unmounting.
  * Returns the generated disposer for early disposal.
@@ -20,6 +22,11 @@ export function useDisposable<D extends TDisposable>(
     disposerGenerator: () => D,
     inputs: ReadonlyArray<any> = []
 ): D {
+    if (process.env.NODE_ENV !== "production" && !warned) {
+        warned = true
+        // tslint:disable-next-line: no-console
+        console.warn("[mobx-react-lite] useDisposable has been deprecated. Use React.useEffect instead.")
+    }
     const disposerRef = useRef<D | null>(null)
     const earlyDisposedRef = useRef(false)
 
