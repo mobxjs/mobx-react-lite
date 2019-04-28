@@ -1,14 +1,16 @@
+import mockConsole from "jest-mock-console"
 import { autorun, observable } from "mobx"
 import * as React from "react"
 import { useEffect, useState } from "react"
+import { renderHook } from "react-hooks-testing-library"
 import { act, cleanup, render } from "react-testing-library"
 
-import { observer, Observer, useAsObservableSource, useLocalStore, useObserver } from "../src"
+import { Observer, observer, useAsObservableSource, useLocalStore, useObserver } from "../src"
 
 afterEach(cleanup)
 
 describe("base useAsObservableSource should work", () => {
-    it("with useObservable", () => {
+    it("with useObserver", () => {
         let counterRender = 0
         let observerRender = 0
 
@@ -138,7 +140,7 @@ describe("base useAsObservableSource should work", () => {
         expect(observerRender).toBe(3)
     })
 
-    it("with Observer()", () => {
+    it("with observer()", () => {
         let counterRender = 0
 
         const Counter = observer(({ multiplier }: { multiplier: number }) => {
@@ -327,4 +329,13 @@ describe("combining observer with props and stores", () => {
         // possible a bug with react-testing-library?
         // expect(container.querySelector("div")!.textContent).toBe("20") // TODO: somehow this change is not visible in the tester!
     })
+})
+
+it("checks for plain object being passed in", () => {
+    const restore = mockConsole() // to ignore React showing caught errors
+    const { result } = renderHook(() => useAsObservableSource(false))
+    expect(result.error).toMatchInlineSnapshot(
+        `[Error: useAsObservableSource expects an object as first argument]`
+    )
+    restore()
 })
