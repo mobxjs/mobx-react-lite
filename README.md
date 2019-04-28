@@ -223,7 +223,9 @@ Tip: for optimal performance it is recommend to not use `useAsObservableSource` 
 
 # Notice of deprecation
 
-We are considering deprecation and removal of following utilities from the package. Come join the discussion: https://github.com/mobxjs/mobx-react-lite/issues/94
+We will be deprecating following utilities from the package in the next major version. See [the discussion](https://github.com/mobxjs/mobx-react-lite/issues/94) and [the relevant PR](https://github.com/mobxjs/mobx-react-lite/pull/130) for details.
+
+----
 
 ### `useObservable<T>(initialValue: T): T`
 
