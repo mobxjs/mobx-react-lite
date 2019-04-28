@@ -217,7 +217,7 @@ Warning: _the return value of `useAsObservableSource` should never be deconstruc
 The value passed to `useAsObservableSource` should always be an object, and is made only shallowly observable.
 
 The object returned by `useAsObservableSource`, although observable, should be considered read-only for all practical purposes.
-Use `useStore` to create local, observable, mutable, state.
+Use `useLocalStore` to create local, observable, mutable, state.
 
 Tip: for optimal performance it is recommend to not use `useAsObservableSource` together on the same component as `useObserver` (or `observer`), as it might trigger double renderings. Instead, use `<Observer>`.
 
