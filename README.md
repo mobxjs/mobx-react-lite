@@ -380,7 +380,7 @@ Note that the disposer function of `autorun` should be returned to `useEffect` s
 
 Secondly, when using MobX based side effects, you typically don't want to re-create them after each rendering, so make sure to pass in an empty array `[]` as deps to `useEffect`.
 
-This will yield the same limitation as when using `useStore`: changes to props used by the side-effect won't be picked up automatically, so don't refer to them directly. Instead, leverage `useAsObservableSource` again:
+This will yield the same limitation as when using `useLocalStore`: changes to props used by the side-effect won't be picked up automatically, so don't refer to them directly. Instead, leverage `useAsObservableSource` again:
 
 ```typescript
 function Counter({ prefix }) {
