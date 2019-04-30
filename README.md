@@ -14,6 +14,10 @@ Class based components **are not supported** except using `<Observer>` directly 
 
 Project is written in TypeScript and provides type safety out of the box. No Flow Type support is planned at this moment, but feel free to contribute.
 
+-   [Overview](#overview)
+    -   [Adding reactivity to React components](#adding-reactivity-to-react-components)
+    -   [Introducing local observable state](#introducing-local-observable-state)
+    -   [More extensive example](#more-extensive-example)
 -   [API documentation](#api-documentation)
     -   [`<Observer/>`](#observer)
     -   [`observer<P>(baseComponent: FunctionComponent<P>, options?: IObserverOptions): FunctionComponent<P>`](#observerpbasecomponent-functioncomponentp-options-iobserveroptions-functioncomponentp)
@@ -28,6 +32,121 @@ Project is written in TypeScript and provides type safety out of the box. No Flo
 -   [Server Side Rendering with `useStaticRendering`](#server-side-rendering-with-usestaticrendering)
 -   [Why no Provider/inject?](#why-no-providerinject)
 
+## Overview
+
+This library has two goals:
+
+1. Make it possible to introduce reactivity to React function components
+2. Make it possible to have local observable state in React function components
+
+This library does _not_ support class based components. If you need class based component support, use [mobx-react](https://github.com/mobxjs/mobx-react), which wraps this library.
+
+### Adding reactivity to React components
+
+There are three ways to add reactivity to components: `observer(fn)`, `<Observer>{renderFn}</Observer>` and `useObserver(renderFn)`.
+In most cases, there difference doesn't matter that much, but here is an overview of the three different approaches:
+
+```javascript
+import { observable } from "mobx"
+import { Observer, useObserver, observer }  from "mobx-react-lite"
+
+const person = observable({
+    name: "John"
+})
+
+const P1 = observer(function P1({ person }) {
+    return <h1>{person.name}</h1>
+})
+
+const P2 = ({ person }) => (
+    <Observer>{() => <h1>{person.name}</h1>}</Observer>
+)
+
+const P3 = ({ person }) => {
+    return useObserver(() => (
+        <h1>{person.name}</h1>
+    ))
+})
+
+ReactDOM.render(<div>
+    <P1 person={person} />
+    <P2 person={person} />
+    <P3 person={person} />
+</div>)
+
+setTimeout(() => {
+    person.name = "Jane"
+}, 1000)
+```
+
+When using `observer`, the component `props` will be made automatically observable (so that they can be used in reactions and computed values), and `React.memo` will be applied automatically to the comment.
+
+`useObserver` keeps the component tree flat as it doesn't introduce a higher order component, but to make props observable, the [`useAsObservableSource`](#useasobservablesourcetstate-t-t) hook should be used.
+
+`<Observer>` is slightly better optimized compared to `useObserver`, but does introduce an additional component in the component tree.
+
+### Introducing local observable state
+
+Local observable state can be introduced by using the [`useLocalStore`](#uselocalstoretinitializer---t-t) hook, that runs once to create an observable store. A quick example would be:
+
+```javascript
+import { useLocalStore, useObserver } from "mobx-react-lite"
+
+const P3 = () => {
+    const todo = useLocalStore(() => ({
+        title: "Test",
+        done: true,
+        toggle() {
+            this.done = !this.done
+        }
+    }))
+
+    return useObserver(() => (
+        <h1 onClick={todo.toggle}>
+            {todo.title} {todo.done ? "[DONE]" : "[TODO]"}
+        </h1>
+    ))
+})
+```
+
+When using `useLocalStore`, all properties of the returned object will be made observable automatically, getters will be turned into computed properties, and methods will be bound to the store and apply mobx transactions automatically.
+
+_Note: using `useLocalStore` is mostly beneficial for really complex local state, or to obtain more uniform code base. Note that using a local store might conflict with future React features like concurrent rendering._
+
+### More extensive example
+
+The following example combines all concepts mentioned so far: `useLocalStore` to create a local store, and `useAsObservableProps` to make the props observable, so that it can be uses savely in `store.multiplied`:
+
+```typescript
+import { observer, useAsObservableSource, useLocalStore } from "mobx-react-lite"
+
+interface CounterProps {
+    multiplier: number
+}
+
+export const Counter = observer(function Counter(props: CounterProps) {
+    const observableProps = useAsObservableSource(props)
+    const store = useLocalStore(() => ({
+        count: 10,
+        get multiplied() {
+            return observableProps.multiplier * this.count
+        },
+        inc() {
+            this.count += 1
+        }
+    }))
+
+    return (
+        <div>
+            Multiplied count: <span>{store.multiplied}</span>
+            <button id="inc" onClick={store.inc}>
+                Increment
+            </button>
+        </div>
+    )
+})
+```
+
 ## API documentation
 
 ### `<Observer/>`
@@ -38,10 +157,10 @@ The rendering in the function will be tracked and automatically re-rendered when
 This can come in handy when needing to pass render function to external components (for example the React Native listview), or if you want to observe only relevant parts of the output for a performance reasons.
 
 ```jsx
-import { Observer, useObservable } from "mobx-react-lite"
+import { Observer, useLocalStore } from "mobx-react-lite"
 
 function ObservePerson(props) {
-    const person = useObservable({ name: "John" })
+    const person = useLocalStore(() => ({ name: "John" }))
     return (
         <div>
             {person.name}
@@ -52,16 +171,16 @@ function ObservePerson(props) {
 }
 ```
 
-[![Edit ObservePerson](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/jzj48v2xry?module=%2Fsrc%2FObservePerson.tsx)
+[![Edit ObservePerson](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/5k97w7k22l?module=%2Fsrc%2FObservePerson.tsx)
 
 In case you are a fan of render props, you can use that instead of children. Be advised, that you cannot use both approaches at once, children have a precedence.
 Example
 
 ```jsx
-import { Observer, useObservable } from "mobx-react-lite"
+import { Observer, useLocalStore } from "mobx-react-lite"
 
 function ObservePerson(props) {
-    const person = useObservable({ name: "John" })
+    const person = useLocalStore(() => ({ name: "John" }))
     return (
         <div>
             {person.name}
@@ -85,20 +204,20 @@ import { observer, useObservable } from "mobx-react-lite"
 
 const FriendlyComponent = observer(() => {
     const friendNameRef = React.useRef()
-    const data = useObservable({
+    const data = useLocalStore(() => ({
         friends: [] as string[],
-        addFriend(favorite: boolean = false) {
+        addFriend(favorite = false) {
             if (favorite === true) {
-                data.friends.unshift(friendNameRef.current.value + " * ")
+                this.friends.unshift(friendNameRef.current.value + " * ")
             } else {
-                data.friends.push(friendNameRef.current.value)
+                this.friends.push(friendNameRef.current.value)
             }
             friendNameRef.current.value = ""
         },
         get friendsCount() {
             return data.friends.length
         }
-    })
+    }))
 
     return (
         <div>
@@ -106,16 +225,16 @@ const FriendlyComponent = observer(() => {
             {data.friends.map(friend => (
                 <div>{friend}</div>
             ))}
-            <hr />
+            <br />
             <input ref={friendNameRef} />
-            <button onClick={data.addFriend}>Add friend </button>
+            <button onClick={() => data.addFriend()}>Add friend </button>
             <button onClick={() => data.addFriend(true)}>Add favorite friend</button>
         </div>
     )
 })
 ```
 
-[![Edit FriendlyComponent](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/jzj48v2xry?module=%2Fsrc%2FFriendlyComponent.tsx)
+[![Edit FriendlyComponent](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/5k97w7k22l?module=%2Fsrc%2FFriendlyComponent.tsx)
 
 ### `useObserver<T>(fn: () => T, baseComponentName = "observed", options?: IUseObserverOptions): T`
 
@@ -132,10 +251,10 @@ As for the options, the following are available:
 
 ```tsx
 import { memo } from "react"
-import { useObserver, useObservable } from "mobx-react-lite"
+import { useObserver, useLocalStore } from "mobx-react-lite"
 
 const Person = memo(props => {
-    const person = useObservable({ name: "John" })
+    const person = useLocalStore(() => ({ name: "John" }))
     return useObserver(() => (
         <div>
             {person.name}
@@ -212,9 +331,9 @@ function Counter({ multiplier }) {
 
 In the above example, any change to `multiplier` prop will show up in the `observableProps` observable object, and be picked up by the `store`.
 
-Warning: _the return value of `useAsObservableSource` should never be deconstructed! So, don't write: `const {multiplier} = useAsObservableSource({ multiplier })`!_
+Warning: \_the return value of `useAsObservableSource` should never be deconstructed! So, don't write: `const {multiplier} = useAsObservableSource({ multiplier })`!\_useObservable
 
-The value passed to `useAsObservableSource` should always be an object, and is made only shallowly observable.
+The value passeduseObservableuld always be an object, and is made only shallowly observable.
 
 The object returned by `useAsObservableSource`, although observable, should be considered read-only for all practical purposes.
 Use `useLocalStore` to create local, observable, mutable, state.
@@ -225,7 +344,7 @@ Tip: for optimal performance it is recommend to not use `useAsObservableSource` 
 
 We will be deprecating following utilities from the package in the next major version. See [the discussion](https://github.com/mobxjs/mobx-react-lite/issues/94) and [the relevant PR](https://github.com/mobxjs/mobx-react-lite/pull/130) for details.
 
-----
+---
 
 ### `useObservable<T>(initialValue: T): T`
 
