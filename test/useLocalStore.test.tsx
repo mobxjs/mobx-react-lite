@@ -3,6 +3,8 @@ import * as React from "react"
 import { act, cleanup, fireEvent, render } from "react-testing-library"
 
 import { observer, useLocalStore, useObserver } from "../src"
+import { useEffect } from "react"
+import { autorun } from "mobx"
 
 afterEach(cleanup)
 
@@ -156,6 +158,63 @@ describe("is used to keep observable within component body", () => {
         expect(div.textContent).toBe("3")
         fireEvent.click(div)
         expect(div.textContent).toBe("4")
+    })
+
+    it("computed properties can use local functions", () => {
+        const TestComponent = observer(() => {
+            const obs = useLocalStore(() => ({
+                x: 1,
+                y: 2,
+                getMeThatX() {
+                    return this.x
+                },
+                get z() {
+                    return this.getMeThatX() + obs.y
+                }
+            }))
+            return <div onClick={() => (obs.x += 1)}>{obs.z}</div>
+        })
+        const { container } = render(<TestComponent />)
+        const div = container.querySelector("div")!
+        expect(div.textContent).toBe("3")
+        fireEvent.click(div)
+        expect(div.textContent).toBe("4")
+    })
+
+    it("transactions are respected", () => {
+        const seen: number[] = []
+
+        const TestComponent = observer(() => {
+            const obs = useLocalStore(() => ({
+                x: 1,
+                inc(delta: number) {
+                    this.x += delta
+                    this.x += delta
+                }
+            }))
+
+            useEffect(
+                () =>
+                    autorun(() => {
+                        seen.push(obs.x)
+                    }),
+                []
+            )
+
+            return (
+                <div
+                    onClick={() => {
+                        obs.inc(2)
+                    }}
+                >
+                    Test
+                </div>
+            )
+        })
+        const { container } = render(<TestComponent />)
+        const div = container.querySelector("div")!
+        fireEvent.click(div)
+        expect(seen).toEqual([1, 5]) // No 3!
     })
 
     it("Map can used instead of object", () => {

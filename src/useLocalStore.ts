@@ -1,6 +1,15 @@
-import { action, observable } from "mobx"
+import { observable, transaction } from "mobx"
 import { useState } from "react"
 import { isPlainObject } from "./utils"
+
+// tslint:disable-next-line: ban-types
+function wrapInTransaction(fn: Function) {
+    // tslint:disable-next-line: only-arrow-functions
+    return function() {
+        const args = arguments
+        return transaction(() => fn.apply(null, args))
+    }
+}
 
 export function useLocalStore<T>(initializer: () => T): T {
     return useState(() => {
@@ -9,7 +18,7 @@ export function useLocalStore<T>(initializer: () => T): T {
             Object.keys(store).forEach(key => {
                 const value = store[key]
                 if (typeof value === "function") {
-                    store[key] = action(value.bind(store))
+                    store[key] = wrapInTransaction(value.bind(store))
                 }
             })
         }
