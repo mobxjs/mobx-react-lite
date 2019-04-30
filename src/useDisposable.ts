@@ -25,7 +25,9 @@ export function useDisposable<D extends TDisposable>(
     if (process.env.NODE_ENV !== "production" && !warned) {
         warned = true
         // tslint:disable-next-line: no-console
-        console.warn("[mobx-react-lite] useDisposable has been deprecated. Use React.useEffect instead.")
+        console.warn(
+            "[mobx-react-lite] useDisposable has been deprecated. Use React.useEffect instead."
+        )
     }
     const disposerRef = useRef<D | null>(null)
     const earlyDisposedRef = useRef(false)
