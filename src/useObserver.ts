@@ -1,8 +1,8 @@
 import { Reaction } from "mobx"
-import { useDebugValue, useEffect, useRef } from "react"
+import { useDebugValue, useRef } from "react"
 import { printDebugValue } from "./printDebugValue"
 import { isUsingStaticRendering } from "./staticRendering"
-import { useForceUpdate } from "./utils"
+import { useForceUpdate, useUnmount } from "./utils"
 
 export type ForceUpdateHook = () => () => void
 
@@ -25,25 +25,17 @@ export function useObserver<T>(
     const forceUpdate = wantedForceUpdateHook()
 
     const reaction = useRef<Reaction | null>(null)
-    const committed = useRef(false)
-
     if (!reaction.current) {
-        // First render for this component. Not yet committed.
         reaction.current = new Reaction(`observer(${baseComponentName})`, () => {
-            // Observable has changed. Only force an update if we've definitely
-            // been committed.
-            if (committed.current) {
-                forceUpdate()
-            }
+            forceUpdate()
         })
     }
 
     useDebugValue(reaction, printDebugValue)
 
-    useEffect(() => {
-        committed.current = true
-        return () => reaction.current!.dispose()
-    }, [])
+    useUnmount(() => {
+        reaction.current!.dispose()
+    })
 
     // render the original component, but have the
     // reaction track the observables, so that rendering
