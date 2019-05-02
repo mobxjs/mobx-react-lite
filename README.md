@@ -39,7 +39,7 @@ This library has two goals:
 1. Make it possible to introduce reactivity to React function components
 2. Make it possible to have local observable state in React function components
 
-This library does _not_ support class based components. If you need class based component support, use [mobx-react](https://github.com/mobxjs/mobx-react), which wraps this library.
+This library does _not_ support **class based components**. If you need class based component support, use [mobx-react](https://github.com/mobxjs/mobx-react), which wraps this library.
 
 ### Adding reactivity to React components
 
@@ -49,11 +49,13 @@ In most cases, there difference doesn't matter that much, but here is an overvie
 ```javascript
 import { observable } from "mobx"
 import { Observer, useObserver, observer }  from "mobx-react-lite"
+import ReactDOM from "react-dom"
 
 const person = observable({
     name: "John"
 })
 
+// named function is optional (for debugging purposes)
 const P1 = observer(function P1({ person }) {
     return <h1>{person.name}</h1>
 })
@@ -66,7 +68,7 @@ const P3 = ({ person }) => {
     return useObserver(() => (
         <h1>{person.name}</h1>
     ))
-})
+}
 
 ReactDOM.render(<div>
     <P1 person={person} />
@@ -78,7 +80,7 @@ setTimeout(() => {
     person.name = "Jane"
 }, 1000)
 ```
-
+[![Edit MobX in React - observer pattern](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/4qrv105l47?fontsize=14)
 When using `observer`, the component `props` will be made automatically observable (so that they can be used in reactions and computed values), and `React.memo` will be applied automatically to the comment.
 
 `useObserver` keeps the component tree flat as it doesn't introduce a higher order component, but to make props observable, the [`useAsObservableSource`](#useasobservablesourcetstate-t-t) hook should be used.
