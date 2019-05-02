@@ -85,7 +85,7 @@ When using `observer`, `React.memo` will be applied automatically to the compone
 
 `useObserver` keeps the component tree flat as it doesn't introduce a higher order component, but to make props observable, the [`useAsObservableSource`](#useasobservablesourcetstate-t-t) hook should be used.
 
-`<Observer>` is slightly better optimized compared to `useObserver`, but does introduce an additional component in the component tree.
+`<Observer>` is slightly better optimized compared to `useObserver`, as it doesn't cause a double rendering when using `useAsObservableSource`, but does introduce an additional component in the component tree.
 
 ### Introducing local observable state
 
