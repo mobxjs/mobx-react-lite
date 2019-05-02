@@ -48,7 +48,7 @@ In most cases, there difference doesn't matter that much, but here is an overvie
 
 ```javascript
 import { observable } from "mobx"
-import { Observer, useObserver, observer }  from "mobx-react-lite"
+import { Observer, useObserver, observer } from "mobx-react-lite"
 import ReactDOM from "react-dom"
 
 const person = observable({
@@ -60,28 +60,28 @@ const P1 = observer(function P1({ person }) {
     return <h1>{person.name}</h1>
 })
 
-const P2 = ({ person }) => (
-    <Observer>{() => <h1>{person.name}</h1>}</Observer>
-)
+const P2 = ({ person }) => <Observer>{() => <h1>{person.name}</h1>}</Observer>
 
 const P3 = ({ person }) => {
-    return useObserver(() => (
-        <h1>{person.name}</h1>
-    ))
+    return useObserver(() => <h1>{person.name}</h1>)
 }
 
-ReactDOM.render(<div>
-    <P1 person={person} />
-    <P2 person={person} />
-    <P3 person={person} />
-</div>)
+ReactDOM.render(
+    <div>
+        <P1 person={person} />
+        <P2 person={person} />
+        <P3 person={person} />
+    </div>
+)
 
 setTimeout(() => {
     person.name = "Jane"
 }, 1000)
 ```
+
 [![Edit MobX in React - observer pattern](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/4qrv105l47?fontsize=14)
-When using `observer`, the component `props` will be made automatically observable (so that they can be used in reactions and computed values), and `React.memo` will be applied automatically to the comment.
+
+When using `observer`, `React.memo` will be applied automatically to the component, and `useObserver` will be applied under the hood..
 
 `useObserver` keeps the component tree flat as it doesn't introduce a higher order component, but to make props observable, the [`useAsObservableSource`](#useasobservablesourcetstate-t-t) hook should be used.
 
@@ -297,6 +297,8 @@ It is important to realize that the store is created only once! It is not possib
 
 Instead, if your store needs to refer to props (or `useState` based local state), the `useLocalStore` should be combined with the `useAsObservableSource` hook, see below.
 
+Note that in many cases it is possible to extract the initializer function to a function outside the component definition. Which makes it possible to test the store itself in a more straight-forward manner, and avoids creating the initializer closure on each re-render.
+
 ### `useAsObservableSource<T>(state: T): T`
 
 The `useAsObservableSource` hook can be used to turn any set of values into an observable object that has a stable reference (the same object is returned every time from the hook).
@@ -335,7 +337,7 @@ In the above example, any change to `multiplier` prop will show up in the `obser
 
 Warning: \_the return value of `useAsObservableSource` should never be deconstructed! So, don't write: `const {multiplier} = useAsObservableSource({ multiplier })`!\_useObservable
 
-The value passeduseObservableuld always be an object, and is made only shallowly observable.
+The value passed to `useAsObservableSource` should always be an object, and is made only shallowly observable.
 
 The object returned by `useAsObservableSource`, although observable, should be considered read-only for all practical purposes.
 Use `useLocalStore` to create local, observable, mutable, state.
