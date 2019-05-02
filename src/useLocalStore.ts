@@ -11,26 +11,13 @@ function wrapInTransaction(fn: Function) {
     }
 }
 
-export function useLocalStore<T>(initializer: (props?: any) => T, props?: any): T {
-    const [res] = useState(() => (props ? observable(props, {}, { deep: false }) : {}))
-
-    if (typeof props !== "undefined") {
-        if (process.env.NODE_ENV !== "production" && !isPlainObject(props)) {
-            throw new Error("useLocalStore expects an object as second argument")
+export function useLocalStore<T>(initializer: (props?: any) => T, current?: any): T {
+    const local = useState(() => {
+        let props
+        if (isPlainObject(current)) {
+            props = observable(current, {}, { deep: false })
         }
-
-        if (
-            process.env.NODE_ENV !== "production" &&
-            Object.keys(res).length !== Object.keys(props).length
-        ) {
-            throw new Error("the shape of props passed to useLocalStore should be stable")
-        }
-
-        Object.assign(res, props)
-    }
-
-    return useState(() => {
-        const store: any = observable(initializer(res))
+        const store: any = observable(initializer(props))
         if (isPlainObject(store)) {
             Object.keys(store).forEach(key => {
                 const value = store[key]
@@ -39,6 +26,20 @@ export function useLocalStore<T>(initializer: (props?: any) => T, props?: any): 
                 }
             })
         }
-        return store
+        return { store, props }
     })[0]
+
+    if (isPlainObject(current)) {
+        if (
+            process.env.NODE_ENV !== "production" &&
+            Object.keys(local.props).length !== Object.keys(current).length
+        ) {
+            throw new Error("the shape of props passed to useLocalStore should be stable")
+        }
+        Object.assign(local.props, current)
+    } else if (process.env.NODE_ENV !== "production" && typeof current !== "undefined") {
+        throw new Error("useLocalStore expects an object as second argument")
+    }
+
+    return local.store
 }
