@@ -1471,7 +1471,7 @@ expand-template@^2.0.3:
   resolved "https://registry.yarnpkg.com/expand-template/-/expand-template-2.0.3.tgz#6e14b3fcee0f3a6340ecb57d2e8918692052a47c"
   integrity sha512-XYfuKMvj4O35f/pOXLObndIRvyQ+/+6AhODh+OKWj9S9498pHHn/IMszH+gt0fBCRWMNfk1ZSp5x3AifmnI2vg==
 
-expect@^24.8.0:
+expect@^24.7.1, expect@^24.8.0:
   version "24.8.0"
   resolved "https://registry.yarnpkg.com/expect/-/expect-24.8.0.tgz#471f8ec256b7b6129ca2524b2a62f030df38718d"
   integrity sha512-/zYvP8iMDrzaaxHVa724eJBCKqSHmO0FA7EDkBiRHxg6OipmMn1fN+C8T9L9K8yr7UONkOifu6+LLH+z76CnaA==
@@ -2343,14 +2343,15 @@ jest-docblock@^24.3.0:
   dependencies:
     detect-newline "^2.1.0"
 
-jest-dom@3.1.4:
-  version "3.1.4"
-  resolved "https://registry.yarnpkg.com/jest-dom/-/jest-dom-3.1.4.tgz#914490e8baf997da16f71dc913ff0a77bd2a2ff7"
-  integrity sha512-ruIRHoRVnqPRt/HSS2aFukfhTpjEoq1I6PkYptKK5U2EeRm1eeOXG7BFiaMncTaGu4COSoCF84oLHj02+J5VDg==
+jest-dom@3.2.0:
+  version "3.2.0"
+  resolved "https://registry.yarnpkg.com/jest-dom/-/jest-dom-3.2.0.tgz#533aad553f5e8f2d9993bae168c59a72d970b728"
+  integrity sha512-KHxcgFBGsb37OV5u+dv1ZoNgX5Mu1VlFk6tP99w/30bsd7bDG2QtWQvxU6bB/mEIyt8gv2tJEJOVu2E0HJfkLQ==
   dependencies:
     chalk "^2.4.1"
     css "^2.2.3"
     css.escape "^1.5.1"
+    expect "^24.7.1"
     jest-diff "^24.0.0"
     jest-matcher-utils "^24.0.0"
     lodash "^4.17.11"
