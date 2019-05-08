@@ -74,7 +74,7 @@ function build(target, mode, filename) {
                     "react-native": "ReactNative",
                     mobx: "mobx"
                 },
-                name: "mobxReact",
+                name: "mobxReactLite",
                 exports: "named"
             }
 
