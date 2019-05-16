@@ -1,5 +1,6 @@
 import { Reaction } from "mobx"
 import { useDebugValue, useRef } from "react"
+
 import { printDebugValue } from "./printDebugValue"
 import { isUsingStaticRendering } from "./staticRendering"
 import { useForceUpdate, useUnmount } from "./utils"
@@ -31,10 +32,16 @@ export function useObserver<T>(
         })
     }
 
+    const dispose = () => {
+        if (reaction.current && !reaction.current.isDisposed) {
+            reaction.current.dispose()
+        }
+    }
+
     useDebugValue(reaction, printDebugValue)
 
     useUnmount(() => {
-        reaction.current!.dispose()
+        dispose()
     })
 
     // render the original component, but have the
@@ -50,7 +57,7 @@ export function useObserver<T>(
         }
     })
     if (exception) {
-        reaction.current.dispose()
+        dispose()
         throw exception // re-throw any exceptions catched during rendering
     }
     return rendering
