@@ -247,15 +247,18 @@ describe("is used to keep observable within component body", () => {
             function Counter({ multiplier }: { multiplier: number }) {
                 counterRender++
 
-                const store = useLocalStore(props => ({
-                    count: 10,
-                    get multiplied() {
-                        return props.multiplier * this.count
-                    },
-                    inc() {
-                        this.count += 1
-                    }
-                }), { multiplier })
+                const store = useLocalStore(
+                    props => ({
+                        count: 10,
+                        get multiplied() {
+                            return props.multiplier * this.count
+                        },
+                        inc() {
+                            this.count += 1
+                        }
+                    }),
+                    { multiplier }
+                )
 
                 return useObserver(
                     () => (
@@ -311,15 +314,18 @@ describe("is used to keep observable within component body", () => {
             function Counter({ multiplier }: { multiplier: number }) {
                 counterRender++
 
-                const store = useLocalStore(props => ({
-                    count: 10,
-                    get multiplied() {
-                        return props.multiplier * this.count
-                    },
-                    inc() {
-                        this.count += 1
-                    }
-                }), { multiplier })
+                const store = useLocalStore(
+                    props => ({
+                        count: 10,
+                        get multiplied() {
+                            return props.multiplier * this.count
+                        },
+                        inc() {
+                            this.count += 1
+                        }
+                    }),
+                    { multiplier }
+                )
 
                 return (
                     <Observer>
@@ -376,15 +382,18 @@ describe("is used to keep observable within component body", () => {
             const Counter = observer(({ multiplier }: { multiplier: number }) => {
                 counterRender++
 
-                const store = useLocalStore(props => ({
-                    count: 10,
-                    get multiplied() {
-                        return props.multiplier * this.count
-                    },
-                    inc() {
-                        this.count += 1
-                    }
-                }), { multiplier })
+                const store = useLocalStore(
+                    props => ({
+                        count: 10,
+                        get multiplied() {
+                            return props.multiplier * this.count
+                        },
+                        inc() {
+                            this.count += 1
+                        }
+                    }),
+                    { multiplier }
+                )
 
                 return (
                     <div>
@@ -426,22 +435,23 @@ describe("is used to keep observable within component body", () => {
         })
     })
 
-
     it("checks for plain object being passed in", () => {
         const restore = mockConsole() // to ignore React showing caught errors
         const { result } = renderHook(() => {
-            useLocalStore(props => ({
-                count: 10,
-                inc() {
-                    this.count += 1
-                }
-            }), false)
+            useLocalStore(
+                props => ({
+                    count: 10,
+                    inc() {
+                        this.count += 1
+                    }
+                }),
+                false as any
+            )
         })
 
         expect(result.error).toMatchInlineSnapshot(
-            `[Error: useLocalStore expects an object as second argument]`
+            `[Error: useLocalStore expects a plain object as second argument]`
         )
         restore()
     })
-
 })
