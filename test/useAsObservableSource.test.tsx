@@ -341,7 +341,7 @@ it("checks for plain object being passed in", () => {
 })
 
 // https://github.com/mpeyper/react-hooks-testing-library/issues/74
-it.skip("checks for stable shape of object being passed in", async () => {
+it("checks for stable shape of object being passed in", async () => {
     const restore = mockConsole() // to ignore React showing caught errors
     const { result, rerender } = renderHook(
         ({ second }) => {
