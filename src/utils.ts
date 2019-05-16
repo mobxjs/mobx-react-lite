@@ -16,7 +16,7 @@ export function useForceUpdate() {
     return update
 }
 
-export function isPlainObject(value: any): boolean {
+export function isPlainObject(value: any): value is object {
     if (!value || typeof value !== "object") {
         return false
     }
