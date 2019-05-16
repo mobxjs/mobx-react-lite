@@ -1,45 +1,32 @@
 import { observable, transaction } from "mobx"
-import { useState } from "react"
+import React from "react"
+
+import { useAsObservableSourceInternal } from "./useAsObservableSource"
 import { isPlainObject } from "./utils"
 
-// tslint:disable-next-line: ban-types
-function wrapInTransaction(fn: Function) {
-    // tslint:disable-next-line: only-arrow-functions
-    return function() {
-        const args = arguments
-        return transaction(() => fn.apply(null, args))
-    }
-}
+export function useLocalStore<TStore extends Record<string, any>, TSource extends object = any>(
+    initializer: (source: TSource) => TStore,
+    current?: TSource
+): TStore {
+    const source = useAsObservableSourceInternal<TSource | undefined>(current, true)
 
-export function useLocalStore<T>(initializer: (props?: any) => T, current?: any): T {
-    const local = useState(() => {
-        let props
-        if (isPlainObject(current)) {
-            props = observable(current, {}, { deep: false })
-        }
-        const store: any = observable(initializer(props))
-        if (isPlainObject(store)) {
-            Object.keys(store).forEach(key => {
-                const value = store[key]
+    return React.useState(() => {
+        const local = observable(initializer(source as TSource))
+        if (isPlainObject(local)) {
+            Object.keys(local).forEach(key => {
+                const value = local[key]
                 if (typeof value === "function") {
-                    store[key] = wrapInTransaction(value.bind(store))
+                    local[key] = wrapInTransaction(value, local)
                 }
             })
         }
-        return { store, props }
+        return local
     })[0]
+}
 
-    if (isPlainObject(current)) {
-        if (
-            process.env.NODE_ENV !== "production" &&
-            Object.keys(local.props).length !== Object.keys(current).length
-        ) {
-            throw new Error("the shape of props passed to useLocalStore should be stable")
-        }
-        Object.assign(local.props, current)
-    } else if (process.env.NODE_ENV !== "production" && typeof current !== "undefined") {
-        throw new Error("useLocalStore expects an object as second argument")
+// tslint:disable-next-line: ban-types
+function wrapInTransaction(fn: Function, context: object) {
+    return (...args: unknown[]) => {
+        return transaction(() => fn.apply(context, args))
     }
-
-    return local.store
 }

@@ -335,7 +335,24 @@ it("checks for plain object being passed in", () => {
     const restore = mockConsole() // to ignore React showing caught errors
     const { result } = renderHook(() => useAsObservableSource(false))
     expect(result.error).toMatchInlineSnapshot(
-        `[Error: useAsObservableSource expects an object as first argument]`
+        `[Error: useAsObservableSource expects a plain object as first argument]`
+    )
+    restore()
+})
+
+// https://github.com/mpeyper/react-hooks-testing-library/issues/74
+it.skip("checks for stable shape of object being passed in", async () => {
+    const restore = mockConsole() // to ignore React showing caught errors
+    const { result, rerender } = renderHook(
+        ({ second }) => {
+            const obj = second ? { foo: "brr", baz: "new" } : { foo: "baz" }
+            return useAsObservableSource(obj)
+        },
+        { initialProps: { second: false } }
+    )
+    rerender({ second: true })
+    expect(result.error).toMatchInlineSnapshot(
+        `[Error: the shape of objects passed to useAsObservableSource should be stable]`
     )
     restore()
 })
