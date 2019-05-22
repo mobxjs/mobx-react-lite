@@ -2332,10 +2332,10 @@ jest-docblock@^24.3.0:
   dependencies:
     detect-newline "^2.1.0"
 
-jest-dom@3.2.2:
-  version "3.2.2"
-  resolved "https://registry.yarnpkg.com/jest-dom/-/jest-dom-3.2.2.tgz#4876c173045ae040f12220c56eb2555ef328fd94"
-  integrity sha512-Fnq3Y6d0MoDAJV8pAXkqe/e4VTBihRGaJypXvaHTLL9oRYzOvz0Q04evi5SBwPQ7FBiujQQOPXoEgEBGTg5BaA==
+jest-dom@3.3.0:
+  version "3.3.0"
+  resolved "https://registry.yarnpkg.com/jest-dom/-/jest-dom-3.3.0.tgz#f4db09f7810683fb4c56cbfc6b3ccf348309a699"
+  integrity sha512-a8r9jA1XSJjzTxAULVvzMdPyeILjMHmdPMQ93FRgGBX2JXpJFi9GV9HvUIm4KAIdAj2ln3Z5XC+PsuqaUwt1wA==
   dependencies:
     chalk "^2.4.1"
     css "^2.2.3"
