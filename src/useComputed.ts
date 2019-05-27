@@ -7,7 +7,9 @@ export function useComputed<T>(func: () => T, inputs: ReadonlyArray<any> = []): 
     if (process.env.NODE_ENV !== "production" && !warned) {
         warned = true
         // tslint:disable-next-line: no-console
-        console.warn("[mobx-react-lite] useComputed has been deprecated. Use useLocalStore instead.")
+        console.warn(
+            "[mobx-react-lite] useComputed has been deprecated. Use useLocalStore instead."
+        )
     }
     const computed = useMemo(() => mobx.computed(func), inputs)
     return computed.get()

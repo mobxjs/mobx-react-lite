@@ -1,4 +1,10 @@
-import { useCallback, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
+
+const EMPTY_ARRAY: any[] = []
+
+export function useUnmount(fn: () => void) {
+    useEffect(() => fn, EMPTY_ARRAY)
+}
 
 export function useForceUpdate() {
     const [, setTick] = useState(0)
@@ -10,7 +16,7 @@ export function useForceUpdate() {
     return update
 }
 
-export function isPlainObject(value: any): boolean {
+export function isPlainObject(value: any): value is object {
     if (!value || typeof value !== "object") {
         return false
     }

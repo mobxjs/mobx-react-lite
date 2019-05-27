@@ -1,5 +1,6 @@
 import { Reaction } from "mobx"
-import { useDebugValue, useEffect, useRef } from "react"
+import React from "react"
+
 import { printDebugValue } from "./printDebugValue"
 import {
     createTrackingData,
@@ -37,7 +38,7 @@ export function useObserver<T>(
     // StrictMode/ConcurrentMode/Suspense may mean that our component is
     // rendered and abandoned multiple times, so we need to track leaked
     // Reactions.
-    const reactionTrackingRef = useRef<IReactionTracking | null>(null)
+    const reactionTrackingRef = React.useRef<IReactionTracking | null>(null)
 
     if (!reactionTrackingRef.current) {
         // First render for this component (or first time since a previous
@@ -67,9 +68,9 @@ export function useObserver<T>(
     }
 
     const { reaction } = reactionTrackingRef.current!
-    useDebugValue(reaction, printDebugValue)
+    React.useDebugValue(reaction, printDebugValue)
 
-    useEffect(() => {
+    React.useEffect(() => {
         // Called on first mount only
         recordReactionAsCommitted(reactionTrackingRef)
 

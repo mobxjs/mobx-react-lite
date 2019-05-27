@@ -1,8 +1,12 @@
+import mockConsole from "jest-mock-console"
 import * as mobx from "mobx"
 import * as React from "react"
+import { renderHook } from "react-hooks-testing-library"
 import { act, cleanup, fireEvent, render } from "react-testing-library"
 
-import { observer, useLocalStore, useObserver } from "../src"
+import { Observer, observer, useLocalStore, useObserver } from "../src"
+import { useEffect, useState } from "react"
+import { autorun } from "mobx"
 
 afterEach(cleanup)
 
@@ -158,6 +162,63 @@ describe("is used to keep observable within component body", () => {
         expect(div.textContent).toBe("4")
     })
 
+    it("computed properties can use local functions", () => {
+        const TestComponent = observer(() => {
+            const obs = useLocalStore(() => ({
+                x: 1,
+                y: 2,
+                getMeThatX() {
+                    return this.x
+                },
+                get z() {
+                    return this.getMeThatX() + obs.y
+                }
+            }))
+            return <div onClick={() => (obs.x += 1)}>{obs.z}</div>
+        })
+        const { container } = render(<TestComponent />)
+        const div = container.querySelector("div")!
+        expect(div.textContent).toBe("3")
+        fireEvent.click(div)
+        expect(div.textContent).toBe("4")
+    })
+
+    it("transactions are respected", () => {
+        const seen: number[] = []
+
+        const TestComponent = observer(() => {
+            const obs = useLocalStore(() => ({
+                x: 1,
+                inc(delta: number) {
+                    this.x += delta
+                    this.x += delta
+                }
+            }))
+
+            useEffect(
+                () =>
+                    autorun(() => {
+                        seen.push(obs.x)
+                    }),
+                []
+            )
+
+            return (
+                <div
+                    onClick={() => {
+                        obs.inc(2)
+                    }}
+                >
+                    Test
+                </div>
+            )
+        })
+        const { container } = render(<TestComponent />)
+        const div = container.querySelector("div")!
+        fireEvent.click(div)
+        expect(seen).toEqual([1, 5]) // No 3!
+    })
+
     it("Map can used instead of object", () => {
         const TestComponent = observer(() => {
             const map = useLocalStore(() => new Map([["initial", 10]]))
@@ -176,5 +237,221 @@ describe("is used to keep observable within component body", () => {
         expect(div.textContent).toBe("initial - 10")
         fireEvent.click(div)
         expect(div.textContent).toBe("initial - 10later - 20")
+    })
+
+    describe("with props", () => {
+        it("and useObserver", () => {
+            let counterRender = 0
+            let observerRender = 0
+
+            function Counter({ multiplier }: { multiplier: number }) {
+                counterRender++
+
+                const store = useLocalStore(
+                    props => ({
+                        count: 10,
+                        get multiplied() {
+                            return props.multiplier * this.count
+                        },
+                        inc() {
+                            this.count += 1
+                        }
+                    }),
+                    { multiplier }
+                )
+
+                return useObserver(
+                    () => (
+                        observerRender++,
+                        (
+                            <div>
+                                Multiplied count: <span>{store.multiplied}</span>
+                                <button id="inc" onClick={store.inc}>
+                                    Increment
+                                </button>
+                            </div>
+                        )
+                    )
+                )
+            }
+
+            function Parent() {
+                const [multiplier, setMultiplier] = useState(1)
+
+                return (
+                    <div>
+                        <Counter multiplier={multiplier} />
+                        <button id="incmultiplier" onClick={() => setMultiplier(m => m + 1)} />
+                    </div>
+                )
+            }
+
+            const { container } = render(<Parent />)
+
+            expect(container.querySelector("span")!.innerHTML).toBe("10")
+            expect(counterRender).toBe(1)
+            expect(observerRender).toBe(1)
+
+            act(() => {
+                ;(container.querySelector("#inc")! as any).click()
+            })
+            expect(container.querySelector("span")!.innerHTML).toBe("11")
+            expect(counterRender).toBe(2) // 1 would be better!
+            expect(observerRender).toBe(2)
+
+            act(() => {
+                ;(container.querySelector("#incmultiplier")! as any).click()
+            })
+            expect(container.querySelector("span")!.innerHTML).toBe("22")
+            expect(counterRender).toBe(4) // TODO: avoid double rendering here!
+            expect(observerRender).toBe(4) // TODO: avoid double rendering here!
+        })
+
+        it("with <Observer>", () => {
+            let counterRender = 0
+            let observerRender = 0
+
+            function Counter({ multiplier }: { multiplier: number }) {
+                counterRender++
+
+                const store = useLocalStore(
+                    props => ({
+                        count: 10,
+                        get multiplied() {
+                            return props.multiplier * this.count
+                        },
+                        inc() {
+                            this.count += 1
+                        }
+                    }),
+                    { multiplier }
+                )
+
+                return (
+                    <Observer>
+                        {() => {
+                            observerRender++
+                            return (
+                                <div>
+                                    Multiplied count: <span>{store.multiplied}</span>
+                                    <button id="inc" onClick={store.inc}>
+                                        Increment
+                                    </button>
+                                </div>
+                            )
+                        }}
+                    </Observer>
+                )
+            }
+
+            function Parent() {
+                const [multiplier, setMultiplier] = useState(1)
+
+                return (
+                    <div>
+                        <Counter multiplier={multiplier} />
+                        <button id="incmultiplier" onClick={() => setMultiplier(m => m + 1)} />
+                    </div>
+                )
+            }
+
+            const { container } = render(<Parent />)
+
+            expect(container.querySelector("span")!.innerHTML).toBe("10")
+            expect(counterRender).toBe(1)
+            expect(observerRender).toBe(1)
+
+            act(() => {
+                ;(container.querySelector("#inc")! as any).click()
+            })
+            expect(container.querySelector("span")!.innerHTML).toBe("11")
+            expect(counterRender).toBe(1)
+            expect(observerRender).toBe(2)
+
+            act(() => {
+                ;(container.querySelector("#incmultiplier")! as any).click()
+            })
+            expect(container.querySelector("span")!.innerHTML).toBe("22")
+            expect(counterRender).toBe(2)
+            expect(observerRender).toBe(3)
+        })
+
+        it("with observer()", () => {
+            let counterRender = 0
+
+            const Counter = observer(({ multiplier }: { multiplier: number }) => {
+                counterRender++
+
+                const store = useLocalStore(
+                    props => ({
+                        count: 10,
+                        get multiplied() {
+                            return props.multiplier * this.count
+                        },
+                        inc() {
+                            this.count += 1
+                        }
+                    }),
+                    { multiplier }
+                )
+
+                return (
+                    <div>
+                        Multiplied count: <span>{store.multiplied}</span>
+                        <button id="inc" onClick={store.inc}>
+                            Increment
+                        </button>
+                    </div>
+                )
+            })
+
+            function Parent() {
+                const [multiplier, setMultiplier] = useState(1)
+
+                return (
+                    <div>
+                        <Counter multiplier={multiplier} />
+                        <button id="incmultiplier" onClick={() => setMultiplier(m => m + 1)} />
+                    </div>
+                )
+            }
+
+            const { container } = render(<Parent />)
+
+            expect(container.querySelector("span")!.innerHTML).toBe("10")
+            expect(counterRender).toBe(1)
+
+            act(() => {
+                ;(container.querySelector("#inc")! as any).click()
+            })
+            expect(container.querySelector("span")!.innerHTML).toBe("11")
+            expect(counterRender).toBe(2)
+
+            act(() => {
+                ;(container.querySelector("#incmultiplier")! as any).click()
+            })
+            expect(container.querySelector("span")!.innerHTML).toBe("22")
+            expect(counterRender).toBe(4) // TODO: should be 3
+        })
+    })
+
+    it("checks for plain object being passed in", () => {
+        const restore = mockConsole() // to ignore React showing caught errors
+        const { result } = renderHook(() => {
+            useLocalStore(
+                props => ({
+                    count: 10,
+                    inc() {
+                        this.count += 1
+                    }
+                }),
+                false as any
+            )
+        })
+
+        expect(result.error).toMatchInlineSnapshot(
+            `[Error: useLocalStore expects a plain object as second argument]`
+        )
+        restore()
     })
 })
