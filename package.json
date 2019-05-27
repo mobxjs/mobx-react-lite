@@ -20,7 +20,8 @@
     "test:travis": "yarn validate && yarn lint && yarn coverage",
     "coverage": "jest --coverage",
     "prebuild": "rimraf dist",
-    "build": "node build-rollup.js"
+    "build": "node build-rollup.js",
+    "prepublishOnly": "yarn build"
   },
   "author": "Daniel K.",
   "license": "MIT",
