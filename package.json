@@ -52,7 +52,7 @@
     "react-dom": "16.8.6",
     "react-hooks-testing-library": "0.5.0",
     "react-test-renderer": "16.8.6",
-    "react-testing-library": "7.0.1",
+    "react-testing-library": "8.0.1",
     "rimraf": "2.6.3",
     "rollup": "1.12.5",
     "rollup-plugin-alias": "1.5.1",
