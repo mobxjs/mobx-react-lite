@@ -46,7 +46,7 @@
     "jest-mock-console": "1.0.0",
     "lint-staged": "8.1.7",
     "lodash": "4.17.11",
-    "mobx": "5.9.4",
+    "mobx": "5.10.0",
     "prettier": "1.17.1",
     "react": "16.8.6",
     "react-dom": "16.8.6",
