@@ -262,7 +262,7 @@ describe("is used to keep observable within component body", () => {
 
                 return useObserver(
                     () => (
-                        observerRender++,
+                        observerRender++ ,
                         (
                             <div>
                                 Multiplied count: <span>{store.multiplied}</span>
@@ -293,14 +293,14 @@ describe("is used to keep observable within component body", () => {
             expect(observerRender).toBe(1)
 
             act(() => {
-                ;(container.querySelector("#inc")! as any).click()
+                ; (container.querySelector("#inc")! as any).click()
             })
             expect(container.querySelector("span")!.innerHTML).toBe("11")
             expect(counterRender).toBe(2) // 1 would be better!
             expect(observerRender).toBe(2)
 
             act(() => {
-                ;(container.querySelector("#incmultiplier")! as any).click()
+                ; (container.querySelector("#incmultiplier")! as any).click()
             })
             expect(container.querySelector("span")!.innerHTML).toBe("22")
             expect(counterRender).toBe(4) // TODO: avoid double rendering here!
@@ -362,14 +362,14 @@ describe("is used to keep observable within component body", () => {
             expect(observerRender).toBe(1)
 
             act(() => {
-                ;(container.querySelector("#inc")! as any).click()
+                ; (container.querySelector("#inc")! as any).click()
             })
             expect(container.querySelector("span")!.innerHTML).toBe("11")
             expect(counterRender).toBe(1)
             expect(observerRender).toBe(2)
 
             act(() => {
-                ;(container.querySelector("#incmultiplier")! as any).click()
+                ; (container.querySelector("#incmultiplier")! as any).click()
             })
             expect(container.querySelector("span")!.innerHTML).toBe("22")
             expect(counterRender).toBe(2)
@@ -422,13 +422,13 @@ describe("is used to keep observable within component body", () => {
             expect(counterRender).toBe(1)
 
             act(() => {
-                ;(container.querySelector("#inc")! as any).click()
+                ; (container.querySelector("#inc")! as any).click()
             })
             expect(container.querySelector("span")!.innerHTML).toBe("11")
             expect(counterRender).toBe(2)
 
             act(() => {
-                ;(container.querySelector("#incmultiplier")! as any).click()
+                ; (container.querySelector("#incmultiplier")! as any).click()
             })
             expect(container.querySelector("span")!.innerHTML).toBe("22")
             expect(counterRender).toBe(4) // TODO: should be 3
@@ -453,5 +453,71 @@ describe("is used to keep observable within component body", () => {
             `[Error: useLocalStore expects a plain object as second argument]`
         )
         restore()
+    })
+})
+
+describe("enforcing actions", () => {
+    it("'never' should work", () => {
+        mobx.configure({ enforceActions: 'never' })
+        const restore = mockConsole() // to ignore React showing caught errors
+        const { result } = renderHook(() => {
+            useLocalStore(
+                props => ({
+                    count: 10,
+                    inc() {
+                        this.count += 1
+                    },
+                    get mul() {
+                        return this.count * props.multiplier
+                    }
+                }),
+                { multiplier: 2 }
+            )
+        })
+        expect(result.error).toBeUndefined();
+        restore()
+        mobx.configure({})
+    })
+    it("only when 'observed' should work", () => {
+        mobx.configure({ enforceActions: 'observed' })
+        const restore = mockConsole() // to ignore React showing caught errors
+        const { result } = renderHook(() => {
+            useLocalStore(
+                props => ({
+                    count: 10,
+                    inc() {
+                        this.count += 1
+                    },
+                    get mul() {
+                        return this.count * props.multiplier
+                    }
+                }),
+                { multiplier: 2 }
+            )
+        })
+        expect(result.error).toBeUndefined();
+        restore()
+        mobx.configure({})
+    })
+    it("'always' should work", () => {
+        mobx.configure({ enforceActions: 'always' })
+        const restore = mockConsole() // to ignore React showing caught errors
+        const { result } = renderHook(() => {
+            useLocalStore(
+                props => ({
+                    count: 10,
+                    inc() {
+                        this.count += 1
+                    },
+                    get mul() {
+                        return this.count * props.multiplier
+                    }
+                }),
+                { multiplier: 2 }
+            )
+        })
+        expect(result.error).toBeUndefined();
+        restore()
+        mobx.configure({})
     })
 })

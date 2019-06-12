@@ -1,5 +1,5 @@
 import mockConsole from "jest-mock-console"
-import { autorun, observable } from "mobx"
+import { autorun, observable, configure } from "mobx"
 import * as React from "react"
 import { useEffect, useState } from "react"
 import { renderHook } from "react-hooks-testing-library"
@@ -29,7 +29,7 @@ describe("base useAsObservableSource should work", () => {
 
             return useObserver(
                 () => (
-                    observerRender++,
+                    observerRender++ ,
                     (
                         <div>
                             Multiplied count: <span>{store.multiplied}</span>
@@ -60,14 +60,14 @@ describe("base useAsObservableSource should work", () => {
         expect(observerRender).toBe(1)
 
         act(() => {
-            ;(container.querySelector("#inc")! as any).click()
+            ; (container.querySelector("#inc")! as any).click()
         })
         expect(container.querySelector("span")!.innerHTML).toBe("11")
         expect(counterRender).toBe(2) // 1 would be better!
         expect(observerRender).toBe(2)
 
         act(() => {
-            ;(container.querySelector("#incmultiplier")! as any).click()
+            ; (container.querySelector("#incmultiplier")! as any).click()
         })
         expect(container.querySelector("span")!.innerHTML).toBe("22")
         expect(counterRender).toBe(4) // TODO: avoid double rendering here!
@@ -126,14 +126,14 @@ describe("base useAsObservableSource should work", () => {
         expect(observerRender).toBe(1)
 
         act(() => {
-            ;(container.querySelector("#inc")! as any).click()
+            ; (container.querySelector("#inc")! as any).click()
         })
         expect(container.querySelector("span")!.innerHTML).toBe("11")
         expect(counterRender).toBe(1)
         expect(observerRender).toBe(2)
 
         act(() => {
-            ;(container.querySelector("#incmultiplier")! as any).click()
+            ; (container.querySelector("#incmultiplier")! as any).click()
         })
         expect(container.querySelector("span")!.innerHTML).toBe("22")
         expect(counterRender).toBe(2)
@@ -184,13 +184,13 @@ describe("base useAsObservableSource should work", () => {
         expect(counterRender).toBe(1)
 
         act(() => {
-            ;(container.querySelector("#inc")! as any).click()
+            ; (container.querySelector("#inc")! as any).click()
         })
         expect(container.querySelector("span")!.innerHTML).toBe("11")
         expect(counterRender).toBe(2)
 
         act(() => {
-            ;(container.querySelector("#incmultiplier")! as any).click()
+            ; (container.querySelector("#incmultiplier")! as any).click()
         })
         expect(container.querySelector("span")!.innerHTML).toBe("22")
         expect(counterRender).toBe(4) // TODO: should be 3
@@ -261,11 +261,11 @@ test("useAsObservableSource with effects should work", () => {
     const { container } = render(<Parent />)
 
     act(() => {
-        ;(container.querySelector("#inc")! as any).click()
+        ; (container.querySelector("#inc")! as any).click()
     })
 
     act(() => {
-        ;(container.querySelector("#incmultiplier")! as any).click()
+        ; (container.querySelector("#incmultiplier")! as any).click()
     })
 
     expect(valuesSeenByEffect).toEqual([10, 11])
@@ -355,4 +355,31 @@ it.skip("checks for stable shape of object being passed in", async () => {
         `[Error: the shape of objects passed to useAsObservableSource should be stable]`
     )
     restore()
+})
+
+describe("enforcing actions", () => {
+    it("'never' should work", () => {
+        configure({ enforceActions: 'never' })
+        const restore = mockConsole() // to ignore React showing caught errors
+        const { result } = renderHook(() => useAsObservableSource({ hello: 'world' }))
+        expect(result.error).toBeUndefined();
+        restore()
+        configure({})
+    })
+    it("only when 'observed' should work", () => {
+        configure({ enforceActions: 'observed' })
+        const restore = mockConsole() // to ignore React showing caught errors
+        const { result } = renderHook(() => useAsObservableSource({ hello: 'world' }))
+        expect(result.error).toBeUndefined();
+        restore()
+        configure({})
+    })
+    it("'always' should work", () => {
+        configure({ enforceActions: 'always' })
+        const restore = mockConsole() // to ignore React showing caught errors
+        const { result } = renderHook(() => useAsObservableSource({ hello: 'world' }))
+        expect(result.error).toBeUndefined();
+        restore()
+        configure({})
+    })
 })
