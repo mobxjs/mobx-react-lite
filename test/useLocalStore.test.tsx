@@ -262,7 +262,7 @@ describe("is used to keep observable within component body", () => {
 
                 return useObserver(
                     () => (
-                        observerRender++ ,
+                        observerRender++,
                         (
                             <div>
                                 Multiplied count: <span>{store.multiplied}</span>
@@ -293,14 +293,14 @@ describe("is used to keep observable within component body", () => {
             expect(observerRender).toBe(1)
 
             act(() => {
-                ; (container.querySelector("#inc")! as any).click()
+                ;(container.querySelector("#inc")! as any).click()
             })
             expect(container.querySelector("span")!.innerHTML).toBe("11")
             expect(counterRender).toBe(2) // 1 would be better!
             expect(observerRender).toBe(2)
 
             act(() => {
-                ; (container.querySelector("#incmultiplier")! as any).click()
+                ;(container.querySelector("#incmultiplier")! as any).click()
             })
             expect(container.querySelector("span")!.innerHTML).toBe("22")
             expect(counterRender).toBe(4) // TODO: avoid double rendering here!
@@ -362,14 +362,14 @@ describe("is used to keep observable within component body", () => {
             expect(observerRender).toBe(1)
 
             act(() => {
-                ; (container.querySelector("#inc")! as any).click()
+                ;(container.querySelector("#inc")! as any).click()
             })
             expect(container.querySelector("span")!.innerHTML).toBe("11")
             expect(counterRender).toBe(1)
             expect(observerRender).toBe(2)
 
             act(() => {
-                ; (container.querySelector("#incmultiplier")! as any).click()
+                ;(container.querySelector("#incmultiplier")! as any).click()
             })
             expect(container.querySelector("span")!.innerHTML).toBe("22")
             expect(counterRender).toBe(2)
@@ -422,13 +422,13 @@ describe("is used to keep observable within component body", () => {
             expect(counterRender).toBe(1)
 
             act(() => {
-                ; (container.querySelector("#inc")! as any).click()
+                ;(container.querySelector("#inc")! as any).click()
             })
             expect(container.querySelector("span")!.innerHTML).toBe("11")
             expect(counterRender).toBe(2)
 
             act(() => {
-                ; (container.querySelector("#incmultiplier")! as any).click()
+                ;(container.querySelector("#incmultiplier")! as any).click()
             })
             expect(container.querySelector("span")!.innerHTML).toBe("22")
             expect(counterRender).toBe(4) // TODO: should be 3
