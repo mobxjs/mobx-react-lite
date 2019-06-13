@@ -4,10 +4,11 @@ import * as React from "react"
 import { useEffect, useState } from "react"
 import { renderHook } from "react-hooks-testing-library"
 import { act, cleanup, render } from "react-testing-library"
-
 import { Observer, observer, useAsObservableSource, useLocalStore, useObserver } from "../src"
+import { resetMobx } from './utils';
 
 afterEach(cleanup)
+afterEach(resetMobx)
 
 describe("base useAsObservableSource should work", () => {
     it("with useObserver", () => {
@@ -359,27 +360,18 @@ it.skip("checks for stable shape of object being passed in", async () => {
 
 describe("enforcing actions", () => {
     it("'never' should work", () => {
-        configure({ enforceActions: 'never' })
-        const restore = mockConsole() // to ignore React showing caught errors
-        const { result } = renderHook(() => useAsObservableSource({ hello: 'world' }))
-        expect(result.error).toBeUndefined();
-        restore()
-        configure({})
+        configure({ enforceActions: "never" })
+        const { result } = renderHook(() => useAsObservableSource({ hello: "world" }))
+        expect(result.error).not.toBeDefined();
     })
     it("only when 'observed' should work", () => {
-        configure({ enforceActions: 'observed' })
-        const restore = mockConsole() // to ignore React showing caught errors
-        const { result } = renderHook(() => useAsObservableSource({ hello: 'world' }))
-        expect(result.error).toBeUndefined();
-        restore()
-        configure({})
+        configure({ enforceActions: "observed" })
+        const { result } = renderHook(() => useAsObservableSource({ hello: "world" }))
+        expect(result.error).not.toBeDefined();
     })
     it("'always' should work", () => {
-        configure({ enforceActions: 'always' })
-        const restore = mockConsole() // to ignore React showing caught errors
-        const { result } = renderHook(() => useAsObservableSource({ hello: 'world' }))
-        expect(result.error).toBeUndefined();
-        restore()
-        configure({})
+        configure({ enforceActions: "always" })
+        const { result } = renderHook(() => useAsObservableSource({ hello: "world" }))
+        expect(result.error).not.toBeDefined();
     })
 })

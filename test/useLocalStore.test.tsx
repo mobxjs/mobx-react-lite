@@ -458,66 +458,57 @@ describe("is used to keep observable within component body", () => {
 
 describe("enforcing actions", () => {
     it("'never' should work", () => {
-        mobx.configure({ enforceActions: 'never' })
-        const restore = mockConsole() // to ignore React showing caught errors
+        mobx.configure({ enforceActions: "never" })
         const { result } = renderHook(() => {
             useLocalStore(
                 props => ({
                     count: 10,
+                    get multiplied() {
+                        return props.multiplier * this.count
+                    },
                     inc() {
                         this.count += 1
-                    },
-                    get mul() {
-                        return this.count * props.multiplier
                     }
                 }),
                 { multiplier: 2 }
             )
         })
-        expect(result.error).toBeUndefined();
-        restore()
-        mobx.configure({})
+        expect(result.error).not.toBeDefined();
     })
     it("only when 'observed' should work", () => {
-        mobx.configure({ enforceActions: 'observed' })
-        const restore = mockConsole() // to ignore React showing caught errors
+        mobx.configure({ enforceActions: "observed" })
         const { result } = renderHook(() => {
             useLocalStore(
                 props => ({
                     count: 10,
+                    get multiplied() {
+                        return props.multiplier * this.count
+                    },
                     inc() {
                         this.count += 1
-                    },
-                    get mul() {
-                        return this.count * props.multiplier
                     }
                 }),
                 { multiplier: 2 }
             )
         })
-        expect(result.error).toBeUndefined();
-        restore()
-        mobx.configure({})
+        expect(result.error).not.toBeDefined();
     })
     it("'always' should work", () => {
-        mobx.configure({ enforceActions: 'always' })
-        const restore = mockConsole() // to ignore React showing caught errors
+        mobx.configure({ enforceActions: "always" })
         const { result } = renderHook(() => {
             useLocalStore(
                 props => ({
                     count: 10,
+                    get multiplied() {
+                        return props.multiplier * this.count
+                    },
                     inc() {
                         this.count += 1
-                    },
-                    get mul() {
-                        return this.count * props.multiplier
                     }
                 }),
                 { multiplier: 2 }
             )
         })
-        expect(result.error).toBeUndefined();
-        restore()
-        mobx.configure({})
+        expect(result.error).not.toBeDefined();
     })
 })
