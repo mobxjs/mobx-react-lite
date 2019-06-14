@@ -361,17 +361,29 @@ it.skip("checks for stable shape of object being passed in", async () => {
 describe("enforcing actions", () => {
     it("'never' should work", () => {
         configure({ enforceActions: "never" })
-        const { result } = renderHook(() => useAsObservableSource({ hello: "world" }))
+        const { result } = renderHook(() => {
+            const [thing, setThing] = React.useState('world');
+            useAsObservableSource({ hello: thing })
+            useEffect(() => setThing('react'), [])
+        })
         expect(result.error).not.toBeDefined();
     })
     it("only when 'observed' should work", () => {
         configure({ enforceActions: "observed" })
-        const { result } = renderHook(() => useAsObservableSource({ hello: "world" }))
+        const { result } = renderHook(() => {
+            const [thing, setThing] = React.useState('world');
+            useAsObservableSource({ hello: thing })
+            useEffect(() => setThing('react'), [])
+        })
         expect(result.error).not.toBeDefined();
     })
     it("'always' should work", () => {
         configure({ enforceActions: "always" })
-        const { result } = renderHook(() => useAsObservableSource({ hello: "world" }))
+        const { result } = renderHook(() => {
+            const [thing, setThing] = React.useState('world');
+            useAsObservableSource({ hello: thing })
+            useEffect(() => setThing('react'), [])
+        })
         expect(result.error).not.toBeDefined();
     })
 })
