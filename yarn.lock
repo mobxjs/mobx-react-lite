@@ -327,6 +327,13 @@
   resolved "https://registry.yarnpkg.com/@sheerun/mutationobserver-shim/-/mutationobserver-shim-0.3.2.tgz#8013f2af54a2b7d735f71560ff360d3a8176a87b"
   integrity sha512-vTCdPp/T/Q3oSqwHmZ5Kpa9oI7iLtGl3RQaA/NyLHikvcrPxACkkKVr/XzkSPJWXHRhKGzVvb0urJsbMlRxi1Q==
 
+"@testing-library/react-hooks@~1.0.2":
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/@testing-library/react-hooks/-/react-hooks-1.0.2.tgz#85a91e6c63015cc861f42713f9066bf62f491457"
+  integrity sha512-YBSeOC3diWm1DQUjj1Nixj8Y1O3GA6gZaQo3QrmRxslUF8utN0ywZOY7rWbbFdgoSJUdWb6LWU8LwIN+/egujg==
+  dependencies:
+    "@babel/runtime" "^7.4.2"
+
 "@types/babel__core@^7.1.0":
   version "7.1.0"
   resolved "https://registry.yarnpkg.com/@types/babel__core/-/babel__core-7.1.0.tgz#710f2487dda4dcfd010ca6abb2b4dc7394365c51"
@@ -3746,12 +3753,12 @@ react-dom@16.8.6:
     prop-types "^15.6.2"
     scheduler "^0.13.6"
 
-react-hooks-testing-library@0.5.1:
-  version "0.5.1"
-  resolved "https://registry.yarnpkg.com/react-hooks-testing-library/-/react-hooks-testing-library-0.5.1.tgz#bb5e725fe8d35f3d682212039824dd2f6c7ff4c3"
-  integrity sha512-wSwnVPceof2AOpdvZpiC3EX4gZiVVvY78foz0/44yYGXjC2AeaWvNAjyRH1UjlPqCfHTaEANvXCq+m9YCbWBfQ==
+react-hooks-testing-library@0.5.3:
+  version "0.5.3"
+  resolved "https://registry.yarnpkg.com/react-hooks-testing-library/-/react-hooks-testing-library-0.5.3.tgz#1166f240a24342b7ca469a995b2f9dec8df51cb2"
+  integrity sha512-xhgC9j6hHRCMvAYUjY51z6D7IsuGSdICaJQXWHqcPlDTiAlUrua+pcSALk24HMsqbsCVzz5tRvftCCqri5zgyw==
   dependencies:
-    "@babel/runtime" "^7.4.2"
+    "@testing-library/react-hooks" "~1.0.2"
 
 react-is@^16.8.1, react-is@^16.8.4:
   version "16.8.4"
