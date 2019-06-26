@@ -1,13 +1,14 @@
 import mockConsole from "jest-mock-console"
-import { autorun, observable } from "mobx"
+import { autorun, observable, configure } from "mobx"
 import * as React from "react"
 import { useEffect, useState } from "react"
 import { renderHook } from "react-hooks-testing-library"
 import { act, cleanup, render } from "react-testing-library"
-
 import { Observer, observer, useAsObservableSource, useLocalStore, useObserver } from "../src"
+import { resetMobx } from './utils';
 
 afterEach(cleanup)
+afterEach(resetMobx)
 
 describe("base useAsObservableSource should work", () => {
     it("with useObserver", () => {
@@ -355,4 +356,34 @@ it.skip("checks for stable shape of object being passed in", async () => {
         `[Error: the shape of objects passed to useAsObservableSource should be stable]`
     )
     restore()
+})
+
+describe("enforcing actions", () => {
+    it("'never' should work", () => {
+        configure({ enforceActions: "never" })
+        const { result } = renderHook(() => {
+            const [thing, setThing] = React.useState('world');
+            useAsObservableSource({ hello: thing })
+            useEffect(() => setThing('react'), [])
+        })
+        expect(result.error).not.toBeDefined();
+    })
+    it("only when 'observed' should work", () => {
+        configure({ enforceActions: "observed" })
+        const { result } = renderHook(() => {
+            const [thing, setThing] = React.useState('world');
+            useAsObservableSource({ hello: thing })
+            useEffect(() => setThing('react'), [])
+        })
+        expect(result.error).not.toBeDefined();
+    })
+    it("'always' should work", () => {
+        configure({ enforceActions: "always" })
+        const { result } = renderHook(() => {
+            const [thing, setThing] = React.useState('world');
+            useAsObservableSource({ hello: thing })
+            useEffect(() => setThing('react'), [])
+        })
+        expect(result.error).not.toBeDefined();
+    })
 })
