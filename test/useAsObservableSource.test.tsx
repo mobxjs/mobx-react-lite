@@ -1,11 +1,12 @@
+import { act, cleanup, render } from "@testing-library/react"
+import { renderHook } from "@testing-library/react-hooks"
 import mockConsole from "jest-mock-console"
-import { autorun, observable, configure } from "mobx"
+import { autorun, configure, observable } from "mobx"
 import * as React from "react"
 import { useEffect, useState } from "react"
-import { renderHook } from "react-hooks-testing-library"
-import { act, cleanup, render } from "react-testing-library"
+
 import { Observer, observer, useAsObservableSource, useLocalStore, useObserver } from "../src"
-import { resetMobx } from './utils';
+import { resetMobx } from "./utils"
 
 afterEach(cleanup)
 afterEach(resetMobx)
@@ -327,7 +328,7 @@ describe("combining observer with props and stores", () => {
 
         // TODO: re-enable this line. When debugging, the correct value is returned from render,
         // which is also visible with renderedValues, however, querying the dom doesn't show the correct result
-        // possible a bug with react-testing-library?
+        // possible a bug with @testing-library/react?
         // expect(container.querySelector("div")!.textContent).toBe("20") // TODO: somehow this change is not visible in the tester!
     })
 })
@@ -341,8 +342,7 @@ it("checks for plain object being passed in", () => {
     restore()
 })
 
-// https://github.com/mpeyper/react-hooks-testing-library/issues/74
-it.skip("checks for stable shape of object being passed in", async () => {
+it("checks for stable shape of object being passed in", async () => {
     const restore = mockConsole() // to ignore React showing caught errors
     const { result, rerender } = renderHook(
         ({ second }) => {
@@ -362,28 +362,28 @@ describe("enforcing actions", () => {
     it("'never' should work", () => {
         configure({ enforceActions: "never" })
         const { result } = renderHook(() => {
-            const [thing, setThing] = React.useState('world');
+            const [thing, setThing] = React.useState("world")
             useAsObservableSource({ hello: thing })
-            useEffect(() => setThing('react'), [])
+            useEffect(() => setThing("react"), [])
         })
-        expect(result.error).not.toBeDefined();
+        expect(result.error).not.toBeDefined()
     })
     it("only when 'observed' should work", () => {
         configure({ enforceActions: "observed" })
         const { result } = renderHook(() => {
-            const [thing, setThing] = React.useState('world');
+            const [thing, setThing] = React.useState("world")
             useAsObservableSource({ hello: thing })
-            useEffect(() => setThing('react'), [])
+            useEffect(() => setThing("react"), [])
         })
-        expect(result.error).not.toBeDefined();
+        expect(result.error).not.toBeDefined()
     })
     it("'always' should work", () => {
         configure({ enforceActions: "always" })
         const { result } = renderHook(() => {
-            const [thing, setThing] = React.useState('world');
+            const [thing, setThing] = React.useState("world")
             useAsObservableSource({ hello: thing })
-            useEffect(() => setThing('react'), [])
+            useEffect(() => setThing("react"), [])
         })
-        expect(result.error).not.toBeDefined();
+        expect(result.error).not.toBeDefined()
     })
 })

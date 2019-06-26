@@ -1,8 +1,8 @@
 import mockConsole from "jest-mock-console"
 import * as mobx from "mobx"
 import * as React from "react"
-import { renderHook } from "react-hooks-testing-library"
-import { act, cleanup, fireEvent, render } from "react-testing-library"
+import { renderHook } from "@testing-library/react-hooks"
+import { act, cleanup, fireEvent, render } from "@testing-library/react"
 
 import { Observer, observer, useLocalStore, useObserver } from "../src"
 import { useEffect, useState } from "react"
