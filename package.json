@@ -40,7 +40,7 @@
     "@types/node": "12.6.2",
     "@types/react": "16.8.22",
     "@types/react-dom": "16.8.4",
-    "coveralls": "3.0.4",
+    "coveralls": "3.0.5",
     "husky": "3.0.0",
     "jest": "24.8.0",
     "jest-dom": "3.5.0",
