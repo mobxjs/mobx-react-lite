@@ -20,9 +20,9 @@ The site contains various examples and recipes for using MobX in React world. Fe
 
 ## API reference ⚒
 
-> **`<Observer>{renderFn}</Observer>`** _([user guide](https://mobx-react.netlify.com/observer-component))_
+> **`<Observer>{renderFn}</Observer>`** _([user guide](https://mobx-react.js.org/observer-component))_
 
-> **`observer<P>(baseComponent: FunctionComponent<P>, options?: IObserverOptions): FunctionComponent<P>`** _([user guide](https://mobx-react.netlify.com/observer-hoc))_
+> **`observer<P>(baseComponent: FunctionComponent<P>, options?: IObserverOptions): FunctionComponent<P>`** _([user guide](https://mobx-react.js.org/observer-hoc))_
 
 ```ts
 interface IObserverOptions {
@@ -31,7 +31,7 @@ interface IObserverOptions {
 }
 ```
 
-> **`useObserver<T>(fn: () => T, baseComponentName = "observed", options?: IUseObserverOptions): T`** _([user guide](https://mobx-react.netlify.com/observer-hook))_
+> **`useObserver<T>(fn: () => T, baseComponentName = "observed", options?: IUseObserverOptions): T`** _([user guide](https://mobx-react.js.org/observer-hook))_
 
 ```ts
 interface IUseObserverOptions {
@@ -40,9 +40,9 @@ interface IUseObserverOptions {
 }
 ```
 
-**`useLocalStore<T, S>(initializer: () => T, source?: S): T`** _([user guide](https://mobx-react.netlify.com/state-local))_
+**`useLocalStore<T, S>(initializer: () => T, source?: S): T`** _([user guide](https://mobx-react.js.org/state-local))_
 
-**`useAsObservableSource<T>(source: T): T`** _([user guide](https://mobx-react.netlify.com/state-outsourcing))_
+**`useAsObservableSource<T>(source: T): T`** _([user guide](https://mobx-react.js.org/state-outsourcing))_
 
 ## React Strict mode ☄
 
@@ -56,7 +56,7 @@ Following utilities are still available in the package, but they are deprecated 
 
 ### `useObservable<T>(initialValue: T): T`
 
-> **Use the `useLocalStore` instead** ([user guide](https://mobx-react.netlify.com/state-local))
+> **Use the `useLocalStore` instead** ([user guide](https://mobx-react.js.org/state-local))
 
 React hook that allows creating observable object within a component body and keeps track of it over renders. Gets all the benefits from [observable objects](https://mobx.js.org/refguide/object.html) including computed properties and methods. You can also use arrays, Map and Set.
 
@@ -115,7 +115,7 @@ Note that if you want to track a single scalar value (string, number, boolean), 
 
 ### `useComputed(func: () => T, inputs: ReadonlyArray<any> = []): T`
 
-> **Use the `useLocalStore` instead** ([user guide](https://mobx-react.netlify.com/state-local))
+> **Use the `useLocalStore` instead** ([user guide](https://mobx-react.js.org/state-local))
 
 Another React hook that simplifies computational logic. It's just a tiny wrapper around [MobX computed](https://mobx.js.org/refguide/computed-decorator.html#-computed-expression-as-function) function that runs computation whenever observable values change. In conjuction with `observer` the component will rerender based on such a change.
 
@@ -148,7 +148,7 @@ Notice that since the computation depends on non-observable value, it has to be 
 
 ### `useDisposable<D extends TDisposable>(disposerGenerator: () => D, inputs: ReadonlyArray<any> = []): D`
 
-> **Use the `React.useEffect` instead** ([user guide](https://mobx-react.netlify.com/recipes-effects))
+> **Use the `React.useEffect` instead** ([user guide](https://mobx-react.js.org/recipes-effects))
 
 The disposable is any kind of function that returns another function to be called on a component unmount to clean up used resources. Use MobX related functions like [`reaction`](https://mobx.js.org/refguide/reaction.html), [`autorun`](https://mobx.js.org/refguide/autorun.html), [`when`](https://mobx.js.org/refguide/when.html), [`observe`](https://mobx.js.org/refguide/observe.html), or anything else that returns a disposer.
 Returns the generated disposer for early disposal.
