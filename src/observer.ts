@@ -1,8 +1,8 @@
 import { forwardRef, memo } from "react"
 import { isUsingStaticRendering } from "./staticRendering"
-import { useObserver } from "./useObserver"
+import { useObserver, IUseObserverOptions } from "./useObserver"
 
-export interface IObserverOptions {
+export interface IObserverOptions extends IUseObserverOptions {
     readonly forwardRef?: boolean
 }
 
@@ -34,7 +34,9 @@ export function observer<P extends object, TRef = {}>(
     const baseComponentName = baseComponent.displayName || baseComponent.name
 
     const wrappedComponent = (props: P, ref: React.Ref<TRef>) => {
-        return useObserver(() => baseComponent(props, ref), baseComponentName)
+        return useObserver(() => baseComponent(props, ref), baseComponentName, {
+            useForceUpdate: options ? options.useForceUpdate : undefined
+        })
     }
     wrappedComponent.displayName = baseComponentName
 
