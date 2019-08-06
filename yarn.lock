@@ -367,10 +367,10 @@
     "@types/react" "^16.8.22"
     "@types/react-test-renderer" "^16.8.2"
 
-"@testing-library/react@8.0.7":
-  version "8.0.7"
-  resolved "https://registry.yarnpkg.com/@testing-library/react/-/react-8.0.7.tgz#b5992c9156e926850a0e3a7c882ae1aed83b1c77"
-  integrity sha512-6XoeWSr3UCdxMswbkW0BmuXYw8a6w+stt+5gg4D4zAcljfhXETQ5o28bjJFwNab4OPg8gBNK8KIVot86L4Q8Vg==
+"@testing-library/react@8.0.8":
+  version "8.0.8"
+  resolved "https://registry.yarnpkg.com/@testing-library/react/-/react-8.0.8.tgz#aeba59adaf2b9258117bea927428a8fe4240db06"
+  integrity sha512-GvA5rcyT2TsFozqijEejXI64P4mMmzX2qkEfb7JNKrkdFXLiXdZqSYr/96PerLpsN23gJkKicAhqqT8qo9Kr3g==
   dependencies:
     "@babel/runtime" "^7.5.4"
     "@testing-library/dom" "^5.5.4"
