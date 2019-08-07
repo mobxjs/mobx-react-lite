@@ -6,6 +6,8 @@ var resolve = require("rollup-plugin-node-resolve")
 var terser = require("rollup-plugin-terser").terser
 var alias = require("rollup-plugin-alias")
 var replace = require("rollup-plugin-replace")
+var process = require("child_process")
+var fs = require("fs")
 
 var { rollup } = require("rollup")
 
@@ -86,6 +88,11 @@ function build(target, mode, filename) {
         })
 }
 
+function buildMacro() {
+    process.exec("tsc -p macro")
+    fs.copyFileSync("dist/index.d.ts", "dist/macro.d.ts")
+}
+
 const main = async () => {
     await build("browser", "umd", "index.js")
     await build("browser", "umd.min", "index.min.js")
@@ -93,6 +100,8 @@ const main = async () => {
     await build("native", "cjs", "native.js")
     await build("custom", "umd", "custom.js")
     await build("custom", "es", "custom.module.js")
+    await build("custom", "es", "custom.module.js")
+    buildMacro()
 }
 
 main()
