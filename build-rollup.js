@@ -89,8 +89,7 @@ function build(target, mode, filename) {
 }
 
 function buildMacro() {
-    process.exec("tsc -p macro")
-    fs.copyFileSync("dist/index.d.ts", "dist/macro.d.ts")
+    process.execSync("tsc -p macro/src/")
 }
 
 const main = async () => {
@@ -99,7 +98,6 @@ const main = async () => {
     await build("browser", "es", "index.module.js")
     await build("native", "cjs", "native.js")
     await build("custom", "umd", "custom.js")
-    await build("custom", "es", "custom.module.js")
     await build("custom", "es", "custom.module.js")
     buildMacro()
 }

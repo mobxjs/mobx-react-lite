@@ -1,6 +1,7 @@
 /node_modules/
 
 src/
+macro/src/
 test/
 coverage/
 
