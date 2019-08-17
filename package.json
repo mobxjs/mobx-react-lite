@@ -41,7 +41,7 @@
     "@types/react": "16.8.22",
     "@types/react-dom": "16.8.5",
     "coveralls": "3.0.6",
-    "husky": "3.0.3",
+    "husky": "3.0.4",
     "jest": "24.9.0",
     "jest-dom": "3.5.0",
     "jest-environment-jsdom": "24.9.0",
