@@ -1,4 +1,4 @@
-import { observable } from "mobx"
+import { observable, runInAction } from "mobx"
 import React from "react"
 
 import { isPlainObject } from "./utils"
@@ -24,7 +24,9 @@ export function useAsObservableSourceInternal<TSource>(
     ) {
         throw new Error(`the shape of objects passed to ${culprit} should be stable`)
     }
-    Object.assign(res, current)
+    runInAction(() => {
+        Object.assign(res, current)
+    })
     return res
 }
 

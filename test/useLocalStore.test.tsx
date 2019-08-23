@@ -1,8 +1,8 @@
 import mockConsole from "jest-mock-console"
 import * as mobx from "mobx"
 import * as React from "react"
-import { renderHook } from "react-hooks-testing-library"
-import { act, cleanup, fireEvent, render } from "react-testing-library"
+import { renderHook } from "@testing-library/react-hooks"
+import { act, cleanup, fireEvent, render } from "@testing-library/react"
 
 import { Observer, observer, useLocalStore, useObserver } from "../src"
 import { useEffect, useState } from "react"
@@ -453,5 +453,68 @@ describe("is used to keep observable within component body", () => {
             `[Error: useLocalStore expects a plain object as second argument]`
         )
         restore()
+    })
+})
+
+describe("enforcing actions", () => {
+    it("'never' should work", () => {
+        mobx.configure({ enforceActions: "never" })
+        const { result } = renderHook(() => {
+            const [multiplier, setMultiplier] = React.useState(2);
+            useLocalStore(
+                props => ({
+                    count: 10,
+                    get multiplied() {
+                        return props.multiplier * this.count
+                    },
+                    inc() {
+                        this.count += 1
+                    }
+                }),
+                { multiplier }
+            )
+            useEffect(() => setMultiplier(3), [])
+        })
+        expect(result.error).not.toBeDefined();
+    })
+    it("only when 'observed' should work", () => {
+        mobx.configure({ enforceActions: "observed" })
+        const { result } = renderHook(() => {
+            const [multiplier, setMultiplier] = React.useState(2);
+            useLocalStore(
+                props => ({
+                    count: 10,
+                    get multiplied() {
+                        return props.multiplier * this.count
+                    },
+                    inc() {
+                        this.count += 1
+                    }
+                }),
+                { multiplier }
+            )
+            useEffect(() => setMultiplier(3), [])
+        })
+        expect(result.error).not.toBeDefined();
+    })
+    it("'always' should work", () => {
+        mobx.configure({ enforceActions: "always" })
+        const { result } = renderHook(() => {
+            const [multiplier, setMultiplier] = React.useState(2);
+            useLocalStore(
+                props => ({
+                    count: 10,
+                    get multiplied() {
+                        return props.multiplier * this.count
+                    },
+                    inc() {
+                        this.count += 1
+                    }
+                }),
+                { multiplier }
+            )
+            useEffect(() => setMultiplier(3), [])
+        })
+        expect(result.error).not.toBeDefined();
     })
 })

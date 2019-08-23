@@ -1,4 +1,4 @@
-import { observable, transaction } from "mobx"
+import { observable, transaction, runInAction } from "mobx"
 import React from "react"
 
 import { useAsObservableSourceInternal } from "./useAsObservableSource"
@@ -13,11 +13,13 @@ export function useLocalStore<TStore extends Record<string, any>, TSource extend
     return React.useState(() => {
         const local = observable(initializer(source as TSource))
         if (isPlainObject(local)) {
-            Object.keys(local).forEach(key => {
-                const value = local[key]
-                if (typeof value === "function") {
-                    local[key] = wrapInTransaction(value, local)
-                }
+            runInAction(() => {
+                Object.keys(local).forEach(key => {
+                    const value = local[key]
+                    if (typeof value === "function") {
+                        local[key] = wrapInTransaction(value, local)
+                    }
+                })
             })
         }
         return local

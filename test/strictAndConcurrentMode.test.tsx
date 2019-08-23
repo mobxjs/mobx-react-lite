@@ -1,15 +1,15 @@
+import { act, cleanup, render } from "@testing-library/react"
 import mockConsole from "jest-mock-console"
 import * as mobx from "mobx"
 import * as React from "react"
-import { act, cleanup, render } from "react-testing-library"
-
 import ReactDOM from "react-dom"
+
 import { useObserver } from "../src"
 import {
     CLEANUP_LEAKED_REACTIONS_AFTER_MILLIS,
     CLEANUP_TIMER_LOOP_MILLIS,
     forceCleanupTimerToRunNowForTests,
-    resetCleanupScheduleForTests
+    resetCleanupScheduleForTests,
 } from "../src/reactionCleanupTracking"
 
 afterEach(cleanup)
