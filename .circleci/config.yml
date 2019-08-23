@@ -5,7 +5,7 @@ executors:
         docker:
             - image: circleci/node:11
               environment:
-                  CI: true
+                  CI: "yes"
         working_directory: ~/mobx-react-lite
 
 jobs:
