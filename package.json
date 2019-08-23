@@ -48,7 +48,7 @@
     "coveralls": "3.0.6",
     "husky": "3.0.4",
     "jest": "24.9.0",
-    "jest-dom": "3.5.0",
+    "jest-dom": "4.0.0",
     "jest-environment-jsdom": "24.9.0",
     "jest-mock-console": "1.0.0",
     "lint-staged": "9.2.3",
