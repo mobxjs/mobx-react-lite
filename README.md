@@ -43,7 +43,3 @@ interface IUseObserverOptions {
 **`useLocalStore<T, S>(initializer: () => T, source?: S): T`** _([user guide](https://mobx-react.js.org/state-local))_
 
 **`useAsObservableSource<T>(source: T): T`** _([user guide](https://mobx-react.js.org/state-outsourcing))_
-
-## React Strict mode ☄
-
-Feel free to try out `mobx-react-lite@next` which is based on latest 1.x, but contains experimental support for handling Concurrent mode in React properly.
