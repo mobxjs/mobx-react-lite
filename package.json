@@ -25,7 +25,7 @@
     "build": "yarn bundle",
     "bundle": "tsdx build --name mobxReactLite --format=cjs,esm,umd",
     "prepublishOnly": "yarn build",
-    "dedupe": "npx yarn-deduplicate "
+    "dedup": "npx yarn-deduplicate -s fewer yarn.lock"
   },
   "author": "Daniel K.",
   "license": "MIT",
