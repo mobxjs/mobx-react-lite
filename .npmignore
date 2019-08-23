@@ -3,6 +3,7 @@
 src/
 test/
 coverage/
+dist/test
 
 .vscode
 .rpt2_cache

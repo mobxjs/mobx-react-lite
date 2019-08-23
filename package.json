@@ -3,11 +3,12 @@
   "version": "1.4.1",
   "description": "Lightweight React bindings for MobX based on React 16.8 and Hooks",
   "main": "dist/index.js",
-  "jsnext:main": "dist/index.module.js",
-  "module": "dist/index.module.js",
-  "react-native": "dist/native.js",
   "typings": "dist/index.d.ts",
   "types": "dist/index.d.ts",
+  "jsnext:main": "dist/mobxreactlite.esm.js",
+  "module": "dist/mobxreactlite.esm.js",
+  "unpkg": "dist/mobxreactlite.umd.production.min.js",
+  "react-native": "dist/mobxreactlite.esm.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/mobxjs/mobx-react-lite.git"
@@ -20,7 +21,8 @@
     "test:travis": "yarn validate && yarn lint && yarn coverage",
     "coverage": "jest --coverage",
     "prebuild": "rimraf dist",
-    "build": "node build-rollup.js",
+    "build": "yarn bundle",
+    "bundle": "tsdx build --name mobxReactLite --format=cjs,esm,umd",
     "prepublishOnly": "yarn build"
   },
   "author": "Daniel K.",
@@ -53,15 +55,8 @@
     "react-dom": "16.8.6",
     "react-test-renderer": "16.8.6",
     "rimraf": "3.0.0",
-    "rollup": "1.20.1",
-    "rollup-plugin-alias": "1.5.2",
-    "rollup-plugin-commonjs": "10.0.2",
-    "rollup-plugin-filesize": "6.2.0",
-    "rollup-plugin-node-resolve": "5.2.0",
-    "rollup-plugin-replace": "2.2.0",
-    "rollup-plugin-terser": "5.1.1",
-    "rollup-plugin-typescript2": "0.23.0",
     "ts-jest": "24.0.2",
+    "tsdx": "0.8.0",
     "tslint": "5.19.0",
     "tslint-config-prettier": "1.18.0",
     "typescript": "3.4.5"
@@ -76,7 +71,7 @@
     "hooks",
     "observer",
     "useObserver",
-    "useComputer"
+    "useComputed"
   ],
   "lint-staged": {
     "*.{ts,js}": [
