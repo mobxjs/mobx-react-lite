@@ -1,0 +1,14 @@
+[
+    {
+        "path": "dist/mobxreactlite.umd.production.min.js",
+        "limit": "1.6 KB",
+        "webpack": false,
+        "running": false
+    },
+    {
+        "path": "dist/mobxreactlite.cjs.production.min.js",
+        "limit": "1.6 KB",
+        "webpack": false,
+        "running": false
+    }
+]
