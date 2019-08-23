@@ -983,7 +983,7 @@
   dependencies:
     size-limit "2.1.1"
 
-"@size-limit/preset-small-lib@^2.1.1":
+"@size-limit/preset-small-lib@2.1.1":
   version "2.1.1"
   resolved "https://registry.yarnpkg.com/@size-limit/preset-small-lib/-/preset-small-lib-2.1.1.tgz#149c7d93eeeec006469654bee58a201a0a7ecb0a"
   integrity sha512-cbMHq4lmCuSmkasAcT1mJNTtlBk10+6Z0jDlH+gMIXWviaJPmRqrtAOoSgJ7OfcHMJvmvehXTi7v6jZCH/M8DQ==
@@ -991,7 +991,7 @@
     "@size-limit/file" "2.1.1"
     "@size-limit/webpack" "2.1.1"
 
-"@size-limit/time@^2.1.1":
+"@size-limit/time@2.1.1":
   version "2.1.1"
   resolved "https://registry.yarnpkg.com/@size-limit/time/-/time-2.1.1.tgz#a05437cf666b4e488f1b33d5c523bc4735c801ba"
   integrity sha512-GpFfpSYMkLEvc7KVRJHCExKtk3sh7cnBRNjXWmawjheB3W57nNJmLfobmxa44xw8EOEmMkS2kw4py4HKnXuztw==
