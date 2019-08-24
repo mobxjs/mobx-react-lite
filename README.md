@@ -179,3 +179,19 @@ const Name = observer((props: { firstName: string; lastName: string }) => {
     return `Your full name is ${props.firstName} ${props.lastName}`
 })
 ```
+
+## Optimize rendering
+
+[Check out the elaborate explanation](https://github.com/mobxjs/mobx-react-lite/issues/153#issuecomment-490511464).
+
+If this is something that concerns you, we have prepared files you can simply import to configure MobX to use React batched updates.
+
+**React DOM:**
+
+> import 'mobx-react-lite/optimizeForReactDom'
+
+**React Native:**
+
+> import 'mobx-react-lite/optimizeForReactNative'
+
+Import one of these before any React rendering is happening, typically `index.js/ts`. For Jest tests you can utilize [setupFilesAfterEnv](https://jestjs.io/docs/en/configuration#setupfilesafterenv-array).
