@@ -4,9 +4,6 @@ dist/
 coverage/
 
 .rpt2_cache
-.rts2_cache_cjs
-.rts2_cache_esm
-.rts2_cache_umd
 .DS_Store
 
 npm-debug.log*
