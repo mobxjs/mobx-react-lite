@@ -384,14 +384,14 @@
     "@size-limit/file" "2.1.3"
     "@size-limit/webpack" "2.1.3"
 
-"@size-limit/time@2.1.2":
-  version "2.1.2"
-  resolved "https://registry.yarnpkg.com/@size-limit/time/-/time-2.1.2.tgz#e4fbbcae7e8b7b03aa8725d048d9e75b2664494e"
-  integrity sha512-OBGcHP4qEe+SquHeCvpgj3eV+v14A4xorT84xpK4yIHwcTyfMG/DZuJ5ORLL7gRxlDE93N0yJWRdRxmA1iz3zw==
+"@size-limit/time@2.1.3":
+  version "2.1.3"
+  resolved "https://registry.yarnpkg.com/@size-limit/time/-/time-2.1.3.tgz#3a9478f8dcbadb5fc3248b84511a80aabe542824"
+  integrity sha512-aLavHpFLuo0QRs+sBqiIaj2vGOEByPs8LTTTLliM5oIObdyvvZE4ZOGsEpUELtDGS61xjOA10q6XnzFau+CkqQ==
   dependencies:
-    estimo "^1.1.6"
+    estimo "^2.0.0"
     react "^16.9.0"
-    size-limit "2.1.2"
+    size-limit "2.1.3"
 
 "@size-limit/webpack@2.1.3":
   version "2.1.3"
@@ -2521,10 +2521,10 @@ esrecurse@^4.1.0:
   dependencies:
     estraverse "^4.1.0"
 
-estimo@^1.1.6:
-  version "1.1.6"
-  resolved "https://registry.yarnpkg.com/estimo/-/estimo-1.1.6.tgz#44273e99de905848fe4a3ae8f0f70df8c8b09b33"
-  integrity sha512-SgZmjJSCB4Ho/45NzjQMgfpLhgIVHdwNg/mfoNjqHymcCx7NpiUHfrkd3ZqnbvchREYgjDpRzFAGoiapiwXJUQ==
+estimo@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/estimo/-/estimo-2.0.0.tgz#fc926935831848f69d0ddee3f686b2f561fa2c3c"
+  integrity sha512-K8FZE1Mr0TcGRR6Qzpb0DXrDCphnN8PD2d5RWhPSvt6YFq10+M8lDQi3p3FtHqHdO3WUueFJHiRz0FugSp3/iw==
   dependencies:
     nanoid "^2.0.4"
     puppeteer-core "^1.17.0"
