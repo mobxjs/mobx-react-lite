@@ -3,7 +3,9 @@
     "typescript.tsdk": "./node_modules/typescript/lib",
     "typescriptHero.imports.insertSemicolons": false,
     "typescriptHero.imports.organizeOnSave": true,
-    "tslint.enable": true,
-    "tslint.autoFixOnSave": true,
-    "typescriptHero.imports.stringQuoteStyle": "\""
+    "typescriptHero.imports.stringQuoteStyle": "\"",
+    "eslint.validate": [
+        { "language": "typescript", "autoFix": true },
+        { "language": "typescriptreact", "autoFix": true }
+    ]
 }

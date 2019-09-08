@@ -1,0 +1,25 @@
+rules:
+    "@typescript-eslint/no-unused-vars": warn
+    "react/prop-types": off
+
+extends:
+    - eslint:recommended
+    - plugin:prettier/recommended
+    - plugin:react/recommended
+
+plugins:
+    - "@typescript-eslint"
+    - react
+
+globals:
+    __DEV__: readonly
+
+settings:
+    react:
+        version: "detect"
+env:
+    browser: true
+    es6: true
+
+parser: "@typescript-eslint/parser"
+parserOptions: { sourceType: module }

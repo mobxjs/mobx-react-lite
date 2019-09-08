@@ -61,6 +61,14 @@ jobs:
                   paths:
                       - ./coverage
 
+    test-lint:
+        executor: my-executor
+        steps:
+            - attach_workspace:
+                  at: .
+
+            - run: yarn lint
+
     test-size:
         executor: my-executor
         steps:
@@ -93,10 +101,9 @@ workflows:
     build-and-test:
         jobs:
             - build
+            - test-lint
+            - test-mobx-react-lite
 
-            - test-mobx-react-lite:
-                  requires:
-                      - build
             - test-size:
                   requires:
                       - build

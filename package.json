@@ -14,8 +14,8 @@
     "url": "https://github.com/mobxjs/mobx-react-lite.git"
   },
   "scripts": {
-    "prettier": "prettier --write \"**/*.js\" \"**/*.ts\"",
-    "lint": "tslint --project .",
+    "prettier": "prettier --write \"**/*.{ts,tsx}\"",
+    "lint": "eslint {src,test}/**/*.{ts,tsx}",
     "validate": "tsc --noEmit",
     "test": "jest --watch",
     "test:ci": "jest -i --coverage && yarn lint",
@@ -47,7 +47,13 @@
     "@types/node": "12.7.4",
     "@types/react": "16.9.2",
     "@types/react-dom": "16.9.0",
+    "@typescript-eslint/eslint-plugin": "^2.1.0",
+    "@typescript-eslint/parser": "^2.1.0",
+    "babel-eslint": "^10.0.3",
     "coveralls": "3.0.6",
+    "eslint": "6.3.0",
+    "eslint-plugin-prettier": "3.1.0",
+    "eslint-plugin-react": "7.14.3",
     "husky": "3.0.5",
     "jest": "24.9.0",
     "jest-environment-jsdom": "24.9.0",
@@ -62,8 +68,6 @@
     "size-limit": "2.1.4",
     "ts-jest": "24.0.2",
     "tsdx": "^0.9.1",
-    "tslint": "5.19.0",
-    "tslint-config-prettier": "1.18.0",
     "typescript": "3.4.5"
   },
   "keywords": [
@@ -76,7 +80,7 @@
     "hooks",
     "observer",
     "useObserver",
-    "useComputer"
+    "useLocalStore"
   ],
   "lint-staged": {
     "*.{ts,js}": [
