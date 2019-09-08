@@ -3,11 +3,12 @@
   "version": "2.0.0-alpha.2",
   "description": "Lightweight React bindings for MobX based on React 16.8 and Hooks",
   "main": "dist/index.js",
-  "jsnext:main": "dist/index.module.js",
-  "module": "dist/index.module.js",
-  "react-native": "dist/native.js",
   "typings": "dist/index.d.ts",
   "types": "dist/index.d.ts",
+  "jsnext:main": "dist/mobxreactlite.esm.js",
+  "module": "dist/mobxreactlite.esm.js",
+  "unpkg": "dist/mobxreactlite.umd.production.min.js",
+  "react-native": "dist/mobxreactlite.esm.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/mobxjs/mobx-react-lite.git"
