@@ -1,4 +1,5 @@
-import { forwardRef, memo } from "react"
+import React from "react"
+
 import { isUsingStaticRendering } from "./staticRendering"
 import { useObserver } from "./useObserver"
 
@@ -33,7 +34,7 @@ export function observer<P extends object, TRef = {}>(
 
     const baseComponentName = baseComponent.displayName || baseComponent.name
 
-    const wrappedComponent = (props: P, ref: React.Ref<TRef>) => {
+    const wrappedComponent: React.RefForwardingComponent<TRef, P> = (props, ref) => {
         return useObserver(() => baseComponent(props, ref), baseComponentName)
     }
     wrappedComponent.displayName = baseComponentName
@@ -47,9 +48,9 @@ export function observer<P extends object, TRef = {}>(
         // 1. it cannot go before memo, only after it
         // 2. forwardRef converts the function into an actual component, so we can't let the baseComponent do it
         //    since it wouldn't be a callable function anymore
-        memoComponent = memo(forwardRef(wrappedComponent))
+        memoComponent = React.memo(React.forwardRef(wrappedComponent))
     } else {
-        memoComponent = memo(wrappedComponent)
+        memoComponent = React.memo(wrappedComponent)
     }
 
     copyStaticProperties(baseComponent, memoComponent)
@@ -59,7 +60,7 @@ export function observer<P extends object, TRef = {}>(
 }
 
 // based on https://github.com/mridgway/hoist-non-react-statics/blob/master/src/index.js
-const hoistBlackList: any = {
+const hoistBlackList: Record<string, boolean> = {
     $$typeof: true,
     render: true,
     compare: true,
@@ -68,7 +69,7 @@ const hoistBlackList: any = {
 
 function copyStaticProperties(base: any, target: any) {
     Object.keys(base).forEach(key => {
-        if (base.hasOwnProperty(key) && !hoistBlackList[key]) {
+        if (Reflect.has(base, key) && !hoistBlackList[key]) {
             Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(base, key)!)
         }
     })

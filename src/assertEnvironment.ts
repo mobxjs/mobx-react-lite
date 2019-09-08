@@ -1,7 +1,7 @@
 import { spy } from "mobx"
-import { useState } from "react"
+import React from "react"
 
-if (!useState) {
+if (!React.useState) {
     throw new Error("mobx-react-lite requires React with Hooks support")
 }
 if (!spy) {

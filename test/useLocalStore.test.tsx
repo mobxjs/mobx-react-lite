@@ -460,7 +460,7 @@ describe("enforcing actions", () => {
     it("'never' should work", () => {
         mobx.configure({ enforceActions: "never" })
         const { result } = renderHook(() => {
-            const [multiplier, setMultiplier] = React.useState(2);
+            const [multiplier, setMultiplier] = React.useState(2)
             useLocalStore(
                 props => ({
                     count: 10,
@@ -475,12 +475,12 @@ describe("enforcing actions", () => {
             )
             useEffect(() => setMultiplier(3), [])
         })
-        expect(result.error).not.toBeDefined();
+        expect(result.error).not.toBeDefined()
     })
     it("only when 'observed' should work", () => {
         mobx.configure({ enforceActions: "observed" })
         const { result } = renderHook(() => {
-            const [multiplier, setMultiplier] = React.useState(2);
+            const [multiplier, setMultiplier] = React.useState(2)
             useLocalStore(
                 props => ({
                     count: 10,
@@ -495,12 +495,12 @@ describe("enforcing actions", () => {
             )
             useEffect(() => setMultiplier(3), [])
         })
-        expect(result.error).not.toBeDefined();
+        expect(result.error).not.toBeDefined()
     })
     it("'always' should work", () => {
         mobx.configure({ enforceActions: "always" })
         const { result } = renderHook(() => {
-            const [multiplier, setMultiplier] = React.useState(2);
+            const [multiplier, setMultiplier] = React.useState(2)
             useLocalStore(
                 props => ({
                     count: 10,
@@ -515,6 +515,6 @@ describe("enforcing actions", () => {
             )
             useEffect(() => setMultiplier(3), [])
         })
-        expect(result.error).not.toBeDefined();
+        expect(result.error).not.toBeDefined()
     })
 })

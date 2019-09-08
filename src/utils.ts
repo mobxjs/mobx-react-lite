@@ -1,15 +1,15 @@
-import { useCallback, useEffect, useState } from "react"
+import React from "react"
 
 const EMPTY_ARRAY: any[] = []
 
 export function useUnmount(fn: () => void) {
-    useEffect(() => fn, EMPTY_ARRAY)
+    React.useEffect(() => fn, EMPTY_ARRAY)
 }
 
 export function useForceUpdate() {
-    const [, setTick] = useState(0)
+    const [, setTick] = React.useState(0)
 
-    const update = useCallback(() => {
+    const update = React.useCallback(() => {
         setTick(tick => tick + 1)
     }, [])
 
