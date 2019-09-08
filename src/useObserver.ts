@@ -59,6 +59,7 @@ export function useObserver<T>(
                 // drop our current reaction and allow useEffect() to recreate it.
                 newReaction.dispose()
                 reactionTrackingRef.current = null
+                recordReactionAsCommitted(reactionTrackingRef)
             }
         })
 

@@ -92,6 +92,9 @@ function cleanUncommittedReactions() {
                 ref.current = null
                 uncommittedReactionRefs.delete(ref)
             }
+        } else {
+            // Should never happen, but just in ase
+            uncommittedReactionRefs.delete(ref)
         }
     }
 
