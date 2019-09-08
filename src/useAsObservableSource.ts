@@ -11,7 +11,7 @@ export function useAsObservableSourceInternal<TSource>(
     if (usedByLocalStore && current === undefined) {
         return undefined as any
     }
-    if (!__DEV__ && !isPlainObject(current)) {
+    if (__DEV__ && !isPlainObject(current)) {
         throw new Error(
             `${culprit} expects a plain object as ${usedByLocalStore ? "second" : "first"} argument`
         )
