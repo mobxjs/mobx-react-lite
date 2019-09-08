@@ -101,8 +101,13 @@ workflows:
     build-and-test:
         jobs:
             - build
-            - test-lint
-            - test-mobx-react-lite
+            - test-lint:
+                  requires:
+                      - build
+
+            - test-mobx-react-lite:
+                  requires:
+                      - build
 
             - test-size:
                   requires:
