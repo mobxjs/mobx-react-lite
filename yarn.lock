@@ -384,14 +384,14 @@
     "@size-limit/file" "2.1.5"
     "@size-limit/webpack" "2.1.5"
 
-"@size-limit/time@2.1.4":
-  version "2.1.4"
-  resolved "https://registry.yarnpkg.com/@size-limit/time/-/time-2.1.4.tgz#5f87abb856ea0c892b0b0f2dd13890d0b9ffaf5e"
-  integrity sha512-TmzYJdNb7Ud2himUp3OrM50YUIztD61Y5Fntmbv68h9/YWrbtVYnqseAF4XMOHo2/OGus1QlplkcpyThFDxnFg==
+"@size-limit/time@2.1.5":
+  version "2.1.5"
+  resolved "https://registry.yarnpkg.com/@size-limit/time/-/time-2.1.5.tgz#8e135b8332685c150784ed41be0a4568a28405f3"
+  integrity sha512-DvQLD3G19B4RFyEwy3AqyeYqHimbJAIDw61nXee7+1xRloo7c66Rzz+OblRMc5V58o+XuFuuHuTuVeb2zqZO4g==
   dependencies:
     estimo "^2.0.0"
     react "^16.9.0"
-    size-limit "2.1.4"
+    size-limit "2.1.5"
 
 "@size-limit/webpack@2.1.5":
   version "2.1.5"
