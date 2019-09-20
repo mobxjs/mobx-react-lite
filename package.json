@@ -36,7 +36,7 @@
   },
   "devDependencies": {
     "@size-limit/preset-small-lib": "2.1.6",
-    "@size-limit/time": "2.1.5",
+    "@size-limit/time": "2.1.6",
     "@testing-library/react": "9.1.4",
     "@testing-library/react-hooks": "1.1.0",
     "@testing-library/jest-dom": "4.1.0",
