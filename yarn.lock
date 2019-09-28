@@ -4819,10 +4819,10 @@ mkdirp@0.5.1, mkdirp@0.x, mkdirp@^0.5.0, mkdirp@^0.5.1, mkdirp@~0.5.1:
   dependencies:
     minimist "0.0.8"
 
-mobx@5.13.0:
-  version "5.13.0"
-  resolved "https://registry.yarnpkg.com/mobx/-/mobx-5.13.0.tgz#0fd68f10aa5ff2d146a4ed9e145b53337cfbca59"
-  integrity sha512-eSAntMSMNj0PFL705rgv+aB/z1RjNqDnFEpBe18yQVreXTWiVgIrmBUXzjnJfuba+eo4eAk6zi+/gXQkSUea8A==
+mobx@5.13.1:
+  version "5.13.1"
+  resolved "https://registry.yarnpkg.com/mobx/-/mobx-5.13.1.tgz#729a3ae3604aaa9751f7f7551dbf7aead86593c7"
+  integrity sha512-v29wXJeOw3GpnfDxDAecHdnoBZzTrKju6UZoQxcUDiNHyyo3dBWCkDOiTsmRLf7+VXDfbmnUh9P+XGqXWVOW7Q==
 
 move-concurrently@^1.0.1:
   version "1.0.1"
