@@ -56,7 +56,7 @@
     "react-dom": "16.8.6",
     "react-test-renderer": "16.8.6",
     "rimraf": "3.0.0",
-    "rollup": "1.21.4",
+    "rollup": "1.22.0",
     "rollup-plugin-alias": "1.5.2",
     "rollup-plugin-commonjs": "10.1.0",
     "rollup-plugin-filesize": "6.2.0",
