@@ -45,7 +45,7 @@
     "@types/react": "16.9.5",
     "@types/react-dom": "16.9.1",
     "coveralls": "3.0.7",
-    "husky": "3.0.8",
+    "husky": "3.0.9",
     "jest": "24.9.0",
     "jest-environment-jsdom": "24.9.0",
     "jest-mock-console": "1.0.0",
