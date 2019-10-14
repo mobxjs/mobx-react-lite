@@ -35,6 +35,7 @@ export function useObserver<T>(
     const dispose = () => {
         if (reaction.current && !reaction.current.isDisposed) {
             reaction.current.dispose()
+            reaction.current = null
         }
     }
 
