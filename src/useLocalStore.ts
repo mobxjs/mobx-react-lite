@@ -1,4 +1,4 @@
-import { observable, transaction, runInAction } from "mobx"
+import { observable, runInAction, transaction } from "mobx"
 import React from "react"
 
 import { useAsObservableSourceInternal } from "./useAsObservableSource"
@@ -17,6 +17,7 @@ export function useLocalStore<TStore extends Record<string, any>, TSource extend
                 Object.keys(local).forEach(key => {
                     const value = local[key]
                     if (typeof value === "function") {
+                        // @ts-ignore No idea why ts2536 is popping out here
                         local[key] = wrapInTransaction(value, local)
                     }
                 })
