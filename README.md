@@ -48,6 +48,31 @@ interface IUseObserverOptions {
 
 Feel free to try out `mobx-react-lite@next` which is based on latest 1.x, but contains experimental support for handling Concurrent mode in React properly.
 
+## Optimize rendering
+
+[Check out the elaborate explanation](https://github.com/mobxjs/mobx-react-lite/issues/153#issuecomment-490511464).
+
+If this is something that concerns you, we have prepared files you can simply import to configure MobX to use React batched updates depending on your platform.
+
+**React DOM:**
+
+> import 'mobx-react-lite/optimizeForReactDom'
+
+**React Native:**
+
+> import 'mobx-react-lite/optimizeForReactNative'
+
+Import one of these before any React rendering is happening, typically `index.js/ts`. For Jest tests you can utilize [setupFilesAfterEnv](https://jestjs.io/docs/en/configuration#setupfilesafterenv-array).
+
+### Custom batched updates
+
+Above imports are for a convenience. If you for some reason have customized version of batched updates, you can do the following instead.
+
+```js
+import { optimizeScheduler } from "mobx-react-lite"
+optimizeScheduler(customBatchedUpdates)
+```
+
 ## Deprecation notice ⚠
 
 Following utilities are still available in the package, but they are deprecated and will be removed in the next major version (2.x). As such, they are not mentioned in the user guide and it's not recommend to continue using these.
