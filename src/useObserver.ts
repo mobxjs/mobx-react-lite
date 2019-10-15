@@ -97,7 +97,10 @@ export function useObserver<T>(
             forceUpdate()
         }
 
-        return () => reactionTrackingRef.current!.reaction.dispose()
+        return () => {
+            reactionTrackingRef.current!.reaction.dispose()
+            reactionTrackingRef.current = null
+        }
     }, [])
 
     // render the original component, but have the
