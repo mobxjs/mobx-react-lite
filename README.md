@@ -32,9 +32,9 @@ Is a React component, which applies observer to an anonymous region in your comp
 
 ```ts
 interface IObserverOptions {
-    // Pass true to wrap the inner component with React.forwardRef.
-    // It's false by the default.
-    forwardRef?: boolean
+  // Pass true to wrap the inner component with React.forwardRef.
+  // It's false by the default.
+  forwardRef?: boolean;
 }
 ```
 
@@ -44,8 +44,8 @@ The observer converts a component into a reactive component, which tracks which 
 
 ```ts
 interface IUseObserverOptions {
-    // optional custom hook that should make a component re-render (or not) upon changes
-    useForceUpdate: () => () => void
+  // optional custom hook that should make a component re-render (or not) upon changes
+  useForceUpdate: () => () => void;
 }
 ```
 
@@ -58,3 +58,28 @@ Local observable state can be introduced by using the useLocalStore hook, that r
 ### **`useAsObservableSource<T>(source: T): T`** _([user guide](https://mobx-react.js.org/state-outsourcing))_
 
 The useAsObservableSource hook can be used to turn any set of values into an observable object that has a stable reference (the same object is returned every time from the hook).
+
+## Optimize rendering
+
+[Check out the elaborate explanation](https://github.com/mobxjs/mobx-react-lite/issues/153#issuecomment-490511464).
+
+If this is something that concerns you, we have prepared files you can simply import to configure MobX to use React batched updates depending on your platform.
+
+**React DOM:**
+
+> import 'mobx-react-lite/optimizeForReactDom'
+
+**React Native:**
+
+> import 'mobx-react-lite/optimizeForReactNative'
+
+Import one of these before any React rendering is happening, typically `index.js/ts`. For Jest tests you can utilize [setupFilesAfterEnv](https://jestjs.io/docs/en/configuration#setupfilesafterenv-array).
+
+### Custom batched updates
+
+Above imports are for a convenience. If you for some reason have customized version of batched updates, you can do the following instead.
+
+```js
+import { optimizeScheduler } from "mobx-react-lite";
+optimizeScheduler(customBatchedUpdates);
+```
