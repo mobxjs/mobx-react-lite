@@ -23,7 +23,7 @@
     "coverage": "jest --coverage",
     "prebuild": "rimraf dist",
     "build": "yarn bundle",
-    "bundle": "tsdx build --name mobxReactLite --format=cjs,esm,umd",
+    "bundle": "tsdx build --name mobxReactLite --format=cjs,esm,umd --tsconfig tsconfig.build.json",
     "prepublishOnly": "yarn build",
     "dedup": "npx yarn-deduplicate -s fewer yarn.lock"
   },
