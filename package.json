@@ -1,6 +1,6 @@
 {
   "name": "mobx-react-lite",
-  "version": "2.0.0-alpha.3",
+  "version": "2.0.0-alpha.4",
   "description": "Lightweight React bindings for MobX based on React 16.8 and Hooks",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
