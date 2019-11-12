@@ -1,2 +1,2 @@
-const { unstable_batchedUpdates } = require("react-dom")
-require("./dist").optimizeScheduler(unstable_batchedUpdates)
+const ReactDOM = require("react-dom")
+require("./dist").optimizeScheduler(ReactDOM.unstable_batchedUpdates)
