@@ -658,6 +658,36 @@ test("parent / childs render in the right order", done => {
     done()
 })
 
+it("should have overload for props with children", () => {
+    interface IProps {
+        value: string;
+    }
+    const TestComponent = observer<IProps>(({ value, children }) => {
+        return null
+    })
+
+    render(<TestComponent value="1" />)
+
+    // this test has no `expect` calls as it verifies whether such component compiles or not
+})
+
+it("should have overload for props with children when forwardRef", () => {
+    interface IMethods {
+        focus(): void
+    }
+
+    interface IProps {
+        value: string;
+    }
+    const TestComponent = observer<IProps, IMethods>(({ value, children }, ref) => {
+        return null
+    }, { forwardRef: true })
+
+    render(<TestComponent value="1" />)
+
+    // this test has no `expect` calls as it verifies whether such component compiles or not
+})
+
 it("should preserve generic parameters", () => {
     interface IColor {
         name: string;
