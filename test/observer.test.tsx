@@ -581,12 +581,12 @@ it("should hoist known statics only", () => {
 
     const wrapped = observer(MyHipsterComponent)
     expect(wrapped.displayName).toBe("MyHipsterComponent")
-    expect((wrapped as any).randomStaticThing).toEqual(3)
-    expect((wrapped as any).defaultProps).toEqual({ x: 3 })
-    expect((wrapped as any).propTypes).toEqual({ x: isNumber })
-    expect((wrapped as any).type).toBeInstanceOf(Function) // And not "Nope!"; this is the wrapped component, the property is introduced by memo
-    expect((wrapped as any).compare).toBe(null) // another memo field
-    expect((wrapped as any).render).toBe(undefined)
+    expect(wrapped.randomStaticThing).toEqual(3)
+    expect(wrapped.defaultProps).toEqual({ x: 3 })
+    expect(wrapped.propTypes).toEqual({ x: isNumber })
+    expect(wrapped.type).toBeInstanceOf(Function) // And not "Nope!"; this is the wrapped component, the property is introduced by memo
+    expect(wrapped.compare).toBe(null) // another memo field
+    expect(wrapped.render).toBe(undefined)
 })
 
 it("should have the correct displayName", () => {
