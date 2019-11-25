@@ -6,16 +6,25 @@ export interface IObserverOptions {
     readonly forwardRef?: boolean
 }
 
-export function observer<P extends object, TRef = {}>(
-    baseComponent: React.RefForwardingComponent<TRef, P>,
+export function observer<
+    C extends React.RefForwardingComponent<TRef, P>,
+    P extends object = C extends React.RefForwardingComponent<any, infer T> ? T : unknown,
+    TRef extends object = C extends React.RefForwardingComponent<infer T, any> ? T : unknown
+>(
+    baseComponent: C,
     options: IObserverOptions & { forwardRef: true }
-): React.MemoExoticComponent<
-    React.ForwardRefExoticComponent<React.PropsWithoutRef<P> & React.RefAttributes<TRef>>
->
-export function observer<P extends object>(
-    baseComponent: React.FunctionComponent<P>,
-    options?: IObserverOptions
-): React.FunctionComponent<P>
+): C &
+    React.MemoExoticComponent<
+        React.ForwardRefExoticComponent<React.PropsWithoutRef<P> & React.RefAttributes<TRef>>
+    >
+export function observer<
+    C extends React.FunctionComponent<P>,
+    P extends object = C extends React.FunctionComponent<infer T> ? T : unknown
+>(
+    baseComponent: C,
+    options?: IObserverOptions & { forwardRef: false }
+): C & React.FunctionComponent<P>
+
 // n.b. base case is not used for actual typings or exported in the typing files
 export function observer<P extends object, TRef = {}>(
     baseComponent: React.RefForwardingComponent<TRef, P>,

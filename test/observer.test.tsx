@@ -658,6 +658,64 @@ test("parent / childs render in the right order", done => {
     done()
 })
 
+it("should preserve generic parameters", () => {
+    interface IColor {
+        name: string;
+        css: string;
+    }
+
+    interface ITestComponentProps<T> {
+        value: T;
+        callback: (value: T) => void;
+    }
+    const TestComponent = observer(<T extends unknown>(props: ITestComponentProps<T>) => {
+        return null
+    })
+
+    function callbackString(value: string) {
+        return;
+    }
+    function callbackColor(value: IColor) {
+        return;
+    }
+
+    render(<TestComponent value="1" callback={callbackString} />)
+    render(<TestComponent value={{ name: 'red', css: 'rgb(255, 0, 0)' }} callback={callbackColor} />)
+
+    // this test has no `expect` calls as it verifies whether such component compiles or not
+})
+
+it("should preserve generic parameters when forwardRef", () => {
+    interface IMethods {
+        focus(): void
+    }
+
+    interface IColor {
+        name: string
+        css: string
+    }
+
+    interface ITestComponentProps<T> {
+        value: T
+        callback: (value: T) => void
+    }
+    const TestComponent = observer(<T extends unknown>(props: ITestComponentProps<T>, ref: React.Ref<IMethods>) => {
+        return null
+    }, { forwardRef: true })
+
+    function callbackString(value: string) {
+        return;
+    }
+    function callbackColor(value: IColor) {
+        return;
+    }
+
+    render(<TestComponent value="1" callback={callbackString} />)
+    render(<TestComponent value={{ name: 'red', css: 'rgb(255, 0, 0)' }} callback={callbackColor} />)
+
+    // this test has no `expect` calls as it verifies whether such component compiles or not
+})
+
 // describe("206 - @observer should produce usefull errors if it throws", () => {
 //     const data = mobx.observable({ x: 1 })
 //     let renderCount = 0
