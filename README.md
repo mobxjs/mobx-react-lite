@@ -88,7 +88,7 @@ React hook that allows creating observable object within a component body and ke
 Warning: With current implementation you also need to wrap your component to `observer`. It's also possible to have `useObserver` only in case you are not expecting rerender of the whole component.
 
 ```tsx
-import { observer, useObservable, useObserver } from "mobx-react-lite"
+import { useObservable, useObserver } from "mobx-react-lite"
 
 const TodoList = () => {
     const todos = useObservable(new Map<string, boolean>())
