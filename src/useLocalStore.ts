@@ -10,7 +10,7 @@ export function useLocalStore<TStore extends Record<string, any>, TSource extend
 ): TStore {
     const source = useAsObservableSourceInternal<TSource | undefined>(current, true)
 
-    return React.useState(() => {
+    return React.useMemo(() => {
         const local = observable(initializer(source as TSource))
         if (isPlainObject(local)) {
             runInAction(() => {
@@ -24,7 +24,7 @@ export function useLocalStore<TStore extends Record<string, any>, TSource extend
             })
         }
         return local
-    })[0]
+    }, [])
 }
 
 // tslint:disable-next-line: ban-types
