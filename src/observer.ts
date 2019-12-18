@@ -12,26 +12,28 @@ export function observer<P extends object, TRef = {}>(
 ): React.MemoExoticComponent<
     React.ForwardRefExoticComponent<React.PropsWithoutRef<P> & React.RefAttributes<TRef>>
 >
-export function observer<
-    C extends React.RefForwardingComponent<TRef, P>,
-    P extends object = C extends React.RefForwardingComponent<any, infer T> ? T : unknown,
-    TRef = C extends React.RefForwardingComponent<infer T, any> ? T : unknown
->(
-    baseComponent: C,
-    options: IObserverOptions & { forwardRef: true }
-): C &
-    React.MemoExoticComponent<
-        React.ForwardRefExoticComponent<React.PropsWithoutRef<P> & React.RefAttributes<TRef>>
-    >
 
 export function observer<P extends object>(
     baseComponent: React.FunctionComponent<P>,
     options?: IObserverOptions
 ): React.FunctionComponent<P>
+
 export function observer<
-    C extends React.FunctionComponent<P>,
-    P extends object = C extends React.FunctionComponent<infer T> ? T : unknown
->(baseComponent: C, options?: IObserverOptions): C & React.FunctionComponent<P>
+    C extends React.FunctionComponent<any> | React.RefForwardingComponent<any>,
+    Options extends IObserverOptions
+>(
+    baseComponent: C,
+    options?: Options
+): Options extends { forwardRef: true }
+    ? C extends React.RefForwardingComponent<infer TRef, infer P>
+        ? C &
+              React.MemoExoticComponent<
+                  React.ForwardRefExoticComponent<
+                      React.PropsWithoutRef<P> & React.RefAttributes<TRef>
+                  >
+              >
+        : never /* forwardRef set for a non forwarding component */
+    : C & React.FunctionComponent
 
 // n.b. base case is not used for actual typings or exported in the typing files
 export function observer<P extends object, TRef = {}>(
