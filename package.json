@@ -24,7 +24,6 @@
     "coverage": "jest --coverage",
     "prebuild": "rimraf dist",
     "build": "yarn bundle",
-    "postbuild": "shx cp dist/mobxreactlite.umd.production.min.js dist/index.min.js",
     "bundle": "tsdx build --name mobxReactLite --format=cjs,esm,umd --tsconfig tsconfig.build.json",
     "prepublishOnly": "yarn build",
     "dedup": "npx yarn-deduplicate -s fewer yarn.lock"
