@@ -69,6 +69,14 @@ jobs:
 
             - run: yarn size
 
+    test-lint:
+        executor: my-executor
+        steps:
+            - attach_workspace:
+                  at: .
+
+            - run: yarn lint
+
     # upload coverage
     upload-coveralls:
         executor: my-executor
@@ -98,6 +106,9 @@ workflows:
                   requires:
                       - build
             - test-size:
+                  requires:
+                      - build
+            - test-lint:
                   requires:
                       - build
 
