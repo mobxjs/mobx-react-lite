@@ -1,10 +1,8 @@
-import { ReactElement } from "react"
-
 import { useObserver } from "./useObserver"
 
 interface IObserverProps {
-    children?(): ReactElement<any>
-    render?(): ReactElement<any>
+    children?(): React.ReactElement<any>
+    render?(): React.ReactElement<any>
 }
 
 function ObserverComponent({ children, render }: IObserverProps) {

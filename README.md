@@ -32,9 +32,9 @@ Is a React component, which applies observer to an anonymous region in your comp
 
 ```ts
 interface IObserverOptions {
-  // Pass true to wrap the inner component with React.forwardRef.
-  // It's false by the default.
-  forwardRef?: boolean;
+    // Pass true to wrap the inner component with React.forwardRef.
+    // It's false by the default.
+    forwardRef?: boolean
 }
 ```
 
@@ -44,8 +44,8 @@ The observer converts a component into a reactive component, which tracks which 
 
 ```ts
 interface IUseObserverOptions {
-  // optional custom hook that should make a component re-render (or not) upon changes
-  useForceUpdate: () => () => void;
+    // optional custom hook that should make a component re-render (or not) upon changes
+    useForceUpdate: () => () => void
 }
 ```
 
@@ -80,6 +80,6 @@ Import one of these before any React rendering is happening, typically `index.js
 Above imports are for a convenience. If you for some reason have customized version of batched updates, you can do the following instead.
 
 ```js
-import { optimizeScheduler } from "mobx-react-lite";
-optimizeScheduler(customBatchedUpdates);
+import { optimizeScheduler } from "mobx-react-lite"
+optimizeScheduler(customBatchedUpdates)
 ```

@@ -1,4 +1,5 @@
 import { forwardRef, memo } from "react"
+
 import { isUsingStaticRendering } from "./staticRendering"
 import { useObserver } from "./useObserver"
 
@@ -87,7 +88,7 @@ const hoistBlackList: any = {
 
 function copyStaticProperties(base: any, target: any) {
     Object.keys(base).forEach(key => {
-        if (base.hasOwnProperty(key) && !hoistBlackList[key]) {
+        if (Reflect.has(base, key) && !hoistBlackList[key]) {
             Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(base, key)!)
         }
     })

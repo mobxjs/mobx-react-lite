@@ -9,20 +9,22 @@
   "module": "dist/mobxreactlite.esm.js",
   "unpkg": "dist/mobxreactlite.umd.production.min.js",
   "react-native": "dist/mobxreactlite.esm.js",
+  "sideEffects": false,
   "repository": {
     "type": "git",
     "url": "https://github.com/mobxjs/mobx-react-lite.git"
   },
   "scripts": {
-    "prettier": "prettier --write \"**/*.js\" \"**/*.ts\"",
-    "lint": "tslint --project .",
+    "prettier": "prettier --write \"./{src,test}/*.{js,ts,tsx}\"",
+    "lint": "eslint . --ext .js,.ts,.tsx",
     "validate": "tsc --noEmit",
     "test": "jest --watch",
-    "test:ci": "jest -i --coverage && yarn lint",
+    "test:ci": "jest -i --coverage",
     "size": "size-limit",
     "coverage": "jest --coverage",
     "prebuild": "rimraf dist",
     "build": "yarn bundle",
+    "postbuild": "shx cp dist/mobxreactlite.umd.production.min.js dist/index.min.js",
     "bundle": "tsdx build --name mobxReactLite --format=cjs,esm,umd --tsconfig tsconfig.build.json",
     "prepublishOnly": "yarn build",
     "dedup": "npx yarn-deduplicate -s fewer yarn.lock"
@@ -38,6 +40,8 @@
     "react": "^16.8.0"
   },
   "devDependencies": {
+    "@babel/core": "7.8.4",
+    "@babel/preset-env": "7.8.4",
     "@size-limit/preset-small-lib": "2.1.6",
     "@size-limit/time": "2.1.6",
     "@testing-library/jest-dom": "4.1.2",
@@ -47,23 +51,25 @@
     "@types/node": "12.7.12",
     "@types/react": "16.9.6",
     "@types/react-dom": "16.9.2",
+    "@typescript-eslint/eslint-plugin": "^2.19.2",
+    "@typescript-eslint/parser": "^2.19.2",
     "coveralls": "3.0.7",
+    "eslint": "^6.1.0",
+    "eslint-plugin-react": "^7.18.3",
     "husky": "3.0.9",
     "jest": "24.9.0",
     "jest-environment-jsdom": "24.9.0",
     "jest-mock-console": "1.0.0",
     "lint-staged": "9.4.2",
     "mobx": "5.14.0",
-    "prettier": "1.18.2",
+    "prettier": "^1.19.1",
     "react": "16.10.2",
     "react-dom": "16.10.2",
     "react-test-renderer": "16.10.2",
     "rimraf": "3.0.0",
-    "size-limit": "2.1.6",
+    "shx": "0.3.2",
     "ts-jest": "24.1.0",
-    "tsdx": "^0.9.1",
-    "tslint": "5.20.0",
-    "tslint-config-prettier": "1.18.0",
+    "tsdx": "0.12.3",
     "typescript": "3.6.4"
   },
   "keywords": [
@@ -79,7 +85,7 @@
     "useComputer"
   ],
   "lint-staged": {
-    "*.{ts,js}": [
+    "*.{ts,tsx,js}": [
       "prettier --write",
       "git add"
     ]

@@ -8,12 +8,10 @@ test("mobx issue 50", done => {
     const foo = {
         a: mobx.observable.box(true),
         b: mobx.observable.box(false),
-        c: mobx.computed(
-            (): boolean => {
-                // console.log("evaluate c")
-                return foo.b.get()
-            }
-        )
+        c: mobx.computed((): boolean => {
+            // console.log("evaluate c")
+            return foo.b.get()
+        })
     }
     function flipStuff() {
         mobx.transaction(() => {
