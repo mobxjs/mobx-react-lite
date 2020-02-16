@@ -15,8 +15,8 @@
     "url": "https://github.com/mobxjs/mobx-react-lite.git"
   },
   "scripts": {
-    "prettier": "prettier --write \"**/*.js\" \"**/*.ts\"",
-    "lint": "tslint --project .",
+    "prettier": "prettier --write \"./{src,test}/*.{js,ts,tsx}\"",
+    "lint": "tsdx lint src test",
     "validate": "tsc --noEmit",
     "test": "jest --watch",
     "test:ci": "jest -i --coverage && yarn lint",
@@ -84,7 +84,7 @@
     "useComputer"
   ],
   "lint-staged": {
-    "*.{ts,js}": [
+    "*.{ts,tsx,js}": [
       "prettier --write",
       "git add"
     ]

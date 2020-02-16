@@ -272,7 +272,11 @@ test("useAsObservableSource with effects should work", () => {
 
     expect(valuesSeenByEffect).toEqual([10, 11])
     expect(multiplierSeenByEffect).toEqual([1, 2])
-    expect(thingsSeenByEffect).toEqual([[1, 10, 1], [1, 11, 1], [2, 22, 1]])
+    expect(thingsSeenByEffect).toEqual([
+        [1, 10, 1],
+        [1, 11, 1],
+        [2, 22, 1]
+    ])
 })
 
 describe("combining observer with props and stores", () => {
