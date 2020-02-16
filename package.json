@@ -3,11 +3,13 @@
   "version": "1.5.2",
   "description": "Lightweight React bindings for MobX based on React 16.8 and Hooks",
   "main": "dist/index.js",
-  "jsnext:main": "dist/index.module.js",
-  "module": "dist/index.module.js",
-  "react-native": "dist/native.js",
   "typings": "dist/index.d.ts",
   "types": "dist/index.d.ts",
+  "jsnext:main": "dist/mobxreactlite.esm.js",
+  "module": "dist/mobxreactlite.esm.js",
+  "unpkg": "dist/mobxreactlite.umd.production.min.js",
+  "react-native": "dist/mobxreactlite.esm.js",
+  "sideEffects": false,
   "repository": {
     "type": "git",
     "url": "https://github.com/mobxjs/mobx-react-lite.git"
@@ -21,8 +23,11 @@
     "size": "size-limit",
     "coverage": "jest --coverage",
     "prebuild": "rimraf dist",
-    "build": "node build-rollup.js",
-    "prepublishOnly": "yarn build"
+    "build": "yarn bundle",
+    "postbuild": "shx cp dist/mobxreactlite.umd.production.min.js dist/index.min.js",
+    "bundle": "tsdx build --name mobxReactLite --format=cjs,esm,umd --tsconfig tsconfig.build.json",
+    "prepublishOnly": "yarn build",
+    "dedup": "npx yarn-deduplicate -s fewer yarn.lock"
   },
   "author": "Daniel K.",
   "license": "MIT",
@@ -35,6 +40,8 @@
     "react": "^16.8.0"
   },
   "devDependencies": {
+    "@babel/core": "7.8.4",
+    "@babel/preset-env": "7.8.4",
     "@size-limit/preset-small-lib": "2.1.6",
     "@size-limit/time": "2.1.6",
     "@testing-library/jest-dom": "4.1.2",
@@ -56,16 +63,10 @@
     "react-dom": "16.10.2",
     "react-test-renderer": "16.10.2",
     "rimraf": "3.0.0",
-    "rollup": "1.23.1",
-    "rollup-plugin-alias": "1.5.2",
-    "rollup-plugin-commonjs": "10.1.0",
-    "rollup-plugin-filesize": "6.2.0",
-    "rollup-plugin-node-resolve": "5.2.0",
-    "rollup-plugin-replace": "2.2.0",
-    "rollup-plugin-terser": "5.1.2",
-    "rollup-plugin-typescript2": "0.24.3",
     "size-limit": "2.1.6",
+    "shx": "0.3.2",
     "ts-jest": "24.1.0",
+    "tsdx": "0.12.3",
     "tslint": "5.20.0",
     "tslint-config-prettier": "1.18.0",
     "typescript": "3.6.4"
