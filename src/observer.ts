@@ -12,10 +12,29 @@ export function observer<P extends object, TRef = {}>(
 ): React.MemoExoticComponent<
     React.ForwardRefExoticComponent<React.PropsWithoutRef<P> & React.RefAttributes<TRef>>
 >
+
 export function observer<P extends object>(
     baseComponent: React.FunctionComponent<P>,
     options?: IObserverOptions
 ): React.FunctionComponent<P>
+
+export function observer<
+    C extends React.FunctionComponent<any> | React.RefForwardingComponent<any>,
+    Options extends IObserverOptions
+>(
+    baseComponent: C,
+    options?: Options
+): Options extends { forwardRef: true }
+    ? C extends React.RefForwardingComponent<infer TRef, infer P>
+        ? C &
+              React.MemoExoticComponent<
+                  React.ForwardRefExoticComponent<
+                      React.PropsWithoutRef<P> & React.RefAttributes<TRef>
+                  >
+              >
+        : never /* forwardRef set for a non forwarding component */
+    : C & React.FunctionComponent
+
 // n.b. base case is not used for actual typings or exported in the typing files
 export function observer<P extends object, TRef = {}>(
     baseComponent: React.RefForwardingComponent<TRef, P>,

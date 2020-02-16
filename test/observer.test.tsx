@@ -581,12 +581,12 @@ it("should hoist known statics only", () => {
 
     const wrapped = observer(MyHipsterComponent)
     expect(wrapped.displayName).toBe("MyHipsterComponent")
-    expect((wrapped as any).randomStaticThing).toEqual(3)
-    expect((wrapped as any).defaultProps).toEqual({ x: 3 })
-    expect((wrapped as any).propTypes).toEqual({ x: isNumber })
-    expect((wrapped as any).type).toBeInstanceOf(Function) // And not "Nope!"; this is the wrapped component, the property is introduced by memo
-    expect((wrapped as any).compare).toBe(null) // another memo field
-    expect((wrapped as any).render).toBe(undefined)
+    expect(wrapped.randomStaticThing).toEqual(3)
+    expect(wrapped.defaultProps).toEqual({ x: 3 })
+    expect(wrapped.propTypes).toEqual({ x: isNumber })
+    expect(wrapped.type).toBeInstanceOf(Function) // And not "Nope!"; this is the wrapped component, the property is introduced by memo
+    expect(wrapped.compare).toBe(null) // another memo field
+    expect(wrapped.render).toBe(undefined)
 })
 
 it("should have the correct displayName", () => {
@@ -656,6 +656,110 @@ test("parent / childs render in the right order", done => {
     tryLogout()
     expect(events).toEqual(["parent", "child", "parent"])
     done()
+})
+
+it("should have overload for props with children", () => {
+    interface IProps {
+        value: string;
+    }
+    const TestComponent = observer<IProps>(({ value, children }) => {
+        return null
+    })
+
+    render(<TestComponent value="1" />)
+
+    // this test has no `expect` calls as it verifies whether such component compiles or not
+})
+
+it("should have overload for empty options", () => {
+    // empty options are not really making sense now, but we shouldn't rely on `forwardRef`
+    // being specified in case other options are added in the future
+
+    interface IProps {
+        value: string;
+    }
+    const TestComponent = observer<IProps>(({ value, children }) => {
+        return null
+    }, {})
+
+    render(<TestComponent value="1" />)
+
+    // this test has no `expect` calls as it verifies whether such component compiles or not
+})
+
+it("should have overload for props with children when forwardRef", () => {
+    interface IMethods {
+        focus(): void
+    }
+
+    interface IProps {
+        value: string;
+    }
+    const TestComponent = observer<IProps, IMethods>(({ value, children }, ref) => {
+        return null
+    }, { forwardRef: true })
+
+    render(<TestComponent value="1" />)
+
+    // this test has no `expect` calls as it verifies whether such component compiles or not
+})
+
+it("should preserve generic parameters", () => {
+    interface IColor {
+        name: string;
+        css: string;
+    }
+
+    interface ITestComponentProps<T> {
+        value: T;
+        callback: (value: T) => void;
+    }
+    const TestComponent = observer(<T extends unknown>(props: ITestComponentProps<T>) => {
+        return null
+    })
+
+    function callbackString(value: string) {
+        return;
+    }
+    function callbackColor(value: IColor) {
+        return;
+    }
+
+    render(<TestComponent value="1" callback={callbackString} />)
+    render(<TestComponent value={{ name: 'red', css: 'rgb(255, 0, 0)' }} callback={callbackColor} />)
+
+    // this test has no `expect` calls as it verifies whether such component compiles or not
+})
+
+it("should preserve generic parameters when forwardRef", () => {
+    interface IMethods {
+        focus(): void
+    }
+
+    interface IColor {
+        name: string
+        css: string
+    }
+
+    interface ITestComponentProps<T> {
+        value: T
+        callback: (value: T) => void
+    }
+    const TestComponent = observer(<T extends unknown>(props: ITestComponentProps<T>, ref: React.Ref<IMethods>) => {
+        return null
+    }, { forwardRef: true })
+
+    function callbackString(value: string) {
+        return;
+    }
+    function callbackColor(value: IColor) {
+        return;
+    }
+
+    render(<TestComponent value="1" callback={callbackString} />)
+    render(<TestComponent value={{ name: 'red', css: 'rgb(255, 0, 0)' }} callback={callbackColor} />)
+
+    // this test has no `expect` calls as it verifies whether such component compiles or not
 })
 
 // describe("206 - @observer should produce usefull errors if it throws", () => {
