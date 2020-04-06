@@ -1,2 +1,2 @@
 const ReactDOM = require("react-dom")
-require("./dist").optimizeScheduler(ReactDOM.unstable_batchedUpdates)
+require("./dist").observerBatching(ReactDOM.unstable_batchedUpdates)

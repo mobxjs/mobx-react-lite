@@ -1,2 +1,2 @@
 const ReactNative = require("react-native")
-require("./dist").optimizeScheduler(ReactNative.unstable_batchedUpdates)
+require("./dist").observerBatching(ReactNative.unstable_batchedUpdates)
