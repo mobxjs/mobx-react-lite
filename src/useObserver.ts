@@ -1,6 +1,7 @@
 import { Reaction } from "mobx"
 import React from "react"
 
+import { isObserverBatched } from "./observerBatching"
 import { printDebugValue } from "./printDebugValue"
 import {
     createTrackingData,
@@ -23,6 +24,8 @@ function observerComponentNameFor(baseComponentName: string) {
     return `observer${baseComponentName}`
 }
 
+let warnedAboutBatching = false
+
 export function useObserver<T>(
     fn: () => T,
     baseComponentName: string = "observed",
@@ -30,6 +33,13 @@ export function useObserver<T>(
 ): T {
     if (isUsingStaticRendering()) {
         return fn()
+    }
+
+    if (__DEV__ && !warnedAboutBatching && !isObserverBatched()) {
+        console.warn(
+            `[MobX] You haven't configured observer batching which might result in unexpected behavior in some cases. See more at https://github.com/mobxjs/mobx-react-lite/#observer-batching`
+        )
+        warnedAboutBatching = true
     }
 
     const wantedForceUpdateHook = options.useForceUpdate || useForceUpdate

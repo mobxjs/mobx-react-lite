@@ -59,27 +59,33 @@ Local observable state can be introduced by using the useLocalStore hook, that r
 
 The useAsObservableSource hook can be used to turn any set of values into an observable object that has a stable reference (the same object is returned every time from the hook).
 
-## Optimize rendering
+## Observer batching
 
-[Check out the elaborate explanation](https://github.com/mobxjs/mobx-react-lite/issues/153#issuecomment-490511464).
+[Check out the elaborate explanation](https://github.com/mobxjs/mobx-react/pull/787#issuecomment-573599793).
 
-If this is something that concerns you, we have prepared files you can simply import to configure MobX to use React batched updates depending on your platform.
-
-**React DOM:**
-
-> import 'mobx-react-lite/optimizeForReactDom'
-
-**React Native:**
-
-> import 'mobx-react-lite/optimizeForReactNative'
+In short without observer batching the React doesn't guarantee the order component rendering in some cases. We highly recommend that you configure batching to avoid these random surprises.
 
 Import one of these before any React rendering is happening, typically `index.js/ts`. For Jest tests you can utilize [setupFilesAfterEnv](https://jestjs.io/docs/en/configuration#setupfilesafterenv-array).
 
+**React DOM:**
+
+> import 'mobx-react-lite/batchingForReactDom'
+
+**React Native:**
+
+> import 'mobx-react-lite/batchingForReactNative'
+
+### Opt-out
+
+To opt-out from batching in some specific cases, simply import the following to silence the warning.
+
+> import 'mobx-react-lite/batchingOptOut'
+
 ### Custom batched updates
 
-Above imports are for a convenience. If you for some reason have customized version of batched updates, you can do the following instead.
+Above imports are for a convenience to utilize standard versions of batching. If you for some reason have customized version of batched updates, you can do the following instead.
 
 ```js
-import { optimizeScheduler } from "mobx-react-lite"
-optimizeScheduler(customBatchedUpdates)
+import { observerBatching } from "mobx-react-lite"
+observerBatching(customBatchedUpdates)
 ```

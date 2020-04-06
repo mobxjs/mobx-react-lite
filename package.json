@@ -26,9 +26,7 @@
     "build": "yarn bundle",
     "bundle": "tsdx build --name mobxReactLite --format=cjs,esm,umd --tsconfig tsconfig.build.json",
     "prepublishOnly": "yarn build",
-    "dedup": "npx yarn-deduplicate -s fewer yarn.lock",
-    "nextVersion": "npm version prerelease --preid alpha",
-    "nextPublish": "nextVersion && npm publish --tag next"
+    "dedup": "npx yarn-deduplicate -s fewer yarn.lock"
   },
   "author": "Daniel K.",
   "license": "MIT",
