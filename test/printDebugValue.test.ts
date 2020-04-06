@@ -17,13 +17,11 @@ test("printDebugValue", () => {
         }
     })
 
-    const refLike = {
-        current: (disposer as any)[$mobx]
-    }
+    const value = (disposer as any)[$mobx]
 
-    expect(printDebugValue(refLike)).toMatchSnapshot()
+    expect(printDebugValue(value)).toMatchSnapshot()
 
     disposer()
 
-    expect(printDebugValue(refLike)).toMatchSnapshot()
+    expect(printDebugValue(value)).toMatchSnapshot()
 })
