@@ -14,6 +14,10 @@
     "type": "git",
     "url": "https://github.com/mobxjs/mobx-react-lite.git"
   },
+  "files": [
+    "dist/*",
+    "batching*"
+  ],
   "scripts": {
     "prettier": "prettier --write \"./{src,test}/*.{js,ts,tsx}\"",
     "lint": "eslint . --ext .js,.ts,.tsx",
