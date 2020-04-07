@@ -762,6 +762,23 @@ it("should preserve generic parameters when forwardRef", () => {
     // this test has no `expect` calls as it verifies whether such component compiles or not
 })
 
+it("should keep original props types", () => {
+    interface TestComponentProps {
+        a: number;
+    }
+
+    function TestComponent({ a }: TestComponentProps): JSX.Element | null {
+        return null;
+    }
+
+    const ObserverTestComponent = observer(TestComponent);
+
+    const element = React.createElement(ObserverTestComponent, { a: 1 });
+    render(element)
+
+    // this test has no `expect` calls as it verifies whether such component compiles or not
+})
+
 // describe("206 - @observer should produce usefull errors if it throws", () => {
 //     const data = mobx.observable({ x: 1 })
 //     let renderCount = 0
