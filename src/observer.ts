@@ -34,7 +34,7 @@ export function observer<
                   >
               >
         : never /* forwardRef set for a non forwarding component */
-    : C & React.FunctionComponent
+    : C extends React.FunctionComponent<infer P> ? C & React.FunctionComponent<P> : never /* observer uses for non functional component */
 
 // n.b. base case is not used for actual typings or exported in the typing files
 export function observer<P extends object, TRef = {}>(
