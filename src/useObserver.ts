@@ -67,7 +67,8 @@ export function useObserver<T>(
                 // We haven't yet reached useEffect(), so we'll need to trigger a re-render
                 // when (and if) useEffect() arrives.  The easiest way to do that is just to
                 // drop our current reaction and allow useEffect() to recreate it.
-                newReaction.dispose()
+                reactionTrackingRef.current.reaction.dispose()
+                reactionTrackingRef.current.reaction = null
                 reactionTrackingRef.current = null
             }
         })
@@ -109,6 +110,7 @@ export function useObserver<T>(
 
         return () => {
             reactionTrackingRef.current!.reaction.dispose()
+            reactionTrackingRef.current!.reaction = null
             reactionTrackingRef.current = null
         }
     }, [])
