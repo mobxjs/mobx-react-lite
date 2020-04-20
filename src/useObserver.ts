@@ -111,6 +111,7 @@ export function useObserver<T>(
 
         return () => {
             reactionTrackingRef.current!.reaction.dispose()
+            // @ts-ignore
             reactionTrackingRef.current!.reaction = null
             reactionTrackingRef.current = null
         }
