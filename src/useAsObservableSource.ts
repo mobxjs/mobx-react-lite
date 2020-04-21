@@ -24,8 +24,10 @@ export function useAsObservableSourceInternal<TSource>(
     ) {
         throw new Error(`the shape of objects passed to ${culprit} should be stable`)
     }
-    runInAction(() => {
-        Object.assign(res, current)
+    React.useEffect(() => {
+        runInAction(() => {
+            Object.assign(res, current)
+        })
     })
     return res
 }
