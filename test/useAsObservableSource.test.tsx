@@ -6,7 +6,7 @@ import * as React from "react"
 import { useEffect, useState } from "react"
 
 import { Observer, observer, useAsObservableSource, useLocalStore, useObserver } from "../src"
-import { resetMobx } from "./utils"
+import { enableDevEnvironment, resetMobx } from "./utils"
 
 afterEach(cleanup)
 afterEach(resetMobx)
@@ -338,15 +338,18 @@ describe("combining observer with props and stores", () => {
 })
 
 it("checks for plain object being passed in", () => {
+    const disable = enableDevEnvironment() // to catch dev-only errors
     const restore = mockConsole() // to ignore React showing caught errors
     const { result } = renderHook(() => useAsObservableSource(false))
     expect(result.error).toMatchInlineSnapshot(
         `[Error: useAsObservableSource expects a plain object as first argument]`
     )
     restore()
+    disable()
 })
 
 it("checks for stable shape of object being passed in", async () => {
+    const disable = enableDevEnvironment() // to catch dev-only errors
     const restore = mockConsole() // to ignore React showing caught errors
     const { result, rerender } = renderHook(
         ({ second }) => {
@@ -360,6 +363,7 @@ it("checks for stable shape of object being passed in", async () => {
         `[Error: the shape of objects passed to useAsObservableSource should be stable]`
     )
     restore()
+    disable()
 })
 
 describe("enforcing actions", () => {

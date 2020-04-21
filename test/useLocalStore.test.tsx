@@ -7,6 +7,7 @@ import { act, cleanup, fireEvent, render } from "@testing-library/react"
 import { Observer, observer, useLocalStore, useObserver } from "../src"
 import { useEffect, useState } from "react"
 import { autorun } from "mobx"
+import { enableDevEnvironment } from "./utils"
 
 afterEach(cleanup)
 
@@ -436,6 +437,7 @@ describe("is used to keep observable within component body", () => {
     })
 
     it("checks for plain object being passed in", () => {
+        const disable = enableDevEnvironment() // to catch dev-only errors
         const restore = mockConsole() // to ignore React showing caught errors
         const { result } = renderHook(() => {
             useLocalStore(
@@ -453,6 +455,53 @@ describe("is used to keep observable within component body", () => {
             `[Error: useLocalStore expects a plain object as second argument]`
         )
         restore()
+        disable()
+    })
+})
+
+describe("enforcing stable source", () => {
+    it("checks for source change from something to nothing", async () => {
+        const disable = enableDevEnvironment() // to catch dev-only errors
+        const restore = mockConsole() // to ignore React showing caught errors
+        const { result, rerender } = renderHook(
+            ({ second }) => {
+                const obj = second ? undefined : { foo: "bar" }
+                return useLocalStore(() => ({}), obj as any)
+            },
+            { initialProps: { second: false } }
+        )
+        try {
+            rerender({ second: true })
+        } catch (e) {
+            // rerender throws with Invariant Violation even though hook throws with correct error
+        }
+        expect(result.error).toMatchInlineSnapshot(
+            `[Error: make sure you never pass \`undefined\` to useLocalStore]`
+        )
+        restore()
+        disable()
+    })
+
+    it("checks for source change from nothing to something", async () => {
+        const disable = enableDevEnvironment() // to catch dev-only errors
+        const restore = mockConsole() // to ignore React showing caught errors
+        const { result, rerender } = renderHook(
+            ({ second }) => {
+                const obj = second ? { foo: "bar" } : undefined
+                return useLocalStore(() => ({}), obj as any)
+            },
+            { initialProps: { second: false } }
+        )
+        try {
+            rerender({ second: true })
+        } catch (e) {
+            // rerender throws with Invariant Violation even though hook throws with correct error
+        }
+        expect(result.error).toMatchInlineSnapshot(
+            `[Error: make sure you never pass \`undefined\` to useLocalStore]`
+        )
+        restore()
+        disable()
     })
 })
 
