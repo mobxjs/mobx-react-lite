@@ -58,7 +58,7 @@ export function observer<P extends object, TRef = {}>(
     }
     wrappedComponent.displayName = baseComponentName
 
-    // memo; we are not intested in deep updates
+    // memo; we are not interested in deep updates
     // in props; we assume that if deep objects are changed,
     // this is in observables, which would have been tracked anyway
     let memoComponent
