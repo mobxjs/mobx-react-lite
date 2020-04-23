@@ -4,14 +4,19 @@ import React from "react"
 import { useAsObservableSourceInternal } from "./useAsObservableSource"
 import { isPlainObject } from "./utils"
 
-export function useLocalStore<TStore extends Record<string, any>, TSource extends object = any>(
+export function useLocalStore<TStore extends Record<string, any>>(initializer: () => TStore): TStore
+export function useLocalStore<TStore extends Record<string, any>, TSource extends object>(
     initializer: (source: TSource) => TStore,
+    current: TSource
+): TStore
+export function useLocalStore<TStore extends Record<string, any>, TSource extends object>(
+    initializer: (source?: TSource) => TStore,
     current?: TSource
 ): TStore {
-    const source = useAsObservableSourceInternal<TSource | undefined>(current, true)
+    const source = useAsObservableSourceInternal(current, true)
 
     return React.useState(() => {
-        const local = observable(initializer(source as TSource))
+        const local = observable(initializer(source))
         if (isPlainObject(local)) {
             runInAction(() => {
                 Object.keys(local).forEach(key => {

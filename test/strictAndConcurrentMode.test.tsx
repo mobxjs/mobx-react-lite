@@ -9,7 +9,7 @@ import {
     CLEANUP_LEAKED_REACTIONS_AFTER_MILLIS,
     CLEANUP_TIMER_LOOP_MILLIS,
     forceCleanupTimerToRunNowForTests,
-    resetCleanupScheduleForTests,
+    resetCleanupScheduleForTests
 } from "../src/reactionCleanupTracking"
 
 afterEach(cleanup)

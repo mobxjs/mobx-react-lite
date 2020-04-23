@@ -660,7 +660,7 @@ test("parent / childs render in the right order", done => {
 
 it("should have overload for props with children", () => {
     interface IProps {
-        value: string;
+        value: string
     }
     const TestComponent = observer<IProps>(({ value, children }) => {
         return null
@@ -676,7 +676,7 @@ it("should have overload for empty options", () => {
     // being specified in case other options are added in the future
 
     interface IProps {
-        value: string;
+        value: string
     }
     const TestComponent = observer<IProps>(({ value, children }) => {
         return null
@@ -693,11 +693,14 @@ it("should have overload for props with children when forwardRef", () => {
     }
 
     interface IProps {
-        value: string;
+        value: string
     }
-    const TestComponent = observer<IProps, IMethods>(({ value, children }, ref) => {
-        return null
-    }, { forwardRef: true })
+    const TestComponent = observer<IProps, IMethods>(
+        ({ value, children }, ref) => {
+            return null
+        },
+        { forwardRef: true }
+    )
 
     render(<TestComponent value="1" />)
 
@@ -706,27 +709,29 @@ it("should have overload for props with children when forwardRef", () => {
 
 it("should preserve generic parameters", () => {
     interface IColor {
-        name: string;
-        css: string;
+        name: string
+        css: string
     }
 
     interface ITestComponentProps<T> {
-        value: T;
-        callback: (value: T) => void;
+        value: T
+        callback: (value: T) => void
     }
     const TestComponent = observer(<T extends unknown>(props: ITestComponentProps<T>) => {
         return null
     })
 
     function callbackString(value: string) {
-        return;
+        return
     }
     function callbackColor(value: IColor) {
-        return;
+        return
     }
 
     render(<TestComponent value="1" callback={callbackString} />)
-    render(<TestComponent value={{ name: 'red', css: 'rgb(255, 0, 0)' }} callback={callbackColor} />)
+    render(
+        <TestComponent value={{ name: "red", css: "rgb(255, 0, 0)" }} callback={callbackColor} />
+    )
 
     // this test has no `expect` calls as it verifies whether such component compiles or not
 })
@@ -745,35 +750,40 @@ it("should preserve generic parameters when forwardRef", () => {
         value: T
         callback: (value: T) => void
     }
-    const TestComponent = observer(<T extends unknown>(props: ITestComponentProps<T>, ref: React.Ref<IMethods>) => {
-        return null
-    }, { forwardRef: true })
+    const TestComponent = observer(
+        <T extends unknown>(props: ITestComponentProps<T>, ref: React.Ref<IMethods>) => {
+            return null
+        },
+        { forwardRef: true }
+    )
 
     function callbackString(value: string) {
-        return;
+        return
     }
     function callbackColor(value: IColor) {
-        return;
+        return
     }
 
     render(<TestComponent value="1" callback={callbackString} />)
-    render(<TestComponent value={{ name: 'red', css: 'rgb(255, 0, 0)' }} callback={callbackColor} />)
+    render(
+        <TestComponent value={{ name: "red", css: "rgb(255, 0, 0)" }} callback={callbackColor} />
+    )
 
     // this test has no `expect` calls as it verifies whether such component compiles or not
 })
 
 it("should keep original props types", () => {
     interface TestComponentProps {
-        a: number;
+        a: number
     }
 
     function TestComponent({ a }: TestComponentProps): JSX.Element | null {
-        return null;
+        return null
     }
 
-    const ObserverTestComponent = observer(TestComponent);
+    const ObserverTestComponent = observer(TestComponent)
 
-    const element = React.createElement(ObserverTestComponent, { a: 1 });
+    const element = React.createElement(ObserverTestComponent, { a: 1 })
     render(element)
 
     // this test has no `expect` calls as it verifies whether such component compiles or not
