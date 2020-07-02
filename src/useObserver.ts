@@ -24,6 +24,12 @@ function observerComponentNameFor(baseComponentName: string) {
     return `observer${baseComponentName}`
 }
 
+let defaultForceUpdateHook = useForceUpdate
+
+export function setDefaultForceUpdate(forceUpdateHook: ForceUpdateHook) {
+    defaultForceUpdateHook = forceUpdateHook
+}
+
 let warnedAboutBatching = false
 
 export function useObserver<T>(
@@ -42,7 +48,7 @@ export function useObserver<T>(
         warnedAboutBatching = true
     }
 
-    const wantedForceUpdateHook = options.useForceUpdate || useForceUpdate
+    const wantedForceUpdateHook = options.useForceUpdate || defaultForceUpdateHook
     const forceUpdate = wantedForceUpdateHook()
 
     // StrictMode/ConcurrentMode/Suspense may mean that our component is
