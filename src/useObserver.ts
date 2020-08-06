@@ -11,6 +11,11 @@ import {
 } from "./reactionCleanupTracking"
 import { isUsingStaticRendering } from "./staticRendering"
 import { useForceUpdate } from "./utils"
+import {
+    useQueuedForceUpdate,
+    startForceUpdateQueueing,
+    stopForceUpdateQueueing
+} from "./useQueuedForceUpdate"
 
 export type ForceUpdateHook = () => () => void
 
@@ -44,6 +49,7 @@ export function useObserver<T>(
 
     const wantedForceUpdateHook = options.useForceUpdate || useForceUpdate
     const forceUpdate = wantedForceUpdateHook()
+    const queuedForceUpdate = useQueuedForceUpdate(forceUpdate)
 
     // StrictMode/ConcurrentMode/Suspense may mean that our component is
     // rendered and abandoned multiple times, so we need to track leaked
@@ -62,7 +68,7 @@ export function useObserver<T>(
             // (It triggers warnings in StrictMode, for a start.)
             if (trackingData.mounted) {
                 // We have reached useEffect(), so we're mounted, and can trigger an update
-                forceUpdate()
+                queuedForceUpdate()
             } else {
                 // We haven't yet reached useEffect(), so we'll need to trigger a re-render
                 // when (and if) useEffect() arrives.  The easiest way to do that is just to
@@ -100,11 +106,11 @@ export function useObserver<T>(
             reactionTrackingRef.current = {
                 reaction: new Reaction(observerComponentNameFor(baseComponentName), () => {
                     // We've definitely already been mounted at this point
-                    forceUpdate()
+                    queuedForceUpdate()
                 }),
                 cleanAt: Infinity
             }
-            forceUpdate()
+            queuedForceUpdate()
         }
 
         return () => {
@@ -112,6 +118,9 @@ export function useObserver<T>(
             reactionTrackingRef.current = null
         }
     }, [])
+
+    // start intercepting all force-update calls
+    startForceUpdateQueueing()
 
     // render the original component, but have the
     // reaction track the observables, so that rendering
@@ -125,8 +134,21 @@ export function useObserver<T>(
             exception = e
         }
     })
+
+    // stop intercepting force-update calls and return queue if there were any
+    const forceUpdateQueue = stopForceUpdateQueueing()
+
     if (exception) {
-        throw exception // re-throw any exceptions catched during rendering
+        throw exception // re-throw any exceptions caught during rendering
     }
+
+    // run force-update queue in effect
+    // the queue is used as dependency to make the effect only execute when necessary
+    React.useLayoutEffect(() => {
+        if (forceUpdateQueue) {
+            forceUpdateQueue.forEach(x => x())
+        }
+    }, [forceUpdateQueue])
+
     return rendering
 }
