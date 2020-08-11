@@ -11,11 +11,7 @@ import {
 } from "./reactionCleanupTracking"
 import { isUsingStaticRendering } from "./staticRendering"
 import { useForceUpdate } from "./utils"
-import {
-    useQueuedForceUpdate,
-    startForceUpdateQueueing,
-    stopForceUpdateQueueing
-} from "./useQueuedForceUpdate"
+import { useQueuedForceUpdate, useQueuedForceUpdateBlock } from "./useQueuedForceUpdate"
 
 export type ForceUpdateHook = () => () => void
 
@@ -119,36 +115,25 @@ export function useObserver<T>(
         }
     }, [])
 
-    // start intercepting all force-update calls
-    startForceUpdateQueueing()
+    // delay all force-update calls after rendering of this component
+    return useQueuedForceUpdateBlock(() => {
+        // render the original component, but have the
+        // reaction track the observables, so that rendering
+        // can be invalidated (see above) once a dependency changes
+        let rendering!: T
+        let exception
+        reaction.track(() => {
+            try {
+                rendering = fn()
+            } catch (e) {
+                exception = e
+            }
+        })
 
-    // render the original component, but have the
-    // reaction track the observables, so that rendering
-    // can be invalidated (see above) once a dependency changes
-    let rendering!: T
-    let exception
-    reaction.track(() => {
-        try {
-            rendering = fn()
-        } catch (e) {
-            exception = e
+        if (exception) {
+            throw exception // re-throw any exceptions caught during rendering
         }
+
+        return rendering
     })
-
-    // stop intercepting force-update calls and return queue if there were any
-    const forceUpdateQueue = stopForceUpdateQueueing()
-
-    if (exception) {
-        throw exception // re-throw any exceptions caught during rendering
-    }
-
-    // run force-update queue in effect
-    // the queue is used as dependency to make the effect only execute when necessary
-    React.useLayoutEffect(() => {
-        if (forceUpdateQueue) {
-            forceUpdateQueue.forEach(x => x())
-        }
-    }, [forceUpdateQueue])
-
-    return rendering
 }
