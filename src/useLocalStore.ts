@@ -2,7 +2,7 @@ import { observable } from "mobx"
 import React from "react"
 
 import { useAsObservableSourceInternal } from "./useAsObservableSource"
-import { AnnotationsMap } from "mobx/dist/internal"
+import { AnnotationsMap } from "mobx"
 
 export function useLocalStore<TStore extends Record<string, any>>(initializer: () => TStore): TStore
 export function useLocalStore<TStore extends Record<string, any>, TSource extends object>(
