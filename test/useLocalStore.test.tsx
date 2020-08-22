@@ -91,8 +91,6 @@ describe("is used to keep observable within component body", () => {
     })
 
     it("works with observer as well", () => {
-        const spyObservable = jest.spyOn(mobx, "observable")
-
         let renderCount = 0
 
         const TestComponent = observer(() => {
@@ -116,11 +114,7 @@ describe("is used to keep observable within component body", () => {
         fireEvent.click(div)
         expect(div.textContent).toBe("3-2")
 
-        // though render 3 times, mobx.observable only called once
         expect(renderCount).toBe(3)
-        expect(spyObservable.mock.calls.length).toBe(1)
-
-        spyObservable.mockRestore()
     })
 
     it("actions can be used", () => {

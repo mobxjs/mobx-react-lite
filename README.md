@@ -51,9 +51,11 @@ interface IUseObserverOptions {
 
 It allows you to use an observer like behaviour, but still allowing you to optimize the component in any way you want (e.g. using memo with a custom areEqual, using forwardRef, etc.) and to declare exactly the part that is observed (the render phase).
 
-### **`useLocalStore<T, S>(initializer: () => T, source?: S): T`** _([user guide](https://mobx-react.js.org/state-local))_
+### **`useLocalStore<T, S>(initializer: () => T, source?: S, annotations?): T`** _([user guide](https://mobx-react.js.org/state-local))_
 
 Local observable state can be introduced by using the useLocalStore hook, that runs its initializer function once to create an observable store and keeps it around for a lifetime of a component.
+
+The annotations are similar to the annotations that are passed in to MobX's `observable` API, and can be used to override the automatic member inference of specific fields.
 
 ### **`useAsObservableSource<T>(source: T): T`** _([user guide](https://mobx-react.js.org/state-outsourcing))_
 

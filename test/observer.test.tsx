@@ -5,7 +5,7 @@ import * as React from "react"
 
 import { observer, useObserver, useStaticRendering } from "../src"
 
-const getDNode = (obj: any, prop?: string) => mobx._getAdministration(obj, prop)
+const getDNode = (obj: any, prop?: string) => mobx.getObserverTree(obj, prop)
 
 afterEach(cleanup)
 
@@ -80,8 +80,8 @@ function runTestSuite(mode: "observer" | "useObserver") {
             expect(renderings.item).toBe(2)
             expect(getAllByText("1")).toHaveLength(1)
             expect(getAllByText("|aa")).toHaveLength(1)
-            expect(getDNode(store, "todos").observers.size).toBe(1)
-            expect(getDNode(store.todos[0], "title").observers.size).toBe(1)
+            expect(getDNode(store, "todos").observers!.length).toBe(1)
+            expect(getDNode(store.todos[0], "title").observers!.length).toBe(1)
         })
 
         test("rerendering with outer store added", () => {
@@ -97,8 +97,8 @@ function runTestSuite(mode: "observer" | "useObserver") {
             expect(getAllByText("|b")).toHaveLength(1)
             expect(renderings.list).toBe(2)
             expect(renderings.item).toBe(2)
-            expect(getDNode(store.todos[1], "title").observers.size).toBe(1)
-            expect(getDNode(store.todos[1], "completed").observers.size).toBe(0)
+            expect(getDNode(store.todos[1], "title").observers!.length).toBe(1)
+            expect(getDNode(store.todos[1], "completed").observers).toBeFalsy()
         })
 
         test("rerendering with outer store pop", () => {
@@ -110,8 +110,8 @@ function runTestSuite(mode: "observer" | "useObserver") {
             expect(renderings.list).toBe(2)
             expect(renderings.item).toBe(1)
             expect(container.querySelectorAll("li").length).toBe(0)
-            expect(getDNode(oldTodo, "title").observers.size).toBe(0)
-            expect(getDNode(oldTodo, "completed").observers.size).toBe(0)
+            expect(getDNode(oldTodo, "title").observers).toBeFalsy()
+            expect(getDNode(oldTodo, "completed").observers).toBeFalsy()
         })
     })
 
@@ -204,7 +204,7 @@ function runTestSuite(mode: "observer" | "useObserver") {
             })
             expect(getRenderCount()).toBe(1)
             expect(getByText("hi")).toBeTruthy()
-            expect(getDNode(data, "z").observers.size).toBe(0)
+            expect(getDNode(data, "z").observers!).toBeFalsy()
         })
     })
 
@@ -541,29 +541,6 @@ test("useImperativeHandle and forwardRef should work with useObserver", () => {
     expect(typeof cr.current!.focus).toBe("function")
 })
 
-it("should only called new Reaction once", () => {
-    let renderCount = 0
-    // mock the Reaction class
-    const spy = jest.spyOn(mobx, "Reaction" as any).mockImplementation(() => ({
-        track: (fn: any) => {
-            fn()
-        },
-        dispose: () => {
-            /* nothing */
-        }
-    }))
-    const TestComponent = observer((props: any) => {
-        renderCount++
-        return <div />
-    })
-    const { rerender } = render(<TestComponent a="1" />)
-    rerender(<TestComponent a="2" />)
-    rerender(<TestComponent a="3" />)
-    expect(renderCount).toBe(3)
-    expect(spy.mock.calls.length).toBe(1)
-    spy.mockRestore()
-})
-
 it("should hoist known statics only", () => {
     function isNumber() {
         return null
@@ -603,21 +580,25 @@ test("parent / childs render in the right order", done => {
 
     class User {
         public name = "User's name"
+        constructor() {
+            mobx.makeObservable(this, {
+                name: mobx.observable
+            })
+        }
     }
-
-    mobx.decorate(User, { name: mobx.observable })
 
     class Store {
         public user: User | null = new User()
         public logout() {
             this.user = null
         }
+        constructor() {
+            mobx.makeObservable(this, {
+                user: mobx.observable,
+                logout: mobx.action
+            })
+        }
     }
-
-    mobx.decorate(Store, {
-        user: mobx.observable,
-        logout: mobx.action
-    })
 
     const store = new Store()
 

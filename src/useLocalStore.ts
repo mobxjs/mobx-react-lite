@@ -1,40 +1,23 @@
-import { observable, runInAction, transaction } from "mobx"
+import { observable } from "mobx"
 import React from "react"
 
 import { useAsObservableSourceInternal } from "./useAsObservableSource"
-import { isPlainObject } from "./utils"
+import { AnnotationsMap } from "mobx/dist/internal"
 
 export function useLocalStore<TStore extends Record<string, any>>(initializer: () => TStore): TStore
 export function useLocalStore<TStore extends Record<string, any>, TSource extends object>(
     initializer: (source: TSource) => TStore,
-    current: TSource
+    current?: TSource,
+    annotations?: AnnotationsMap<TStore, never>
 ): TStore
 export function useLocalStore<TStore extends Record<string, any>, TSource extends object>(
     initializer: (source?: TSource) => TStore,
-    current?: TSource
+    current?: TSource,
+    annotations?: AnnotationsMap<TStore, never>
 ): TStore {
     const source = useAsObservableSourceInternal(current, true)
 
     return React.useState(() => {
-        const local = observable(initializer(source))
-        if (isPlainObject(local)) {
-            runInAction(() => {
-                Object.keys(local).forEach(key => {
-                    const value = local[key]
-                    if (typeof value === "function") {
-                        // @ts-ignore No idea why ts2536 is popping out here
-                        local[key] = wrapInTransaction(value, local)
-                    }
-                })
-            })
-        }
-        return local
+        return observable(initializer(source), annotations, { autoBind: true })
     })[0]
-}
-
-// tslint:disable-next-line: ban-types
-function wrapInTransaction(fn: Function, context: object) {
-    return (...args: unknown[]) => {
-        return transaction(() => fn.apply(context, args))
-    }
 }
