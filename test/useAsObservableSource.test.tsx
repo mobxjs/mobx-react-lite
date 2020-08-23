@@ -5,7 +5,14 @@ import { autorun, configure, observable } from "mobx"
 import * as React from "react"
 import { useEffect, useState } from "react"
 
-import { Observer, observer, useAsObservableSource, useLocalStore, useObserver } from "../src"
+import {
+    Observer,
+    observer,
+    useAsObservableSource,
+    useLocalStore,
+    useObserver,
+    useQueuedForceUpdateBlock
+} from "../src"
 import { enableDevEnvironment, resetMobx } from "./utils"
 
 afterEach(cleanup)
@@ -82,7 +89,9 @@ describe("base useAsObservableSource should work", () => {
 
         function Counter({ multiplier }: { multiplier: number }) {
             counterRender++
-            const observableProps = useAsObservableSource({ multiplier })
+            const observableProps = useQueuedForceUpdateBlock(() =>
+                useAsObservableSource({ multiplier })
+            )
             const store = useLocalStore(() => ({
                 count: 10,
                 get multiplied() {
@@ -139,7 +148,7 @@ describe("base useAsObservableSource should work", () => {
         })
         expect(container.querySelector("span")!.innerHTML).toBe("22")
         expect(counterRender).toBe(2)
-        expect(observerRender).toBe(3)
+        expect(observerRender).toBe(4)
     })
 
     it("with observer()", () => {
@@ -394,4 +403,27 @@ describe("enforcing actions", () => {
         })
         expect(result.error).not.toBeDefined()
     })
+})
+
+it("doesn't update a component while rendering a different component - #274", () => {
+    // https://github.com/facebook/react/pull/17099
+
+    const Parent = observer((props: any) => {
+        const observableProps = useAsObservableSource(props)
+
+        return <Child observableProps={observableProps} />
+    })
+
+    const Child = observer(({ observableProps }: any) => {
+        return observableProps.foo
+    })
+
+    const { container, rerender } = render(<Parent foo={1} />)
+    expect(container.textContent).toBe("1")
+
+    const restoreConsole = mockConsole()
+    rerender(<Parent foo={2} />)
+    expect(console.error).not.toHaveBeenCalled()
+    restoreConsole()
+    expect(container.textContent).toBe("2")
 })
