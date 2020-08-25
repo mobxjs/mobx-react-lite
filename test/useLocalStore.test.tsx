@@ -4,7 +4,7 @@ import * as React from "react"
 import { renderHook } from "@testing-library/react-hooks"
 import { act, cleanup, fireEvent, render } from "@testing-library/react"
 
-import { Observer, observer, useLocalStore, useObserver } from "../src"
+import { Observer, observer, useLocalStore, useObserver, useQueuedForceUpdateBlock } from "../src"
 import { useEffect, useState } from "react"
 import { autorun } from "mobx"
 import { enableDevEnvironment } from "./utils"
@@ -315,17 +315,19 @@ describe("is used to keep observable within component body", () => {
             function Counter({ multiplier }: { multiplier: number }) {
                 counterRender++
 
-                const store = useLocalStore(
-                    props => ({
-                        count: 10,
-                        get multiplied() {
-                            return props.multiplier * this.count
-                        },
-                        inc() {
-                            this.count += 1
-                        }
-                    }),
-                    { multiplier }
+                const store = useQueuedForceUpdateBlock(() =>
+                    useLocalStore(
+                        props => ({
+                            count: 10,
+                            get multiplied() {
+                                return props.multiplier * this.count
+                            },
+                            inc() {
+                                this.count += 1
+                            }
+                        }),
+                        { multiplier }
+                    )
                 )
 
                 return (
@@ -374,7 +376,7 @@ describe("is used to keep observable within component body", () => {
             })
             expect(container.querySelector("span")!.innerHTML).toBe("22")
             expect(counterRender).toBe(2)
-            expect(observerRender).toBe(3)
+            expect(observerRender).toBe(4)
         })
 
         it("with observer()", () => {

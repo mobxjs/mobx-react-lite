@@ -11,6 +11,7 @@ import {
 } from "./reactionCleanupTracking"
 import { isUsingStaticRendering } from "./staticRendering"
 import { useForceUpdate } from "./utils"
+import { useQueuedForceUpdate, useQueuedForceUpdateBlock } from "./useQueuedForceUpdate"
 
 export type ForceUpdateHook = () => () => void
 
@@ -44,6 +45,7 @@ export function useObserver<T>(
 
     const wantedForceUpdateHook = options.useForceUpdate || useForceUpdate
     const forceUpdate = wantedForceUpdateHook()
+    const queuedForceUpdate = useQueuedForceUpdate(forceUpdate)
 
     // StrictMode/ConcurrentMode/Suspense may mean that our component is
     // rendered and abandoned multiple times, so we need to track leaked
@@ -62,7 +64,7 @@ export function useObserver<T>(
             // (It triggers warnings in StrictMode, for a start.)
             if (trackingData.mounted) {
                 // We have reached useEffect(), so we're mounted, and can trigger an update
-                forceUpdate()
+                queuedForceUpdate()
             } else {
                 // We haven't yet reached useEffect(), so we'll need to trigger a re-render
                 // when (and if) useEffect() arrives.  The easiest way to do that is just to
@@ -100,11 +102,11 @@ export function useObserver<T>(
             reactionTrackingRef.current = {
                 reaction: new Reaction(observerComponentNameFor(baseComponentName), () => {
                     // We've definitely already been mounted at this point
-                    forceUpdate()
+                    queuedForceUpdate()
                 }),
                 cleanAt: Infinity
             }
-            forceUpdate()
+            queuedForceUpdate()
         }
 
         return () => {
@@ -113,20 +115,25 @@ export function useObserver<T>(
         }
     }, [])
 
-    // render the original component, but have the
-    // reaction track the observables, so that rendering
-    // can be invalidated (see above) once a dependency changes
-    let rendering!: T
-    let exception
-    reaction.track(() => {
-        try {
-            rendering = fn()
-        } catch (e) {
-            exception = e
+    // delay all force-update calls after rendering of this component
+    return useQueuedForceUpdateBlock(() => {
+        // render the original component, but have the
+        // reaction track the observables, so that rendering
+        // can be invalidated (see above) once a dependency changes
+        let rendering!: T
+        let exception
+        reaction.track(() => {
+            try {
+                rendering = fn()
+            } catch (e) {
+                exception = e
+            }
+        })
+
+        if (exception) {
+            throw exception // re-throw any exceptions caught during rendering
         }
+
+        return rendering
     })
-    if (exception) {
-        throw exception // re-throw any exceptions catched during rendering
-    }
-    return rendering
 }
