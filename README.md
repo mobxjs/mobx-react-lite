@@ -18,17 +18,13 @@ Class based components **are not supported** except using `<Observer>` directly 
 
 See more at [the libraries overview](https://mobx-react.js.org/libraries).
 
-## User Guide 👉 https://mobx-react.js.org
+## User Guide 👉 https://mobx.js.org/react/react-integration.html
 
 The site contains various examples and recipes for using MobX in React world. Feel free to contribute. The API reference of this package follows 👇.
 
 ## API reference ⚒
 
-### **`<Observer>{renderFn}</Observer>`** _([user guide](https://mobx-react.js.org/observer-component))_
-
-Is a React component, which applies observer to an anonymous region in your component.
-
-### **`observer<P>(baseComponent: FunctionComponent<P>, options?: IObserverOptions): FunctionComponent<P>`** _([user guide](https://mobx-react.js.org/observer-hoc))_
+### **`observer<P>(baseComponent: FunctionComponent<P>, options?: IObserverOptions): FunctionComponent<P>`**
 
 ```ts
 interface IObserverOptions {
@@ -40,7 +36,11 @@ interface IObserverOptions {
 
 The observer converts a component into a reactive component, which tracks which observables are used automatically and re-renders the component when one of these values changes.
 
-### **`useObserver<T>(fn: () => T, baseComponentName = "observed", options?: IUseObserverOptions): T`** _([user guide](https://mobx-react.js.org/observer-hook))_
+### **`<Observer>{renderFn}</Observer>`**
+
+Is a React component, which applies observer to an anonymous region in your component.
+
+### **`useObserver<T>(fn: () => T, baseComponentName = "observed", options?: IUseObserverOptions): T`**
 
 ```ts
 interface IUseObserverOptions {
@@ -51,13 +51,13 @@ interface IUseObserverOptions {
 
 It allows you to use an observer like behaviour, but still allowing you to optimize the component in any way you want (e.g. using memo with a custom areEqual, using forwardRef, etc.) and to declare exactly the part that is observed (the render phase).
 
-### **`useLocalStore<T, S>(initializer: () => T, source?: S, annotations?): T`** _([user guide](https://mobx-react.js.org/state-local))_
+### **`useLocalStore<T, S>(initializer: () => T, source?: S, annotations?): T`**
 
 Local observable state can be introduced by using the useLocalStore hook, that runs its initializer function once to create an observable store and keeps it around for a lifetime of a component.
 
-The annotations are similar to the annotations that are passed in to MobX's `observable` API, and can be used to override the automatic member inference of specific fields.
+The annotations are similar to the annotations that are passed in to MobX's [`observable`](https://mobx.js.org/observable.html#available-annotations) API, and can be used to override the automatic member inference of specific fields.
 
-### **`useAsObservableSource<T>(source: T): T`** _([user guide](https://mobx-react.js.org/state-outsourcing))_
+### **`useAsObservableSource<T>(source: T): T`**
 
 The useAsObservableSource hook can be used to turn any set of values into an observable object that has a stable reference (the same object is returned every time from the hook).
 

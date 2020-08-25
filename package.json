@@ -42,7 +42,7 @@
   "bugs": {
     "url": "https://github.com/mobxjs/mobx-react-lite/issues"
   },
-  "homepage": "https://mobx-react.js.org",
+  "homepage": "https://mobx.js.org",
   "peerDependencies": {
     "mobx": "^6.0.0",
     "react": "^16.8.0"
