@@ -8,7 +8,7 @@ export function useAsObservableSourceInternal<TSource>(
     usedByLocalStore: boolean
 ): TSource {
     const culprit = usedByLocalStore ? "useLocalStore" : "useAsObservableSource"
-    if (__DEV__ && usedByLocalStore) {
+    if ("production" !== process.env.NODE_ENV && usedByLocalStore) {
         const [initialSource] = React.useState(current)
         if (
             (initialSource !== undefined && current === undefined) ||
@@ -20,14 +20,17 @@ export function useAsObservableSourceInternal<TSource>(
     if (usedByLocalStore && current === undefined) {
         return undefined as any
     }
-    if (__DEV__ && !isPlainObject(current)) {
+    if ("production" !== process.env.NODE_ENV && !isPlainObject(current)) {
         throw new Error(
             `${culprit} expects a plain object as ${usedByLocalStore ? "second" : "first"} argument`
         )
     }
 
     const [res] = React.useState(() => observable(current, {}, { deep: false }))
-    if (__DEV__ && Object.keys(res).length !== Object.keys(current).length) {
+    if (
+        "production" !== process.env.NODE_ENV &&
+        Object.keys(res).length !== Object.keys(current).length
+    ) {
         throw new Error(`the shape of objects passed to ${culprit} should be stable`)
     }
     runInAction(() => {

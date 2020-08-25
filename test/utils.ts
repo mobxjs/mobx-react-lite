@@ -8,8 +8,8 @@ declare namespace global {
     let __DEV__: boolean
 }
 export function enableDevEnvironment() {
-    global.__DEV__ = true
+    process.env.NODE_ENV === "development"
     return function() {
-        global.__DEV__ = false
+        process.env.NODE_ENV === "production"
     }
 }

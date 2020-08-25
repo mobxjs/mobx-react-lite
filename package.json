@@ -2,13 +2,9 @@
   "name": "mobx-react-lite",
   "version": "2.1.0",
   "description": "Lightweight React bindings for MobX based on React 16.8+ and Hooks",
-  "main": "dist/index.js",
-  "jsnext:main": "dist/mobxreactlite.esm.js",
-  "module": "dist/mobxreactlite.esm.js",
+  "main": "lib/index.js",
   "unpkg": "dist/mobxreactlite.umd.production.min.js",
-  "jsdelivr": "dist/mobxreactlite.umd.production.min.js",
-  "react-native": "dist/mobxreactlite.esm.js",
-  "typings": "dist/index.d.ts",
+  "module": "es/index.js",
   "types": "dist/index.d.ts",
   "sideEffects": [
     "batching*"
@@ -18,7 +14,9 @@
     "url": "https://github.com/mobxjs/mobx-react-lite.git"
   },
   "files": [
-    "dist/*",
+    "dist/",
+    "lib/",
+    "es/",
     "batching*"
   ],
   "scripts": {
@@ -29,10 +27,11 @@
     "test:ci": "jest -i --coverage",
     "size": "size-limit",
     "coverage": "jest --coverage",
-    "prebuild": "rimraf dist",
-    "build": "yarn bundle",
-    "bundle": "tsdx build --name mobxReactLite --format=cjs,esm,umd --tsconfig tsconfig.build.json",
-    "dedup": "npx yarn-deduplicate -s fewer yarn.lock",
+    "prebuild": "rimraf dist lib es",
+    "build": "yarn build:commonjs && yarn build:es && yarn build:umd",
+    "build:commonjs": "tsc --project tsconfig.build.cjs.json",
+    "build:es": "tsc --project tsconfig.build.es.json",
+    "build:umd": "tsdx build --name mobxReactLite --format=umd --tsconfig tsconfig.build.es.json",
     "release": "node publish.js"
   },
   "author": "Daniel K.",
@@ -44,6 +43,14 @@
   "peerDependencies": {
     "mobx": "^4.0.0 || ^5.0.0",
     "react": "^16.8.0"
+  },
+  "peerDependenciesMeta": {
+    "react-dom": {
+      "optional": true
+    },
+    "react-native": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@babel/core": "7.8.4",

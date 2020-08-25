@@ -1,2 +1,3 @@
-const ReactDOM = require("react-dom")
-require("./dist").observerBatching(ReactDOM.unstable_batchedUpdates)
+if (__DEV__) {
+    console.warn("[mobx-react-lite] calling batchingForReactDom is no longer needed")
+}
