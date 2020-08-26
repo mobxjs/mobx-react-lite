@@ -3,7 +3,7 @@ import * as React from "react"
 import { renderHook } from "@testing-library/react-hooks"
 import { act, cleanup, fireEvent, render } from "@testing-library/react"
 
-import { Observer, observer, useLocalStore } from "../src"
+import { Observer, observer, useObservable } from "../src"
 import { useEffect, useState } from "react"
 import { autorun } from "mobx"
 import { useObserver } from "../src/useObserver"
@@ -19,7 +19,7 @@ test("base useLocalStore should work", () => {
 
     function Counter() {
         counterRender++
-        const store = (outerStoreRef = useLocalStore(() => ({
+        const store = (outerStoreRef = useObservable(() => ({
             count: 0,
             count2: 0, // not used in render
             inc() {
@@ -70,7 +70,7 @@ test("base useLocalStore should work", () => {
 describe("is used to keep observable within component body", () => {
     it("value can be changed over renders", () => {
         const TestComponent = () => {
-            const obs = useLocalStore(() => ({
+            const obs = useObservable(() => ({
                 x: 1,
                 y: 2
             }))
@@ -95,7 +95,7 @@ describe("is used to keep observable within component body", () => {
         const TestComponent = observer(() => {
             renderCount++
 
-            const obs = useLocalStore(() => ({
+            const obs = useObservable(() => ({
                 x: 1,
                 y: 2
             }))
@@ -118,7 +118,7 @@ describe("is used to keep observable within component body", () => {
 
     it("actions can be used", () => {
         const TestComponent = observer(() => {
-            const obs = useLocalStore(() => ({
+            const obs = useObservable(() => ({
                 x: 1,
                 y: 2,
                 inc() {
@@ -140,7 +140,7 @@ describe("is used to keep observable within component body", () => {
 
     it("computed properties works as well", () => {
         const TestComponent = observer(() => {
-            const obs = useLocalStore(() => ({
+            const obs = useObservable(() => ({
                 x: 1,
                 y: 2,
                 get z() {
@@ -158,7 +158,7 @@ describe("is used to keep observable within component body", () => {
 
     it("computed properties can use local functions", () => {
         const TestComponent = observer(() => {
-            const obs = useLocalStore(() => ({
+            const obs = useObservable(() => ({
                 x: 1,
                 y: 2,
                 getMeThatX() {
@@ -181,7 +181,7 @@ describe("is used to keep observable within component body", () => {
         const seen: number[] = []
 
         const TestComponent = observer(() => {
-            const obs = useLocalStore(() => ({
+            const obs = useObservable(() => ({
                 x: 1,
                 inc(delta: number) {
                     this.x += delta
@@ -215,7 +215,7 @@ describe("is used to keep observable within component body", () => {
 
     it("Map can used instead of object", () => {
         const TestComponent = observer(() => {
-            const map = useLocalStore(() => new Map([["initial", 10]]))
+            const map = useObservable(() => new Map([["initial", 10]]))
             return (
                 <div onClick={() => map.set("later", 20)}>
                     {Array.from(map).map(([key, value]) => (
@@ -241,7 +241,7 @@ describe("is used to keep observable within component body", () => {
             function Counter({ multiplier }: { multiplier: number }) {
                 counterRender++
 
-                const store = useLocalStore(() => ({
+                const store = useObservable(() => ({
                     multiplier,
                     count: 10,
                     get multiplied() {
@@ -309,7 +309,7 @@ describe("is used to keep observable within component body", () => {
             function Counter({ multiplier }: { multiplier: number }) {
                 counterRender++
 
-                const store = useLocalStore(() => ({
+                const store = useObservable(() => ({
                     multiplier,
                     count: 10,
                     get multiplied() {
@@ -378,7 +378,7 @@ describe("is used to keep observable within component body", () => {
             const Counter = observer(({ multiplier }: { multiplier: number }) => {
                 counterRender++
 
-                const store = useLocalStore(() => ({
+                const store = useObservable(() => ({
                     multiplier,
                     count: 10,
                     get multiplied() {
@@ -437,7 +437,7 @@ describe("enforcing actions", () => {
         mobx.configure({ enforceActions: "never" })
         const { result } = renderHook(() => {
             const [multiplier, setMultiplier] = React.useState(2)
-            const store = useLocalStore(() => ({
+            const store = useObservable(() => ({
                 multiplier,
                 count: 10,
                 get multiplied() {
@@ -458,7 +458,7 @@ describe("enforcing actions", () => {
         mobx.configure({ enforceActions: "observed" })
         const { result } = renderHook(() => {
             const [multiplier, setMultiplier] = React.useState(2)
-            const store = useLocalStore(() => ({
+            const store = useObservable(() => ({
                 multiplier,
                 count: 10,
                 get multiplied() {
@@ -479,7 +479,7 @@ describe("enforcing actions", () => {
         mobx.configure({ enforceActions: "always" })
         const { result } = renderHook(() => {
             const [multiplier, setMultiplier] = React.useState(2)
-            const store = useLocalStore(() => ({
+            const store = useObservable(() => ({
                 multiplier,
                 count: 10,
                 get multiplied() {

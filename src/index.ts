@@ -8,5 +8,5 @@ observerBatching(batch)
 export { isUsingStaticRendering, useStaticRendering } from "./staticRendering"
 export { observer, IObserverOptions } from "./observer"
 export { Observer } from "./ObserverComponent"
-export { useLocalStore } from "./useLocalStore"
+export { useObservable } from "./useObservable"
 export { observerBatching } from "./observerBatching"
