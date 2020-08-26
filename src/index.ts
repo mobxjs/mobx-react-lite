@@ -1,9 +1,9 @@
 import "./assertEnvironment"
 
 import { unstable_batchedUpdates as batch } from "./utils/reactBatchedUpdates"
-import { setBatch } from "./observerBatching"
+import { observerBatching } from "./observerBatching"
 
-setBatch(batch)
+observerBatching(batch)
 
 export { isUsingStaticRendering, useStaticRendering } from "./staticRendering"
 export { observer, IObserverOptions } from "./observer"
@@ -13,3 +13,4 @@ export { useForceUpdate } from "./utils"
 export { useAsObservableSource } from "./useAsObservableSource"
 export { useLocalStore } from "./useLocalStore"
 export { useQueuedForceUpdate, useQueuedForceUpdateBlock } from "./useQueuedForceUpdate"
+export { observerBatching } from "./observerBatching"

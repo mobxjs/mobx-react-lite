@@ -4,7 +4,7 @@ export function defaulNoopBatch(callback: () => void) {
     callback()
 }
 
-export function setBatch(reactionScheduler: any) {
+export function observerBatching(reactionScheduler: any) {
     if (!reactionScheduler) {
         reactionScheduler = defaulNoopBatch
         if ("production" !== process.env.NODE_ENV) {
