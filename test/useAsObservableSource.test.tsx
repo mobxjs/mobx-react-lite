@@ -5,15 +5,8 @@ import { autorun, configure, observable } from "mobx"
 import * as React from "react"
 import { useEffect, useState } from "react"
 
-import {
-    Observer,
-    observer,
-    useAsObservableSource,
-    useLocalStore,
-    useObserver,
-    useQueuedForceUpdateBlock
-} from "../src"
-import { enableDevEnvironment, resetMobx } from "./utils"
+import { Observer, observer, useLocalStore, useObserver } from "../src"
+import { resetMobx } from "./utils"
 
 afterEach(cleanup)
 afterEach(resetMobx)
@@ -25,7 +18,8 @@ describe("base useAsObservableSource should work", () => {
 
         function Counter({ multiplier }: { multiplier: number }) {
             counterRender++
-            const observableProps = useAsObservableSource({ multiplier })
+            const observableProps = useLocalStore(() => ({ multiplier }))
+            Object.assign(observableProps, { multiplier })
             const store = useLocalStore(() => ({
                 count: 10,
                 get multiplied() {
@@ -89,19 +83,20 @@ describe("base useAsObservableSource should work", () => {
 
         function Counter({ multiplier }: { multiplier: number }) {
             counterRender++
-            const observableProps = useQueuedForceUpdateBlock(() =>
-                useAsObservableSource({ multiplier })
-            )
             const store = useLocalStore(() => ({
+                multiplier,
                 count: 10,
                 get multiplied() {
-                    return observableProps.multiplier * this.count
+                    return this.multiplier * this.count
                 },
                 inc() {
                     this.count += 1
                 }
             }))
 
+            useEffect(() => {
+                store.multiplier = multiplier
+            }, [multiplier])
             return (
                 <Observer>
                     {() => {
@@ -157,16 +152,20 @@ describe("base useAsObservableSource should work", () => {
         const Counter = observer(({ multiplier }: { multiplier: number }) => {
             counterRender++
 
-            const observableProps = useAsObservableSource({ multiplier })
             const store = useLocalStore(() => ({
+                multiplier,
                 count: 10,
                 get multiplied() {
-                    return observableProps.multiplier * this.count
+                    return this.multiplier * this.count
                 },
                 inc() {
                     this.count += 1
                 }
             }))
+
+            useEffect(() => {
+                store.multiplier = multiplier
+            }, [multiplier])
 
             return (
                 <div>
@@ -214,21 +213,25 @@ test("useAsObservableSource with effects should work", () => {
     const thingsSeenByEffect: Array<[number, number, number]> = []
 
     function Counter({ multiplier }: { multiplier: number }) {
-        const observableProps = useAsObservableSource({ multiplier })
         const store = useLocalStore(() => ({
+            multiplier,
             count: 10,
             get multiplied() {
-                return observableProps.multiplier * this.count
+                return this.multiplier * this.count
             },
             inc() {
                 this.count += 1
             }
         }))
 
+        useEffect(() => {
+            store.multiplier = multiplier
+        }, [multiplier])
+
         useEffect(
             () =>
                 autorun(() => {
-                    multiplierSeenByEffect.push(observableProps.multiplier)
+                    multiplierSeenByEffect.push(store.multiplier)
                 }),
             []
         )
@@ -242,11 +245,7 @@ test("useAsObservableSource with effects should work", () => {
         useEffect(
             () =>
                 autorun(() => {
-                    thingsSeenByEffect.push([
-                        observableProps.multiplier,
-                        store.multiplied,
-                        multiplier
-                    ]) // multiplier is trapped!
+                    thingsSeenByEffect.push([store.multiplier, store.multiplied, multiplier]) // multiplier is trapped!
                 }),
             []
         )
@@ -317,13 +316,13 @@ describe("combining observer with props and stores", () => {
         const renderedValues: number[] = []
 
         const TestComponent = observer((props: any) => {
-            const obsProps = useAsObservableSource({ y: props.y })
             const localStore = useLocalStore(() => ({
+                y: props.y,
                 get value() {
-                    return props.store.x + 5 * obsProps.y
+                    return props.store.x + 5 * this.y
                 }
             }))
-
+            localStore.y = props.y
             renderedValues.push(localStore.value)
             return <div>{localStore.value}</div>
         })
@@ -339,40 +338,8 @@ describe("combining observer with props and stores", () => {
 
         expect(renderedValues).toEqual([10, 15, 15, 20]) // TODO: should have one 15 less
 
-        // TODO: re-enable this line. When debugging, the correct value is returned from render,
-        // which is also visible with renderedValues, however, querying the dom doesn't show the correct result
-        // possible a bug with @testing-library/react?
-        // expect(container.querySelector("div")!.textContent).toBe("20") // TODO: somehow this change is not visible in the tester!
+        expect(container.querySelector("div")!.textContent).toBe("20")
     })
-})
-
-it("checks for plain object being passed in", () => {
-    const disable = enableDevEnvironment() // to catch dev-only errors
-    const restore = mockConsole() // to ignore React showing caught errors
-    const { result } = renderHook(() => useAsObservableSource(false))
-    expect(result.error).toMatchInlineSnapshot(
-        `[Error: useAsObservableSource expects a plain object as first argument]`
-    )
-    restore()
-    disable()
-})
-
-it("checks for stable shape of object being passed in", async () => {
-    const disable = enableDevEnvironment() // to catch dev-only errors
-    const restore = mockConsole() // to ignore React showing caught errors
-    const { result, rerender } = renderHook(
-        ({ second }) => {
-            const obj = second ? { foo: "brr", baz: "new" } : { foo: "baz" }
-            return useAsObservableSource(obj)
-        },
-        { initialProps: { second: false } }
-    )
-    rerender({ second: true })
-    expect(result.error).toMatchInlineSnapshot(
-        `[Error: the shape of objects passed to useAsObservableSource should be stable]`
-    )
-    restore()
-    disable()
 })
 
 describe("enforcing actions", () => {
@@ -380,7 +347,7 @@ describe("enforcing actions", () => {
         configure({ enforceActions: "never" })
         const { result } = renderHook(() => {
             const [thing, setThing] = React.useState("world")
-            useAsObservableSource({ hello: thing })
+            useLocalStore(() => ({ hello: thing }))
             useEffect(() => setThing("react"), [])
         })
         expect(result.error).not.toBeDefined()
@@ -389,7 +356,7 @@ describe("enforcing actions", () => {
         configure({ enforceActions: "observed" })
         const { result } = renderHook(() => {
             const [thing, setThing] = React.useState("world")
-            useAsObservableSource({ hello: thing })
+            useLocalStore(() => ({ hello: thing }))
             useEffect(() => setThing("react"), [])
         })
         expect(result.error).not.toBeDefined()
@@ -398,7 +365,7 @@ describe("enforcing actions", () => {
         configure({ enforceActions: "always" })
         const { result } = renderHook(() => {
             const [thing, setThing] = React.useState("world")
-            useAsObservableSource({ hello: thing })
+            useLocalStore(() => ({ hello: thing }))
             useEffect(() => setThing("react"), [])
         })
         expect(result.error).not.toBeDefined()
@@ -409,7 +376,10 @@ it("doesn't update a component while rendering a different component - #274", ()
     // https://github.com/facebook/react/pull/17099
 
     const Parent = observer((props: any) => {
-        const observableProps = useAsObservableSource(props)
+        const observableProps = useLocalStore(() => props)
+        useEffect(() => {
+            Object.assign(observableProps, props)
+        }, [props])
 
         return <Child observableProps={observableProps} />
     })
