@@ -1,13 +1,12 @@
-import mockConsole from "jest-mock-console"
 import * as mobx from "mobx"
 import * as React from "react"
 import { renderHook } from "@testing-library/react-hooks"
 import { act, cleanup, fireEvent, render } from "@testing-library/react"
 
-import { Observer, observer, useLocalStore, useObserver } from "../src"
+import { Observer, observer, useLocalStore } from "../src"
 import { useEffect, useState } from "react"
 import { autorun } from "mobx"
-import { enableDevEnvironment } from "./utils"
+import { useObserver } from "../src/useObserver"
 
 afterEach(cleanup)
 
@@ -430,28 +429,6 @@ describe("is used to keep observable within component body", () => {
             expect(container.querySelector("span")!.innerHTML).toBe("22")
             expect(counterRender).toBe(4) // TODO: should be 3
         })
-    })
-
-    it("checks for plain object being passed in", () => {
-        const disable = enableDevEnvironment() // to catch dev-only errors
-        const restore = mockConsole() // to ignore React showing caught errors
-        const { result } = renderHook(() => {
-            useLocalStore(
-                props => ({
-                    count: 10,
-                    inc() {
-                        this.count += 1
-                    }
-                }),
-                false as any
-            )
-        })
-
-        expect(result.error).toMatchInlineSnapshot(
-            `[Error: useLocalStore expects a plain object as second argument]`
-        )
-        restore()
-        disable()
     })
 })
 

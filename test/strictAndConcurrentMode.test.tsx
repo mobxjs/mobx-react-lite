@@ -4,7 +4,7 @@ import * as mobx from "mobx"
 import * as React from "react"
 import ReactDOM from "react-dom"
 
-import { useObserver } from "../src"
+import { useObserver } from "../src/useObserver"
 import {
     CLEANUP_LEAKED_REACTIONS_AFTER_MILLIS,
     CLEANUP_TIMER_LOOP_MILLIS,

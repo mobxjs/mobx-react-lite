@@ -5,8 +5,9 @@ import { autorun, configure, observable } from "mobx"
 import * as React from "react"
 import { useEffect, useState } from "react"
 
-import { Observer, observer, useLocalStore, useObserver } from "../src"
+import { Observer, observer, useLocalStore } from "../src"
 import { resetMobx } from "./utils"
+import { useObserver } from "../src/useObserver"
 
 afterEach(cleanup)
 afterEach(resetMobx)
