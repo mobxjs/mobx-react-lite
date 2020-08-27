@@ -1,2 +1,3 @@
-const ReactNative = require("react-native")
-require("./dist").observerBatching(ReactNative.unstable_batchedUpdates)
+if ("production" !== process.env.NODE_ENV) {
+    console.warn("[mobx-react-lite] importing batchingForReactNative is no longer needed")
+}

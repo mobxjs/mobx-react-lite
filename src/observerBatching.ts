@@ -1,25 +1,17 @@
 import { configure } from "mobx"
 
-import { getGlobal, getSymbol } from "./utils"
-
-interface IBatchedUpdates {
-    batchedUpdates<A, B>(callback: (a: A, b: B) => any, a: A, b: B): void
-    batchedUpdates<A>(callback: (a: A) => any, a: A): void
-    batchedUpdates(callback: () => any): void
+export function defaulNoopBatch(callback: () => void) {
+    callback()
 }
 
-const observerBatchingConfiguredSymbol = getSymbol("observerBatching")
-
-export const observerBatching = (reactionScheduler?: IBatchedUpdates) => {
-    if (typeof reactionScheduler === "function") {
-        configure({ reactionScheduler })
+export function observerBatching(reactionScheduler: any) {
+    if (!reactionScheduler) {
+        reactionScheduler = defaulNoopBatch
+        if ("production" !== process.env.NODE_ENV) {
+            console.warn(
+                "[MobX] Failed to get unstable_batched updates from react-dom / react-native"
+            )
+        }
     }
-    getGlobal()[observerBatchingConfiguredSymbol] = true
+    configure({ reactionScheduler })
 }
-
-export const observerBatchingOptOut = () => {
-    configure({ reactionScheduler: undefined })
-    getGlobal()[observerBatchingConfiguredSymbol] = true
-}
-
-export const isObserverBatched = () => getGlobal()[observerBatchingConfiguredSymbol]

@@ -1,0 +1,11 @@
+{
+    "extends": "./tsconfig.json",
+    "compilerOptions": {
+        "outDir": "lib",
+        "esModuleInterop": true,
+        "module": "CommonJS",
+        "target": "ES5"
+    },
+    "include": ["src/**/*"],
+    "exclude": ["node_modules"]
+}

@@ -61,6 +61,8 @@ The useAsObservableSource hook can be used to turn any set of values into an obs
 
 ## Observer batching
 
+_Note: configuring observer batching is only needed when using `mobx-react-lite` 2.0.* or 2.1.*. From 2.2 onward it will be configured automatically based on the availability of react-dom / react-native packages_
+
 [Check out the elaborate explanation](https://github.com/mobxjs/mobx-react/pull/787#issuecomment-573599793).
 
 In short without observer batching the React doesn't guarantee the order component rendering in some cases. We highly recommend that you configure batching to avoid these random surprises.
