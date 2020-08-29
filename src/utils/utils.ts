@@ -1,4 +1,4 @@
-import { useCallback, useState, useMemo } from "react"
+import { useCallback, useState } from "react"
 
 const EMPTY_ARRAY: any[] = []
 
@@ -15,12 +15,8 @@ export function useForceUpdate() {
 const deprecatedMessages: string[] = []
 
 export function useDeprecated(msg: string) {
-    if ("production" !== process.env.NODE_ENV) {
-        useMemo(() => {
-            if (!deprecatedMessages.includes(msg)) {
-                deprecatedMessages.push(msg)
-                console.warn(msg)
-            }
-        }, [])
+    if (!deprecatedMessages.includes(msg)) {
+        deprecatedMessages.push(msg)
+        console.warn(msg)
     }
 }

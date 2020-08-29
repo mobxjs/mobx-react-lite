@@ -10,7 +10,7 @@ import {
     CLEANUP_TIMER_LOOP_MILLIS,
     forceCleanupTimerToRunNowForTests,
     resetCleanupScheduleForTests
-} from "../src/reactionCleanupTracking"
+} from "../src/utils/reactionCleanupTracking"
 
 afterEach(cleanup)
 

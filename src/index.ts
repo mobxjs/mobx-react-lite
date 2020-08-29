@@ -1,14 +1,25 @@
-import "./assertEnvironment"
+import "./utils/assertEnvironment"
 
 import { unstable_batchedUpdates as batch } from "./utils/reactBatchedUpdates"
-import { observerBatching } from "./observerBatching"
+import { observerBatching } from "./utils/observerBatching"
+import { useDeprecated } from "./utils/utils"
+import { useObserver as useObserverOriginal } from "./useObserver"
 
 observerBatching(batch)
 
 export { isUsingStaticRendering, useStaticRendering } from "./staticRendering"
 export { observer, IObserverOptions } from "./observer"
 export { Observer } from "./ObserverComponent"
-export { useObservable } from "./useObservable"
-export { observerBatching } from "./observerBatching"
+export { useLocalObservable } from "./useLocalObservable"
+export { observerBatching } from "./utils/observerBatching"
 export { useLocalStore } from "./useLocalStore"
 export { useAsObservableSource } from "./useAsObservableSource"
+
+export function useObserver<T>(fn: () => T, baseComponentName: string = "observed"): T {
+    if ("production" !== process.env.NODE_ENV) {
+        useDeprecated(
+            "[mobx-react-lite] 'useObserver(fn)' is deprecated. Use `<Observer>{fn}</Observer>` instead, or wrap the entire component in `observer`."
+        )
+    }
+    return useObserverOriginal(fn, baseComponentName)
+}

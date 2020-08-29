@@ -5,7 +5,7 @@ import { autorun, configure, observable } from "mobx"
 import * as React from "react"
 import { useEffect, useState } from "react"
 
-import { Observer, observer, useObservable } from "../src"
+import { Observer, observer, useLocalObservable } from "../src"
 import { resetMobx } from "./utils"
 import { useObserver } from "../src/useObserver"
 
@@ -19,9 +19,9 @@ describe("base useAsObservableSource should work", () => {
 
         function Counter({ multiplier }: { multiplier: number }) {
             counterRender++
-            const observableProps = useObservable(() => ({ multiplier }))
+            const observableProps = useLocalObservable(() => ({ multiplier }))
             Object.assign(observableProps, { multiplier })
-            const store = useObservable(() => ({
+            const store = useLocalObservable(() => ({
                 count: 10,
                 get multiplied() {
                     return observableProps.multiplier * this.count
@@ -84,7 +84,7 @@ describe("base useAsObservableSource should work", () => {
 
         function Counter({ multiplier }: { multiplier: number }) {
             counterRender++
-            const store = useObservable(() => ({
+            const store = useLocalObservable(() => ({
                 multiplier,
                 count: 10,
                 get multiplied() {
@@ -153,7 +153,7 @@ describe("base useAsObservableSource should work", () => {
         const Counter = observer(({ multiplier }: { multiplier: number }) => {
             counterRender++
 
-            const store = useObservable(() => ({
+            const store = useLocalObservable(() => ({
                 multiplier,
                 count: 10,
                 get multiplied() {
@@ -214,7 +214,7 @@ test("useAsObservableSource with effects should work", () => {
     const thingsSeenByEffect: Array<[number, number, number]> = []
 
     function Counter({ multiplier }: { multiplier: number }) {
-        const store = useObservable(() => ({
+        const store = useLocalObservable(() => ({
             multiplier,
             count: 10,
             get multiplied() {
@@ -291,7 +291,7 @@ test("useAsObservableSource with effects should work", () => {
 describe("combining observer with props and stores", () => {
     it("keeps track of observable values", () => {
         const TestComponent = observer((props: any) => {
-            const localStore = useObservable(() => ({
+            const localStore = useLocalObservable(() => ({
                 get value() {
                     return props.store.x + 5 * props.store.y
                 }
@@ -317,7 +317,7 @@ describe("combining observer with props and stores", () => {
         const renderedValues: number[] = []
 
         const TestComponent = observer((props: any) => {
-            const localStore = useObservable(() => ({
+            const localStore = useLocalObservable(() => ({
                 y: props.y,
                 get value() {
                     return props.store.x + 5 * this.y
@@ -348,7 +348,7 @@ describe("enforcing actions", () => {
         configure({ enforceActions: "never" })
         const { result } = renderHook(() => {
             const [thing, setThing] = React.useState("world")
-            useObservable(() => ({ hello: thing }))
+            useLocalObservable(() => ({ hello: thing }))
             useEffect(() => setThing("react"), [])
         })
         expect(result.error).not.toBeDefined()
@@ -357,7 +357,7 @@ describe("enforcing actions", () => {
         configure({ enforceActions: "observed" })
         const { result } = renderHook(() => {
             const [thing, setThing] = React.useState("world")
-            useObservable(() => ({ hello: thing }))
+            useLocalObservable(() => ({ hello: thing }))
             useEffect(() => setThing("react"), [])
         })
         expect(result.error).not.toBeDefined()
@@ -366,7 +366,7 @@ describe("enforcing actions", () => {
         configure({ enforceActions: "always" })
         const { result } = renderHook(() => {
             const [thing, setThing] = React.useState("world")
-            useObservable(() => ({ hello: thing }))
+            useLocalObservable(() => ({ hello: thing }))
             useEffect(() => setThing("react"), [])
         })
         expect(result.error).not.toBeDefined()
@@ -377,7 +377,7 @@ it("doesn't update a component while rendering a different component - #274", ()
     // https://github.com/facebook/react/pull/17099
 
     const Parent = observer((props: any) => {
-        const observableProps = useObservable(() => props)
+        const observableProps = useLocalObservable(() => props)
         useEffect(() => {
             Object.assign(observableProps, props)
         }, [props])

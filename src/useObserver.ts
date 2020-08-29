@@ -1,15 +1,15 @@
 import { Reaction } from "mobx"
 import React from "react"
 
-import { printDebugValue } from "./printDebugValue"
+import { printDebugValue } from "./utils/printDebugValue"
 import {
     createTrackingData,
     IReactionTracking,
     recordReactionAsCommitted,
     scheduleCleanupOfReactionIfLeaked
-} from "./reactionCleanupTracking"
+} from "./utils/reactionCleanupTracking"
 import { isUsingStaticRendering } from "./staticRendering"
-import { useForceUpdate } from "./utils"
+import { useForceUpdate } from "./utils/utils"
 
 function observerComponentNameFor(baseComponentName: string) {
     return `observer${baseComponentName}`

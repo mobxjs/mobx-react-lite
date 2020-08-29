@@ -24,6 +24,8 @@ It also doesn't offer
 
 ## User Guide 👉 https://mobx.js.org/react/react-integration.html
 
+---
+
 ## API reference ⚒
 
 ### **`observer<P>(baseComponent: FunctionComponent<P>): FunctionComponent<P>`**
@@ -44,6 +46,14 @@ Note that computed values cannot directly depend on non-observable values, but o
 `useLocalObservable` is a short-hand for:
 
 `const state = useState(() => observable(initializer(), annotations, { autoBind: true }))[0]`
+
+### **`useStaticRendering(enable: true)`**
+
+Call `useStaticRendering(true)` when running in an SSR environment, in which `observer` wrapped components should never re-render, but cleanup after the first rendering automatically. Use `isUsingStaticRendering()` to inspect the current setting.
+
+---
+
+## Deprecated APIs
 
 ### **`useObserver<T>(fn: () => T, baseComponentName = "observed", options?: IUseObserverOptions): T`** (deprecated)
 

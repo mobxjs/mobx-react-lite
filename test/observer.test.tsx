@@ -3,8 +3,7 @@ import mockConsole from "jest-mock-console"
 import * as mobx from "mobx"
 import * as React from "react"
 
-import { observer, useStaticRendering } from "../src"
-import { useObserver } from "../src/useObserver"
+import { observer, useStaticRendering, useObserver } from "../src"
 
 const getDNode = (obj: any, prop?: string) => mobx.getObserverTree(obj, prop)
 
