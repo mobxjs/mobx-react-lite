@@ -14,11 +14,11 @@ It also doesn't offer
 
 ## Compatibility table (major versions)
 
-| mobx | mobx-react-lite | mobx-react<br/>(for class components) | Browser                                        |
-| ---- | --------------- | ------------------------------------- | ---------------------------------------------- |
-| 6    | 3               | 7                                     | Modern browsers (IE 11+ in compatibility mode) |
-| 5    | 2               | 6                                     | Modern browsers                                |
-| 4    | 2               | 6                                     | IE 11+, RN w/o Proxy support                   |
+| mobx | mobx-react-lite | Browser                                        |
+| ---- | --------------- | ---------------------------------------------- |
+| 6    | 3               | Modern browsers (IE 11+ in compatibility mode) |
+| 5    | 2               | Modern browsers                                |
+| 4    | 2               | IE 11+, RN w/o Proxy support                   |
 
 `mobx-react-lite` requires React 16.8 or higher.
 
@@ -45,7 +45,7 @@ Note that computed values cannot directly depend on non-observable values, but o
 
 `useLocalObservable` is a short-hand for:
 
-`const state = useState(() => observable(initializer(), annotations, { autoBind: true }))[0]`
+`const [state] = useState(() => observable(initializer(), annotations, { autoBind: true }))`
 
 ### **`useStaticRendering(enable: true)`**
 
