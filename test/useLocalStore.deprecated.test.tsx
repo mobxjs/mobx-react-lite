@@ -3,10 +3,9 @@ import * as React from "react"
 import { renderHook } from "@testing-library/react-hooks"
 import { act, cleanup, fireEvent, render } from "@testing-library/react"
 
-import { Observer, observer, useLocalObservable } from "../src"
+import { Observer, observer, useLocalStore } from "../src"
 import { useEffect, useState } from "react"
 import { autorun } from "mobx"
-import { useObserver } from "../src/useObserver"
 
 afterEach(cleanup)
 
@@ -19,7 +18,7 @@ test("base useLocalStore should work", () => {
 
     function Counter() {
         counterRender++
-        const store = (outerStoreRef = useLocalObservable(() => ({
+        const store = (outerStoreRef = useLocalStore(() => ({
             count: 0,
             count2: 0, // not used in render
             inc() {
@@ -27,15 +26,19 @@ test("base useLocalStore should work", () => {
             }
         })))
 
-        return useObserver(() => {
-            observerRender++
-            return (
-                <div>
-                    Count: <span>{store.count}</span>
-                    <button onClick={store.inc}>Increment</button>
-                </div>
-            )
-        })
+        return (
+            <Observer>
+                {() => {
+                    observerRender++
+                    return (
+                        <div>
+                            Count: <span>{store.count}</span>
+                            <button onClick={store.inc}>Increment</button>
+                        </div>
+                    )
+                }}
+            </Observer>
+        )
     }
 
     const { container } = render(<Counter />)
@@ -48,14 +51,14 @@ test("base useLocalStore should work", () => {
         container.querySelector("button")!.click()
     })
     expect(container.querySelector("span")!.innerHTML).toBe("1")
-    expect(counterRender).toBe(2)
+    expect(counterRender).toBe(1)
     expect(observerRender).toBe(2)
 
     act(() => {
         outerStoreRef.count++
     })
     expect(container.querySelector("span")!.innerHTML).toBe("2")
-    expect(counterRender).toBe(3)
+    expect(counterRender).toBe(1)
     expect(observerRender).toBe(3)
 
     act(() => {
@@ -63,14 +66,14 @@ test("base useLocalStore should work", () => {
     })
     // No re-render!
     expect(container.querySelector("span")!.innerHTML).toBe("2")
-    expect(counterRender).toBe(3)
+    expect(counterRender).toBe(1)
     expect(observerRender).toBe(3)
 })
 
 describe("is used to keep observable within component body", () => {
     it("value can be changed over renders", () => {
         const TestComponent = () => {
-            const obs = useLocalObservable(() => ({
+            const obs = useLocalStore(() => ({
                 x: 1,
                 y: 2
             }))
@@ -95,7 +98,7 @@ describe("is used to keep observable within component body", () => {
         const TestComponent = observer(() => {
             renderCount++
 
-            const obs = useLocalObservable(() => ({
+            const obs = useLocalStore(() => ({
                 x: 1,
                 y: 2
             }))
@@ -113,12 +116,13 @@ describe("is used to keep observable within component body", () => {
         fireEvent.click(div)
         expect(div.textContent).toBe("3-2")
 
+        // though render 3 times, mobx.observable only called once
         expect(renderCount).toBe(3)
     })
 
     it("actions can be used", () => {
         const TestComponent = observer(() => {
-            const obs = useLocalObservable(() => ({
+            const obs = useLocalStore(() => ({
                 x: 1,
                 y: 2,
                 inc() {
@@ -140,7 +144,7 @@ describe("is used to keep observable within component body", () => {
 
     it("computed properties works as well", () => {
         const TestComponent = observer(() => {
-            const obs = useLocalObservable(() => ({
+            const obs = useLocalStore(() => ({
                 x: 1,
                 y: 2,
                 get z() {
@@ -158,7 +162,7 @@ describe("is used to keep observable within component body", () => {
 
     it("computed properties can use local functions", () => {
         const TestComponent = observer(() => {
-            const obs = useLocalObservable(() => ({
+            const obs = useLocalStore(() => ({
                 x: 1,
                 y: 2,
                 getMeThatX() {
@@ -181,7 +185,7 @@ describe("is used to keep observable within component body", () => {
         const seen: number[] = []
 
         const TestComponent = observer(() => {
-            const obs = useLocalObservable(() => ({
+            const obs = useLocalStore(() => ({
                 x: 1,
                 inc(delta: number) {
                     this.x += delta
@@ -215,7 +219,7 @@ describe("is used to keep observable within component body", () => {
 
     it("Map can used instead of object", () => {
         const TestComponent = observer(() => {
-            const map = useLocalObservable(() => new Map([["initial", 10]]))
+            const map = useLocalStore(() => new Map([["initial", 10]]))
             return (
                 <div onClick={() => map.set("later", 20)}>
                     {Array.from(map).map(([key, value]) => (
@@ -241,32 +245,33 @@ describe("is used to keep observable within component body", () => {
             function Counter({ multiplier }: { multiplier: number }) {
                 counterRender++
 
-                const store = useLocalObservable(() => ({
-                    multiplier,
-                    count: 10,
-                    get multiplied() {
-                        return this.multiplier * this.count
-                    },
-                    inc() {
-                        this.count += 1
-                    }
-                }))
-                useEffect(() => {
-                    store.multiplier = multiplier
-                }, [multiplier])
+                const store = useLocalStore(
+                    props => ({
+                        count: 10,
+                        get multiplied() {
+                            return props.multiplier * this.count
+                        },
+                        inc() {
+                            this.count += 1
+                        }
+                    }),
+                    { multiplier }
+                )
 
-                return useObserver(
-                    () => (
-                        observerRender++,
-                        (
-                            <div>
-                                Multiplied count: <span>{store.multiplied}</span>
-                                <button id="inc" onClick={store.inc}>
-                                    Increment
-                                </button>
-                            </div>
-                        )
-                    )
+                return (
+                    <Observer>
+                        {() => (
+                            observerRender++,
+                            (
+                                <div>
+                                    Multiplied count: <span>{store.multiplied}</span>
+                                    <button id="inc" onClick={store.inc}>
+                                        Increment
+                                    </button>
+                                </div>
+                            )
+                        )}
+                    </Observer>
                 )
             }
 
@@ -291,15 +296,15 @@ describe("is used to keep observable within component body", () => {
                 ;(container.querySelector("#inc")! as any).click()
             })
             expect(container.querySelector("span")!.innerHTML).toBe("11")
-            expect(counterRender).toBe(2) // 1 would be better!
+            expect(counterRender).toBe(1) // or 2
             expect(observerRender).toBe(2)
 
             act(() => {
                 ;(container.querySelector("#incmultiplier")! as any).click()
             })
             expect(container.querySelector("span")!.innerHTML).toBe("22")
-            expect(counterRender).toBe(4) // TODO: avoid double rendering here!
-            expect(observerRender).toBe(4) // TODO: avoid double rendering here!
+            expect(counterRender).toBe(2)
+            expect(observerRender).toBe(3)
         })
 
         it("with <Observer>", () => {
@@ -309,19 +314,18 @@ describe("is used to keep observable within component body", () => {
             function Counter({ multiplier }: { multiplier: number }) {
                 counterRender++
 
-                const store = useLocalObservable(() => ({
-                    multiplier,
-                    count: 10,
-                    get multiplied() {
-                        return this.multiplier * this.count
-                    },
-                    inc() {
-                        this.count += 1
-                    }
-                }))
-                useEffect(() => {
-                    store.multiplier = multiplier
-                }, [multiplier])
+                const store = useLocalStore(
+                    props => ({
+                        count: 10,
+                        get multiplied() {
+                            return props.multiplier * this.count
+                        },
+                        inc() {
+                            this.count += 1
+                        }
+                    }),
+                    { multiplier }
+                )
 
                 return (
                     <Observer>
@@ -369,7 +373,7 @@ describe("is used to keep observable within component body", () => {
             })
             expect(container.querySelector("span")!.innerHTML).toBe("22")
             expect(counterRender).toBe(2)
-            expect(observerRender).toBe(4)
+            expect(observerRender).toBe(3)
         })
 
         it("with observer()", () => {
@@ -378,19 +382,19 @@ describe("is used to keep observable within component body", () => {
             const Counter = observer(({ multiplier }: { multiplier: number }) => {
                 counterRender++
 
-                const store = useLocalObservable(() => ({
-                    multiplier,
-                    count: 10,
-                    get multiplied() {
-                        return this.multiplier * this.count
-                    },
-                    inc() {
-                        this.count += 1
-                    }
-                }))
-                useEffect(() => {
-                    store.multiplier = multiplier
-                }, [multiplier])
+                const store = useLocalStore(
+                    props => ({
+                        count: 10,
+                        get multiplied() {
+                            return props.multiplier * this.count
+                        },
+                        inc() {
+                            this.count += 1
+                        }
+                    }),
+                    { multiplier }
+                )
+
                 return (
                     <div>
                         Multiplied count: <span>{store.multiplied}</span>
@@ -437,19 +441,18 @@ describe("enforcing actions", () => {
         mobx.configure({ enforceActions: "never" })
         const { result } = renderHook(() => {
             const [multiplier, setMultiplier] = React.useState(2)
-            const store = useLocalObservable(() => ({
-                multiplier,
-                count: 10,
-                get multiplied() {
-                    return this.multiplier * this.count
-                },
-                inc() {
-                    this.count += 1
-                }
-            }))
-            useEffect(() => {
-                store.multiplier = multiplier
-            }, [multiplier])
+            useLocalStore(
+                props => ({
+                    count: 10,
+                    get multiplied() {
+                        return props.multiplier * this.count
+                    },
+                    inc() {
+                        this.count += 1
+                    }
+                }),
+                { multiplier }
+            )
             useEffect(() => setMultiplier(3), [])
         })
         expect(result.error).not.toBeDefined()
@@ -458,19 +461,18 @@ describe("enforcing actions", () => {
         mobx.configure({ enforceActions: "observed" })
         const { result } = renderHook(() => {
             const [multiplier, setMultiplier] = React.useState(2)
-            const store = useLocalObservable(() => ({
-                multiplier,
-                count: 10,
-                get multiplied() {
-                    return this.multiplier * this.count
-                },
-                inc() {
-                    this.count += 1
-                }
-            }))
-            useEffect(() => {
-                store.multiplier = multiplier
-            }, [multiplier])
+            useLocalStore(
+                props => ({
+                    count: 10,
+                    get multiplied() {
+                        return props.multiplier * this.count
+                    },
+                    inc() {
+                        this.count += 1
+                    }
+                }),
+                { multiplier }
+            )
             useEffect(() => setMultiplier(3), [])
         })
         expect(result.error).not.toBeDefined()
@@ -479,19 +481,18 @@ describe("enforcing actions", () => {
         mobx.configure({ enforceActions: "always" })
         const { result } = renderHook(() => {
             const [multiplier, setMultiplier] = React.useState(2)
-            const store = useLocalObservable(() => ({
-                multiplier,
-                count: 10,
-                get multiplied() {
-                    return this.multiplier * this.count
-                },
-                inc() {
-                    this.count += 1
-                }
-            }))
-            useEffect(() => {
-                store.multiplier = multiplier
-            }, [multiplier])
+            useLocalStore(
+                props => ({
+                    count: 10,
+                    get multiplied() {
+                        return props.multiplier * this.count
+                    },
+                    inc() {
+                        this.count += 1
+                    }
+                }),
+                { multiplier }
+            )
             useEffect(() => setMultiplier(3), [])
         })
         expect(result.error).not.toBeDefined()
