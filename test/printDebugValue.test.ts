@@ -1,5 +1,5 @@
 import { $mobx, autorun, observable } from "mobx"
-import { printDebugValue } from "../src/utils/printDebugValue"
+import { printDebugValue } from "../src/printDebugValue"
 
 test("printDebugValue", () => {
     const money = observable({

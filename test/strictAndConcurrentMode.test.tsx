@@ -4,13 +4,13 @@ import * as mobx from "mobx"
 import * as React from "react"
 import ReactDOM from "react-dom"
 
-import { useObserver } from "../src/useObserver"
+import { useObserver } from "../src"
 import {
     CLEANUP_LEAKED_REACTIONS_AFTER_MILLIS,
     CLEANUP_TIMER_LOOP_MILLIS,
     forceCleanupTimerToRunNowForTests,
     resetCleanupScheduleForTests
-} from "../src/utils/reactionCleanupTracking"
+} from "../src/reactionCleanupTracking"
 
 afterEach(cleanup)
 
