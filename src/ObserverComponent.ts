@@ -12,9 +12,11 @@ function ObserverComponent({ children, render }: IObserverProps) {
     }
     return useObserver(component)
 }
-ObserverComponent.propTypes = {
-    children: ObserverPropsCheck,
-    render: ObserverPropsCheck
+if ("production" !== process.env.NODE_ENV) {
+    ObserverComponent.propTypes = {
+        children: ObserverPropsCheck,
+        render: ObserverPropsCheck
+    }
 }
 ObserverComponent.displayName = "Observer"
 
