@@ -8,58 +8,122 @@
 
 [![NPM](https://nodei.co/npm/mobx-react-lite.png)](https://www.npmjs.com/package/mobx-react-lite)
 
-**You need React version 16.8.0 and above**
+This is a lighter version of [mobx-react](https://github.com/mobxjs/mobx-react) which supports React **functional components only** and as such makes the library slightly faster and smaller (_only 1.5kB gzipped_). Note however that it is possible to use `<Observer>` inside the render of class components.
+Unlike `mobx-react`, it doesn't `Provider`/`inject`, as `useContext` can be used instead.
+It also doesn't offer
 
-This is a lighter version of [mobx-react](https://github.com/mobxjs/mobx-react) which supports React **functional components only** and as such makes the library slightly faster and smaller (_only 1.5kB gzipped_). In fact `mobx-react@6` has this library as a dependency and builds on top of it.
+## Compatibility table (major versions)
 
-The library does not include any Provider/inject utilities as they can be fully replaced with [React Context](https://mobx-react.js.org/recipes-context). Check out [the migration guide](https://mobx-react.js.org/recipes-migration).
+| mobx | mobx-react-lite | Browser                                        |
+| ---- | --------------- | ---------------------------------------------- |
+| 6    | 3               | Modern browsers (IE 11+ in compatibility mode) |
+| 5    | 2               | Modern browsers                                |
+| 4    | 2               | IE 11+, RN w/o Proxy support                   |
 
-Class based components **are not supported** except using `<Observer>` directly in class `render` method. If you want to transition existing projects from classes to hooks, use [mobx-react 6+](https://github.com/mobxjs/mobx-react).
+`mobx-react-lite` requires React 16.8 or higher.
 
-See more at [the libraries overview](https://mobx-react.js.org/libraries).
+## User Guide 👉 https://mobx.js.org/react/react-integration.html
 
-## User Guide 👉 https://mobx-react.js.org
-
-The site contains various examples and recipes for using MobX in React world. Feel free to contribute. The API reference of this package follows 👇.
+---
 
 ## API reference ⚒
 
-### **`<Observer>{renderFn}</Observer>`** _([user guide](https://mobx-react.js.org/observer-component))_
-
-Is a React component, which applies observer to an anonymous region in your component.
-
-### **`observer<P>(baseComponent: FunctionComponent<P>, options?: IObserverOptions): FunctionComponent<P>`** _([user guide](https://mobx-react.js.org/observer-hoc))_
-
-```ts
-interface IObserverOptions {
-    // Pass true to wrap the inner component with React.forwardRef.
-    // It's false by the default.
-    forwardRef?: boolean
-}
-```
+### **`observer<P>(baseComponent: FunctionComponent<P>): FunctionComponent<P>`**
 
 The observer converts a component into a reactive component, which tracks which observables are used automatically and re-renders the component when one of these values changes.
+Can only be used for function components. For class component support see the `mobx-react` package.
 
-### **`useObserver<T>(fn: () => T, baseComponentName = "observed", options?: IUseObserverOptions): T`** _([user guide](https://mobx-react.js.org/observer-hook))_
+### **`<Observer>{renderFn}</Observer>`**
+
+Is a React component, which applies observer to an anonymous region in your component. `<Observer>` can be used both inside class and function components.
+
+### **`useLocalObservable<T>(initializer: () => T, annotations?: AnnotationsMap<T>): T`**
+
+Creates an observable object with the given properties, methods and computed values.
+
+Note that computed values cannot directly depend on non-observable values, but only on observable values, so it might be needed to sync properties into the observable using `useEffect` (see the example below at `useAsObservableSource`).
+
+`useLocalObservable` is a short-hand for:
+
+`const [state] = useState(() => observable(initializer(), annotations, { autoBind: true }))`
+
+### **`useStaticRendering(enable: true)`**
+
+Call `useStaticRendering(true)` when running in an SSR environment, in which `observer` wrapped components should never re-render, but cleanup after the first rendering automatically. Use `isUsingStaticRendering()` to inspect the current setting.
+
+---
+
+## Deprecated APIs
+
+### **`useObserver<T>(fn: () => T, baseComponentName = "observed", options?: IUseObserverOptions): T`** (deprecated)
+
+_This API is deprecated in 3.\*. It is often used wrong (e.g. to select data rather than for rendering, and `<Observer>` better decouples the rendering from the component updates_
 
 ```ts
 interface IUseObserverOptions {
     // optional custom hook that should make a component re-render (or not) upon changes
+    // Supported in 2.x only
     useForceUpdate: () => () => void
 }
 ```
 
 It allows you to use an observer like behaviour, but still allowing you to optimize the component in any way you want (e.g. using memo with a custom areEqual, using forwardRef, etc.) and to declare exactly the part that is observed (the render phase).
 
-### **`useLocalStore<T, S>(initializer: () => T, source?: S): T`** _([user guide](https://mobx-react.js.org/state-local))_
+### **`useLocalStore<T, S>(initializer: () => T, source?: S): T`** (deprecated)
+
+_This API is deprecated in 3.\*. Use `useLocalObservable` instead. They do roughly the same, but `useLocalObservable` accepts an set of annotations as second argument, rather than a `source` object. Using `source` is not recommended, see the deprecation message at `useAsObservableSource` for details_
 
 Local observable state can be introduced by using the useLocalStore hook, that runs its initializer function once to create an observable store and keeps it around for a lifetime of a component.
 
-### **`useAsObservableSource<T>(source: T): T`** _([user guide](https://mobx-react.js.org/state-outsourcing))_
+The annotations are similar to the annotations that are passed in to MobX's [`observable`](https://mobx.js.org/observable.html#available-annotations) API, and can be used to override the automatic member inference of specific fields.
+
+### **`useAsObservableSource<T>(source: T): T`** (deprecated)
 
 The useAsObservableSource hook can be used to turn any set of values into an observable object that has a stable reference (the same object is returned every time from the hook).
 
-## Observer batching
+_This API is deprecated in 3.\* as it relies on observables to be updated during rendering which is an anti-pattern. Instead, use `useEffect` to synchronize non-observable values with values. Example:_
+
+```javascript
+// Before:
+function Measurement({ unit }) {
+    const observableProps = useAsObservableSource({ unit })
+    const state = useLocalStore(() => ({
+        length: 0,
+        get lengthWithUnit() {
+            // lengthWithUnit can only depend on observables, hence the above conversion with `useAsObservableSource`
+            return observableProps.unit === "inch"
+                ? `${this.length * 2.54} inch`
+                : `${this.length} cm`
+        }
+    }))
+
+    return <h1>{state.lengthWithUnit}</h1>
+}
+
+// After:
+function Measurement({ unit }) {
+    const state = useLocalObservable(() => ({
+        unit, // the initial unit
+        length: 0,
+        get lengthWithUnit() {
+            // lengthWithUnit can only depend on observables, hence the above conversion with `useAsObservableSource`
+            return this.unit === "inch" ? `${this.length * 2.54} inch` : `${this.length} cm`
+        }
+    }))
+
+    useEffect(() => {
+        // sync the unit from 'props' into the observable 'state'
+        state.unit = unit
+    }, [unit])
+
+    return <h1>{state.lengthWithUnit}</h1>
+}
+```
+
+Note that, at your own risk, it is also possible to not use `useEffect`, but do `state.unit = unit` instead in the rendering.
+This is closer to the old behavior, but React will warn correctly about this if this would affect the rendering of other components.
+
+## Observer batching (deprecated)
 
 _Note: configuring observer batching is only needed when using `mobx-react-lite` 2.0.* or 2.1.*. From 2.2 onward it will be configured automatically based on the availability of react-dom / react-native packages_
 
