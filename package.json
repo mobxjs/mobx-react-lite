@@ -9,9 +9,6 @@
   "jsnext:main": "es/index.js",
   "react-native": "es/index.js",
   "types": "dist/index.d.ts",
-  "sideEffects": [
-    "batching*"
-  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/mobxjs/mobx-react-lite.git"
