@@ -3,7 +3,7 @@ import mockConsole from "jest-mock-console"
 import * as mobx from "mobx"
 import * as React from "react"
 
-import { observer, useObserver, isObserverBatched, useStaticRendering } from "../src"
+import { observer, useObserver, isObserverBatched, enableStaticRendering } from "../src"
 
 const getDNode = (obj: any, prop?: string) => mobx.getObserverTree(obj, prop)
 
@@ -173,7 +173,7 @@ function runTestSuite(mode: "observer" | "useObserver") {
 
     describe("does not keep views alive when using static rendering", () => {
         const execute = () => {
-            useStaticRendering(true)
+            enableStaticRendering(true)
             let renderCount = 0
             const data = mobx.observable({
                 z: "hi"
@@ -188,7 +188,7 @@ function runTestSuite(mode: "observer" | "useObserver") {
         }
 
         afterEach(() => {
-            useStaticRendering(false)
+            enableStaticRendering(false)
         })
 
         test("init state is correct", () => {

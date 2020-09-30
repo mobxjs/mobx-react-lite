@@ -4,10 +4,11 @@ import { unstable_batchedUpdates as batch } from "./utils/reactBatchedUpdates"
 import { observerBatching } from "./utils/observerBatching"
 import { useDeprecated } from "./utils/utils"
 import { useObserver as useObserverOriginal } from "./useObserver"
+import { enableStaticRendering } from "./staticRendering"
 
 observerBatching(batch)
 
-export { isUsingStaticRendering, useStaticRendering } from "./staticRendering"
+export { isUsingStaticRendering, enableStaticRendering } from "./staticRendering"
 export { observer, IObserverOptions } from "./observer"
 export { Observer } from "./ObserverComponent"
 export { useLocalObservable } from "./useLocalObservable"
@@ -24,3 +25,12 @@ export function useObserver<T>(fn: () => T, baseComponentName: string = "observe
 }
 
 export { isObserverBatched, observerBatching } from "./utils/observerBatching"
+
+export function useStaticRendering(enable: boolean) {
+    if ("production" !== process.env.NODE_ENV) {
+        console.warn(
+            "[mobx-react-lite] 'useStaticRendering' is deprecated, use 'enableStaticRendering' instead"
+        )
+    }
+    enableStaticRendering(enable)
+}

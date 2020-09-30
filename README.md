@@ -47,9 +47,9 @@ Note that computed values cannot directly depend on non-observable values, but o
 
 `const [state] = useState(() => observable(initializer(), annotations, { autoBind: true }))`
 
-### **`useStaticRendering(enable: true)`**
+### **`enableStaticRendering(enable: true)`**
 
-Call `useStaticRendering(true)` when running in an SSR environment, in which `observer` wrapped components should never re-render, but cleanup after the first rendering automatically. Use `isUsingStaticRendering()` to inspect the current setting.
+Call `enableStaticRendering(true)` when running in an SSR environment, in which `observer` wrapped components should never re-render, but cleanup after the first rendering automatically. Use `isUsingStaticRendering()` to inspect the current setting.
 
 ---
 
