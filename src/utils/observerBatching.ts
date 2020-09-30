@@ -1,7 +1,4 @@
 import { configure } from "mobx"
-import { getGlobal, getSymbol } from "./utils"
-
-const observerBatchingConfiguredSymbol = getSymbol("observerBatching")
 
 export function defaultNoopBatch(callback: () => void) {
     callback()
@@ -17,7 +14,12 @@ export function observerBatching(reactionScheduler: any) {
         }
     }
     configure({ reactionScheduler })
-    getGlobal()[observerBatchingConfiguredSymbol] = true
 }
 
-export const isObserverBatched = () => !!getGlobal()[observerBatchingConfiguredSymbol]
+export const isObserverBatched = () => {
+    if ("production" !== process.env.NODE_ENV) {
+        console.warn("[MobX] Deprecated")
+    }
+
+    return true
+}

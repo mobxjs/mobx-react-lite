@@ -39,9 +39,9 @@
   "bugs": {
     "url": "https://github.com/mobxjs/mobx-react-lite/issues"
   },
-  "homepage": "https://mobx-react.js.org",
+  "homepage": "https://mobx.js.org",
   "peerDependencies": {
-    "mobx": "^4.0.0 || ^5.0.0",
+    "mobx": "^6.0.0",
     "react": "^16.8.0"
   },
   "peerDependenciesMeta": {
@@ -73,7 +73,7 @@
     "jest": "24.9.0",
     "jest-environment-jsdom": "24.9.0",
     "jest-mock-console": "1.0.0",
-    "mobx": "5.14.0",
+    "mobx": "^6.0.0-rc.7",
     "prettier": "^1.19.1",
     "pretty-quick": "^2.0.1",
     "prompts": "^2.3.2",
