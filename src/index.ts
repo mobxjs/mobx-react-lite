@@ -11,7 +11,6 @@ export { isUsingStaticRendering, useStaticRendering } from "./staticRendering"
 export { observer, IObserverOptions } from "./observer"
 export { Observer } from "./ObserverComponent"
 export { useLocalObservable } from "./useLocalObservable"
-export { observerBatching } from "./utils/observerBatching"
 export { useLocalStore } from "./useLocalStore"
 export { useAsObservableSource } from "./useAsObservableSource"
 
@@ -23,3 +22,5 @@ export function useObserver<T>(fn: () => T, baseComponentName: string = "observe
     }
     return useObserverOriginal(fn, baseComponentName)
 }
+
+export { isObserverBatched, observerBatching } from "./utils/observerBatching"

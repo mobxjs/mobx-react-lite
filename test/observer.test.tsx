@@ -3,7 +3,7 @@ import mockConsole from "jest-mock-console"
 import * as mobx from "mobx"
 import * as React from "react"
 
-import { observer, useStaticRendering, useObserver } from "../src"
+import { observer, useObserver, isObserverBatched, useStaticRendering } from "../src"
 
 const getDNode = (obj: any, prop?: string) => mobx.getObserverTree(obj, prop)
 
@@ -265,6 +265,12 @@ function runTestSuite(mode: "observer" | "useObserver") {
                 })
             })
             expect(container).toMatchSnapshot()
+        })
+    })
+
+    describe("issue 309", () => {
+        test("isObserverBatched is still defined and yields true by default", () => {
+            expect(isObserverBatched()).toBe(true)
         })
     })
 

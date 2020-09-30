@@ -1,6 +1,6 @@
 {
   "name": "mobx-react-lite",
-  "version": "2.2.0",
+  "version": "2.2.2",
   "description": "Lightweight React bindings for MobX based on React 16.8+ and Hooks",
   "main": "lib/index.js",
   "unpkg": "dist/mobxreactlite.umd.production.min.js",
@@ -9,9 +9,6 @@
   "jsnext:main": "es/index.js",
   "react-native": "es/index.js",
   "types": "dist/index.d.ts",
-  "sideEffects": [
-    "batching*"
-  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/mobxjs/mobx-react-lite.git"
