@@ -14,6 +14,8 @@ It also doesn't offer
 
 
 
+
+
 ## Compatibility table (major versions)
 
 | mobx | mobx-react-lite | Browser                                        |
