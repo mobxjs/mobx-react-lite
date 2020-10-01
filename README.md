@@ -13,9 +13,6 @@ Unlike `mobx-react`, it doesn't `Provider`/`inject`, as `useContext` can be used
 It also doesn't offer
 
 
-
-
-
 ## Compatibility table (major versions)
 
 | mobx | mobx-react-lite | Browser                                        |
