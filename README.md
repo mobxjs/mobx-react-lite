@@ -12,6 +12,8 @@ This is a lighter version of [mobx-react](https://github.com/mobxjs/mobx-react) 
 Unlike `mobx-react`, it doesn't `Provider`/`inject`, as `useContext` can be used instead.
 It also doesn't offer
 
+
+
 ## Compatibility table (major versions)
 
 | mobx | mobx-react-lite | Browser                                        |
