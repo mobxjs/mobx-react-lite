@@ -22,7 +22,7 @@ It also doesn't offer
 
 `mobx-react-lite` requires React 16.8 or higher.
 
-## User Guide 👉 https://mobx.js.org/react/react-integration.html
+## User Guide 👉 https://mobx.js.org/react-integration.html
 
 ---
 
