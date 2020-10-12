@@ -98,9 +98,7 @@
     "reactive",
     "hooks",
     "observer",
-    "useObserver",
-    "useLocalStore",
-    "useAsObservableSource"
+    "useLocalObservable"
   ],
   "husky": {
     "hooks": {
