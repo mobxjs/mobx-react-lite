@@ -1,7 +1,7 @@
 import { act, cleanup, fireEvent, render } from "@testing-library/react"
 import mockConsole from "jest-mock-console"
 import * as mobx from "mobx"
-import * as React from "react"
+import React from "react"
 
 import { observer, useObserver, isObserverBatched, enableStaticRendering } from "../src"
 
@@ -867,3 +867,84 @@ it("should keep original props types", () => {
 //         /Cannot assign to read only property 'componentWillMount'/
 //     )
 // })
+
+it("dependencies should not become temporarily unobserved", async () => {
+    jest.spyOn(React, "useEffect")
+
+    let p: Promise<any>[] = []
+    const cleanups: any[] = []
+
+    async function runEffects() {
+        await Promise.all(p.splice(0))
+    }
+
+    // @ts-ignore
+    React.useEffect.mockImplementation(effect => {
+        console.warn("delaying useEffect call")
+        p.push(
+            new Promise(resolve => {
+                setTimeout(() => {
+                    act(() => {
+                        cleanups.push(effect())
+                    })
+                    resolve()
+                }, 10)
+            })
+        )
+    })
+
+    let computed = 0
+    let renders = 0
+
+    const store = mobx.makeAutoObservable({
+        x: 1,
+        get double() {
+            computed++
+            return this.x * 2
+        },
+        inc() {
+            this.x++
+        }
+    })
+
+    const doubleDisposed = jest.fn()
+    const reactionFired = jest.fn()
+
+    mobx.onBecomeUnobserved(store, "double", doubleDisposed)
+
+    const TestComponent = observer(() => {
+        renders++
+        return <div>{store.double}</div>
+    })
+
+    const r = render(<TestComponent />)
+
+    expect(computed).toBe(1)
+    expect(renders).toBe(1)
+    expect(doubleDisposed).toBeCalledTimes(0)
+
+    store.inc()
+    expect(computed).toBe(2) // change propagated
+    expect(renders).toBe(1) // but not yet rendered
+    expect(doubleDisposed).toBeCalledTimes(0) // if we dispose to early, this fails!
+
+    // Bug: change the state, before the useEffect fires, can cause the reaction to be disposed
+    mobx.reaction(() => store.x, reactionFired)
+    expect(reactionFired).toBeCalledTimes(0)
+    expect(computed).toBe(2) // Not 3!
+    expect(renders).toBe(1)
+    expect(doubleDisposed).toBeCalledTimes(0)
+
+    await runEffects()
+    expect(reactionFired).toBeCalledTimes(0)
+    expect(computed).toBe(2) // Not 3!
+    expect(renders).toBe(2)
+    expect(doubleDisposed).toBeCalledTimes(0)
+
+    r.unmount()
+    cleanups.filter(Boolean).forEach(f => f())
+    expect(reactionFired).toBeCalledTimes(0)
+    expect(computed).toBe(2)
+    expect(renders).toBe(2)
+    expect(doubleDisposed).toBeCalledTimes(1)
+})

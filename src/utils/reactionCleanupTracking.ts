@@ -13,19 +13,21 @@ export interface IReactionTracking {
      * Whether the component has yet completed mounting (for us, whether
      * its useEffect has run)
      */
-    mounted?: boolean
+    mounted: boolean
 
     /**
      * Whether the observables that the component is tracking changed between
      * the first render and the first useEffect.
      */
-    changedBeforeMount?: boolean
+    changedBeforeMount: boolean
 }
 
 export function createTrackingData(reaction: Reaction) {
     const trackingData: IReactionTracking = {
-        cleanAt: Date.now() + CLEANUP_LEAKED_REACTIONS_AFTER_MILLIS,
-        reaction
+        reaction,
+        mounted: false,
+        changedBeforeMount: false,
+        cleanAt: Date.now() + CLEANUP_LEAKED_REACTIONS_AFTER_MILLIS
     }
     return trackingData
 }
