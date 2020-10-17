@@ -42,10 +42,8 @@ export function useObserver<T>(fn: () => T, baseComponentName: string = "observe
                 forceUpdate()
             } else {
                 // We haven't yet reached useEffect(), so we'll need to trigger a re-render
-                // when (and if) useEffect() arrives.  The easiest way to do that is just to
-                // drop our current reaction and allow useEffect() to recreate it.
-                newReaction.dispose()
-                reactionTrackingRef.current = null
+                // when (and if) useEffect() arrives.
+                trackingData.changedBeforeMount = true
             }
         })
 
@@ -66,12 +64,16 @@ export function useObserver<T>(fn: () => T, baseComponentName: string = "observe
             // all we need to do is to record that it's now mounted,
             // to allow future observable changes to trigger re-renders
             reactionTrackingRef.current.mounted = true
+            // Got a change before first mount, force an update
+            if (reactionTrackingRef.current.changedBeforeMount) {
+                reactionTrackingRef.current.changedBeforeMount = false
+                forceUpdate()
+            }
         } else {
             // The reaction we set up in our render has been disposed.
-            // This is either due to bad timings of renderings, e.g. our
+            // This can be due to bad timings of renderings, e.g. our
             // component was paused for a _very_ long time, and our
-            // reaction got cleaned up, or we got a observable change
-            // between render and useEffect
+            // reaction got cleaned up
 
             // Re-create the reaction
             reactionTrackingRef.current = {
@@ -79,6 +81,8 @@ export function useObserver<T>(fn: () => T, baseComponentName: string = "observe
                     // We've definitely already been mounted at this point
                     forceUpdate()
                 }),
+                mounted: true,
+                changedBeforeMount: false,
                 cleanAt: Infinity
             }
             forceUpdate()
