@@ -37,7 +37,7 @@
     "author": "Daniel K.",
     "license": "MIT",
     "bugs": {
-        "url": "https://github.com/mobxjs/mobx-react-lite/issues"
+        "url": "https://github.com/mobxjs/mobx/issues"
     },
     "homepage": "https://mobx.js.org",
     "peerDependencies": {
