@@ -119,9 +119,19 @@ export function forceCleanupTimerToRunNowForTests() {
 
 /* istanbul ignore next */
 export function resetCleanupScheduleForTests() {
+    if (uncommittedReactionRefs.size > 0) {
+        for (const ref of uncommittedReactionRefs) {
+            const tracking = ref.current
+            if (tracking) {
+                tracking.reaction.dispose()
+                ref.current = null
+            }
+        }
+        uncommittedReactionRefs.clear()
+    }
+
     if (reactionCleanupHandle) {
         clearTimeout(reactionCleanupHandle)
         reactionCleanupHandle = undefined
     }
-    uncommittedReactionRefs.clear()
 }
