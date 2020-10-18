@@ -154,3 +154,19 @@ Above imports are for a convenience to utilize standard versions of batching. If
 import { observerBatching } from "mobx-react-lite"
 observerBatching(customBatchedUpdates)
 ```
+
+## Testing
+
+In order to avoid memory leaks due to aborted renders from React
+fiber handling or React `StrictMode`, this library needs to
+run timers to tidy up the remains of the aborted renders.
+
+This can cause issues with test frameworks such as Jest
+which require that timers be cleaned up before the tests
+can exit.
+
+### **`clearTimers()**
+
+Call `clearTimers()` in the `afterEach` of your tests to ensure
+that `mobx-react-lite` cleans up immediately and allows tests
+to exit.
