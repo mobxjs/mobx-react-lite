@@ -9,7 +9,6 @@
 
 This is a lighter version of [mobx-react](https://github.com/mobxjs/mobx-react) which supports React **functional components only** and as such makes the library slightly faster and smaller (_only 1.5kB gzipped_). Note however that it is possible to use `<Observer>` inside the render of class components.
 Unlike `mobx-react`, it doesn't `Provider`/`inject`, as `useContext` can be used instead.
-It also doesn't offer
 
 ## Compatibility table (major versions)
 
