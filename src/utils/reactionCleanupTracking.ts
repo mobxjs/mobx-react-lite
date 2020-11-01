@@ -31,7 +31,7 @@ interface ReactionCleanupTracking {
         reactionTrackingRef: React.MutableRefObject<IReactionTracking | null>,
         reaction: Reaction,
         objectRetainedByReact: object
-    ): void
+    ): IReactionTracking
     recordReactionAsCommitted(reactionRef: React.MutableRefObject<IReactionTracking | null>): void
     forceCleanupTimerToRunNowForTests(): void
     resetCleanupScheduleForTests(): void
@@ -169,6 +169,7 @@ function createTimerBasedReactionCleanupTracking(): ReactionCleanupTracking {
         ) {
             reactionTrackingRef.current = createTrackingData(reaction)
             scheduleCleanupOfReactionIfLeaked(reactionTrackingRef)
+            return reactionTrackingRef.current
         },
         recordReactionAsCommitted(reactionRef: React.MutableRefObject<IReactionTracking | null>) {
             recordReactionAsCommitted(reactionRef)
@@ -228,6 +229,7 @@ function createReactionCleanupTrackingUsingFinalizationRegister(
             reactionTrackingRef.current = createTrackingData(reaction)
             reactionTrackingRef.current.finalizationRegistryCleanupToken = token
             cleanupTokenToReactionTrackingMap.set(token, reactionTrackingRef.current)
+            return reactionTrackingRef.current
         },
         recordReactionAsCommitted(reactionRef: React.MutableRefObject<IReactionTracking | null>) {
             registry.unregister(reactionRef)

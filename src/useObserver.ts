@@ -33,27 +33,26 @@ export function useObserver<T>(fn: () => T, baseComponentName: string = "observe
         // reaction from an abandoned render was disposed).
 
         const newReaction = new Reaction(observerComponentNameFor(baseComponentName), () => {
-            if (!reactionTrackingRef.current) {
-                // this branch is not expected to happen
-                return
-            }
-
             // Observable has changed, meaning we want to re-render
             // BUT if we're a component that hasn't yet got to the useEffect()
             // stage, we might be a component that _started_ to render, but
             // got dropped, and we don't want to make state changes then.
             // (It triggers warnings in StrictMode, for a start.)
-            if (reactionTrackingRef.current.mounted) {
+            if (trackingData.mounted) {
                 // We have reached useEffect(), so we're mounted, and can trigger an update
                 forceUpdate()
             } else {
                 // We haven't yet reached useEffect(), so we'll need to trigger a re-render
                 // when (and if) useEffect() arrives.
-                reactionTrackingRef.current.changedBeforeMount = true
+                trackingData.changedBeforeMount = true
             }
         })
 
-        addReactionToTrack(reactionTrackingRef, newReaction, objectRetainedByReact)
+        const trackingData = addReactionToTrack(
+            reactionTrackingRef,
+            newReaction,
+            objectRetainedByReact
+        )
     }
 
     const { reaction } = reactionTrackingRef.current!
