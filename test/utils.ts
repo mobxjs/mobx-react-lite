@@ -16,11 +16,3 @@ export function sleep(time: number) {
         setTimeout(res, time)
     })
 }
-
-export async function waitForTicks(ticks: number) {
-    for (let i = 0; i < ticks; i++) {
-        await new Promise(res => {
-            process.nextTick(res)
-        })
-    }
-}

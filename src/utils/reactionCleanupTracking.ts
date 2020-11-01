@@ -16,6 +16,27 @@ export {
     resetCleanupScheduleForTests,
     forceCleanupTimerToRunNowForTests
 }
+
+/**
+ * Unified api for timers/Finalization registry cleanups
+ * This abstraction make useObserver much simpler
+ */
+interface ReactionCleanupTracking {
+    /**
+     *
+     * @param reaction The reaction to cleanup
+     * @param objectRetainedByReact This will be in actual use only when FinalizationRegister is in use
+     */
+    addReactionToTrack(
+        reactionTrackingRef: React.MutableRefObject<IReactionTracking | null>,
+        reaction: Reaction,
+        objectRetainedByReact: object
+    ): void
+    recordReactionAsCommitted(reactionRef: React.MutableRefObject<IReactionTracking | null>): void
+    forceCleanupTimerToRunNowForTests(): void
+    resetCleanupScheduleForTests(): void
+}
+
 export interface IReactionTracking {
     /** The Reaction created during first render, which may be leaked */
     reaction: Reaction
@@ -42,22 +63,6 @@ export interface IReactionTracking {
      * this will hold the cleanup token associated with this reaction
      */
     finalizationRegistryCleanupToken?: number
-}
-
-interface ReactionCleanupTracking {
-    /**
-     *
-     * @param reaction The reaction to cleanup
-     * @param objectRetainedByReact This will be in actual use only when FinalizationRegister is in use
-     */
-    addReactionToTrack(
-        reactionTrackingRef: React.MutableRefObject<IReactionTracking | null>,
-        reaction: Reaction,
-        objectRetainedByReact: object
-    ): void
-    recordReactionAsCommitted(reactionRef: React.MutableRefObject<IReactionTracking | null>): void
-    forceCleanupTimerToRunNowForTests(): void
-    resetCleanupScheduleForTests(): void
 }
 
 function createTimerBasedReactionCleanupTracking(): ReactionCleanupTracking {

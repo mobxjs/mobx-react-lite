@@ -21,7 +21,6 @@ jobs:
                 pkg-manager: yarn
 
             - run: yarn build
-            - run: node --version
 
             - persist_to_workspace:
                   root: .
