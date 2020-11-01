@@ -3,10 +3,9 @@ import React from "react"
 
 import { printDebugValue } from "./utils/printDebugValue"
 import {
-    createTrackingData,
+    addReactionToTrack,
     IReactionTracking,
-    recordReactionAsCommitted,
-    scheduleCleanupOfReactionIfLeaked
+    recordReactionAsCommitted
 } from "./utils/reactionCleanupTracking"
 import { isUsingStaticRendering } from "./staticRendering"
 import { useForceUpdate } from "./utils/utils"
@@ -20,6 +19,8 @@ export function useObserver<T>(fn: () => T, baseComponentName: string = "observe
         return fn()
     }
 
+    const [objectRetainedByReact] = React.useState({})
+
     const forceUpdate = useForceUpdate()
 
     // StrictMode/ConcurrentMode/Suspense may mean that our component is
@@ -32,24 +33,27 @@ export function useObserver<T>(fn: () => T, baseComponentName: string = "observe
         // reaction from an abandoned render was disposed).
 
         const newReaction = new Reaction(observerComponentNameFor(baseComponentName), () => {
+            if (!reactionTrackingRef.current) {
+                // this branch is not expected to happen
+                return
+            }
+
             // Observable has changed, meaning we want to re-render
             // BUT if we're a component that hasn't yet got to the useEffect()
             // stage, we might be a component that _started_ to render, but
             // got dropped, and we don't want to make state changes then.
             // (It triggers warnings in StrictMode, for a start.)
-            if (trackingData.mounted) {
+            if (reactionTrackingRef.current.mounted) {
                 // We have reached useEffect(), so we're mounted, and can trigger an update
                 forceUpdate()
             } else {
                 // We haven't yet reached useEffect(), so we'll need to trigger a re-render
                 // when (and if) useEffect() arrives.
-                trackingData.changedBeforeMount = true
+                reactionTrackingRef.current.changedBeforeMount = true
             }
         })
 
-        const trackingData = createTrackingData(newReaction)
-        reactionTrackingRef.current = trackingData
-        scheduleCleanupOfReactionIfLeaked(reactionTrackingRef)
+        addReactionToTrack(reactionTrackingRef, newReaction, objectRetainedByReact)
     }
 
     const { reaction } = reactionTrackingRef.current!

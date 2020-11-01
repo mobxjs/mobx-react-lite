@@ -3,5 +3,10 @@ module.exports = {
     testEnvironment: "jsdom",
     setupFilesAfterEnv: [require.resolve("./jest.setup.js")],
     verbose: false,
-    coverageDirectory: "coverage"
+    coverageDirectory: "coverage",
+    globals: {
+        "ts-jest": {
+            diagnostics: false
+        }
+    }
 }
