@@ -1,112 +1,111 @@
 {
-    "name": "mobx-react-lite",
-    "version": "3.0.1",
-    "description": "Lightweight React bindings for MobX based on React 16.8+ and Hooks",
-    "main": "lib/index.js",
-    "unpkg": "dist/mobxreactlite.umd.production.min.js",
-    "jsdelivr": "dist/mobxreactlite.umd.production.min.js",
-    "module": "es/index.js",
-    "jsnext:main": "es/index.js",
-    "react-native": "es/index.js",
-    "types": "dist/index.d.ts",
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/mobxjs/mobx-react-lite.git"
+  "name": "mobx-react-lite",
+  "version": "3.0.1",
+  "description": "Lightweight React bindings for MobX based on React 16.8+ and Hooks",
+  "main": "lib/index.js",
+  "unpkg": "dist/mobxreactlite.umd.production.min.js",
+  "jsdelivr": "dist/mobxreactlite.umd.production.min.js",
+  "module": "es/index.js",
+  "jsnext:main": "es/index.js",
+  "react-native": "es/index.js",
+  "types": "dist/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mobxjs/mobx-react-lite.git"
+  },
+  "files": [
+    "dist/",
+    "lib/",
+    "es/",
+    "batching*"
+  ],
+  "scripts": {
+    "prettier": "prettier --write \"./{src,test}/*.{js,ts,tsx}\"",
+    "lint": "eslint . --ext .js,.ts,.tsx",
+    "validate": "tsc --noEmit",
+    "test": "jest --watch",
+    "test:ci": "jest -i --coverage",
+    "size": "size-limit",
+    "coverage": "jest --coverage",
+    "prebuild": "rimraf dist lib es",
+    "build": "yarn build:commonjs && yarn build:es && yarn build:umd",
+    "build:commonjs": "tsc --project tsconfig.build.cjs.json",
+    "build:es": "tsc --project tsconfig.build.es.json",
+    "build:umd": "tsdx build --name mobxReactLite --format=umd --tsconfig tsconfig.build.es.json",
+    "release": "yarn build && yarn changeset publish"
+  },
+  "author": "Daniel K.",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mobxjs/mobx/issues"
+  },
+  "homepage": "https://mobx.js.org",
+  "peerDependencies": {
+    "mobx": "^6.0.0",
+    "react": "^16.8.0"
+  },
+  "peerDependenciesMeta": {
+    "react-dom": {
+      "optional": true
     },
-    "files": [
-        "dist/",
-        "lib/",
-        "es/",
-        "batching*"
-    ],
-    "scripts": {
-        "prettier": "prettier --write \"./{src,test}/*.{js,ts,tsx}\"",
-        "lint": "eslint . --ext .js,.ts,.tsx",
-        "validate": "tsc --noEmit",
-        "jest": "jest",
-        "test": "jest --watch",
-        "test:ci": "jest -i --coverage",
-        "size": "size-limit",
-        "coverage": "jest --coverage",
-        "prebuild": "rimraf dist lib es",
-        "build": "yarn build:commonjs && yarn build:es && yarn build:umd",
-        "build:commonjs": "tsc --project tsconfig.build.cjs.json",
-        "build:es": "tsc --project tsconfig.build.es.json",
-        "build:umd": "tsdx build --name mobxReactLite --format=umd --tsconfig tsconfig.build.es.json",
-        "release": "yarn build && yarn changeset publish"
-    },
-    "author": "Daniel K.",
-    "license": "MIT",
-    "bugs": {
-        "url": "https://github.com/mobxjs/mobx/issues"
-    },
-    "homepage": "https://mobx.js.org",
-    "peerDependencies": {
-        "mobx": "^6.0.0",
-        "react": "^16.8.0"
-    },
-    "peerDependenciesMeta": {
-        "react-dom": {
-            "optional": true
-        },
-        "react-native": {
-            "optional": true
-        }
-    },
-    "devDependencies": {
-        "@babel/core": "7.8.4",
-        "@babel/preset-env": "7.8.4",
-        "@changesets/changelog-github": "^0.2.7",
-        "@changesets/cli": "^2.11.0",
-        "@size-limit/preset-small-lib": "2.1.6",
-        "@size-limit/time": "2.1.6",
-        "@testing-library/jest-dom": "4.1.2",
-        "@testing-library/react": "9.3.0",
-        "@testing-library/react-hooks": "1.1.0",
-        "@types/jest": "24.0.19",
-        "@types/node": "12.7.12",
-        "@types/react": "16.9.6",
-        "@types/react-dom": "16.9.2",
-        "@typescript-eslint/eslint-plugin": "^2.19.2",
-        "@typescript-eslint/parser": "^2.19.2",
-        "coveralls": "3.0.7",
-        "eslint": "^6.1.0",
-        "eslint-plugin-react": "^7.18.3",
-        "expose-gc": "^1.0.0",
-        "husky": "3.0.9",
-        "jest": "24.9.0",
-        "jest-environment-jsdom": "24.9.0",
-        "jest-mock-console": "1.0.0",
-        "mobx": "^6.0.0-rc.7",
-        "prettier": "^1.19.1",
-        "pretty-quick": "^2.0.1",
-        "prompts": "^2.3.2",
-        "react": "16.13.1",
-        "react-dom": "16.13.1",
-        "react-test-renderer": "16.10.2",
-        "rimraf": "3.0.0",
-        "semver": "^7.2.2",
-        "shelljs": "^0.8.3",
-        "shx": "0.3.2",
-        "ts-jest": "24.1.0",
-        "tsdx": "0.12.3",
-        "typescript": "3.6.4"
-    },
-    "keywords": [
-        "mobx",
-        "mobservable",
-        "react-component",
-        "react",
-        "reactjs",
-        "reactive",
-        "hooks",
-        "observer",
-        "useLocalObservable"
-    ],
-    "husky": {
-        "hooks": {
-            "pre-commit": "pretty-quick --staged"
-        }
-    },
-    "dependencies": {}
+    "react-native": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@babel/core": "7.8.4",
+    "@babel/preset-env": "7.8.4",
+    "@changesets/changelog-github": "^0.2.7",
+    "@changesets/cli": "^2.11.0",
+    "@size-limit/preset-small-lib": "2.1.6",
+    "@size-limit/time": "2.1.6",
+    "@testing-library/jest-dom": "4.1.2",
+    "@testing-library/react": "9.3.0",
+    "@testing-library/react-hooks": "1.1.0",
+    "@types/jest": "24.0.19",
+    "@types/node": "12.7.12",
+    "@types/react": "16.9.6",
+    "@types/react-dom": "16.9.2",
+    "@typescript-eslint/eslint-plugin": "^2.19.2",
+    "@typescript-eslint/parser": "^2.19.2",
+    "coveralls": "3.0.7",
+    "eslint": "^6.1.0",
+    "eslint-plugin-react": "^7.18.3",
+    "expose-gc": "^1.0.0",
+    "husky": "3.0.9",
+    "jest": "24.9.0",
+    "jest-environment-jsdom": "24.9.0",
+    "jest-mock-console": "1.0.0",
+    "mobx": "^6.0.0-rc.7",
+    "prettier": "^1.19.1",
+    "pretty-quick": "^2.0.1",
+    "prompts": "^2.3.2",
+    "react": "16.13.1",
+    "react-dom": "16.13.1",
+    "react-test-renderer": "16.10.2",
+    "rimraf": "3.0.0",
+    "semver": "^7.2.2",
+    "shelljs": "^0.8.3",
+    "shx": "0.3.2",
+    "ts-jest": "24.1.0",
+    "tsdx": "0.12.3",
+    "typescript": "3.6.4"
+  },
+  "keywords": [
+    "mobx",
+    "mobservable",
+    "react-component",
+    "react",
+    "reactjs",
+    "reactive",
+    "hooks",
+    "observer",
+    "useLocalObservable"
+  ],
+  "husky": {
+    "hooks": {
+      "pre-commit": "pretty-quick --staged"
+    }
+  },
+  "dependencies": {}
 }
