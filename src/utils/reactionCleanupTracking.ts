@@ -162,8 +162,8 @@ function createTimerBasedReactionCleanupTracking(): ReactionCleanupTracking {
             reactionTrackingRef: React.MutableRefObject<IReactionTracking | null>,
             reaction: Reaction,
             /**
-             * on time based implementation we don't really need this object,
-             * But we keep same api
+             * On timer based implementation we don't really need this object,
+             * but we keep the same api
              */
             objectRetainedByReact: unknown
         ) {
@@ -171,9 +171,7 @@ function createTimerBasedReactionCleanupTracking(): ReactionCleanupTracking {
             scheduleCleanupOfReactionIfLeaked(reactionTrackingRef)
             return reactionTrackingRef.current
         },
-        recordReactionAsCommitted(reactionRef: React.MutableRefObject<IReactionTracking | null>) {
-            recordReactionAsCommitted(reactionRef)
-        },
+        recordReactionAsCommitted,
         forceCleanupTimerToRunNowForTests,
         resetCleanupScheduleForTests
     }
