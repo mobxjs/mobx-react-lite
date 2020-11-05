@@ -156,15 +156,18 @@ observerBatching(customBatchedUpdates)
 
 ## Testing
 
+Running the full test suite now requires node 14+
+But the library itself does not have this limitation
+
 In order to avoid memory leaks due to aborted renders from React
-fiber handling or React `StrictMode`, this library needs to
+fiber handling or React `StrictMode`, on environments that does not support [FinalizationRegistry](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/FinalizationRegistry), this library needs to
 run timers to tidy up the remains of the aborted renders.
 
 This can cause issues with test frameworks such as Jest
 which require that timers be cleaned up before the tests
 can exit.
 
-### **`clearTimers()**
+### **`clearTimers()`**
 
 Call `clearTimers()` in the `afterEach` of your tests to ensure
 that `mobx-react-lite` cleans up immediately and allows tests
