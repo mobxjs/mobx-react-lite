@@ -14,12 +14,17 @@ function observerComponentNameFor(baseComponentName: string) {
     return `observer${baseComponentName}`
 }
 
+/**
+ * We use class to make it easier to detect in heap explorer
+ */
+class ObjectToBeRetainedByReact {}
+
 export function useObserver<T>(fn: () => T, baseComponentName: string = "observed"): T {
     if (isUsingStaticRendering()) {
         return fn()
     }
 
-    const [objectRetainedByReact] = React.useState({})
+    const [objectRetainedByReact] = React.useState(new ObjectToBeRetainedByReact())
 
     const forceUpdate = useForceUpdate()
 
