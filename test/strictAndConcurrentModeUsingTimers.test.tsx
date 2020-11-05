@@ -6,11 +6,13 @@ import ReactDOM from "react-dom"
 
 import { useObserver } from "../src/useObserver"
 import {
-    CLEANUP_LEAKED_REACTIONS_AFTER_MILLIS,
-    CLEANUP_TIMER_LOOP_MILLIS,
     forceCleanupTimerToRunNowForTests,
     resetCleanupScheduleForTests
 } from "../src/utils/reactionCleanupTracking"
+import {
+    CLEANUP_LEAKED_REACTIONS_AFTER_MILLIS,
+    CLEANUP_TIMER_LOOP_MILLIS
+} from "../src/utils/reactionCleanupTrackingCommon"
 
 afterEach(cleanup)
 
