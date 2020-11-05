@@ -15,7 +15,7 @@ function observerComponentNameFor(baseComponentName: string) {
 }
 
 /**
- * We use class to make it easier to detect in heap explorer
+ * We use class to make it easier to detect in heap snapshots by name
  */
 class ObjectToBeRetainedByReact {}
 

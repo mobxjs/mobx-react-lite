@@ -35,15 +35,16 @@ export function createReactionCleanupTrackingUsingFinalizationRegister(
             reactionTrackingRef.current = createTrackingData(reaction)
             reactionTrackingRef.current.finalizationRegistryCleanupToken = token
             cleanupTokenToReactionTrackingMap.set(token, reactionTrackingRef.current)
+
             return reactionTrackingRef.current
         },
         recordReactionAsCommitted(reactionRef: React.MutableRefObject<IReactionTracking | null>) {
             registry.unregister(reactionRef)
 
-            for (const [key, value] of cleanupTokenToReactionTrackingMap.entries()) {
-                if (value === reactionRef.current) {
-                    cleanupTokenToReactionTrackingMap.delete(key)
-                }
+            if (reactionRef.current && reactionRef.current.finalizationRegistryCleanupToken) {
+                cleanupTokenToReactionTrackingMap.delete(
+                    reactionRef.current.finalizationRegistryCleanupToken
+                )
             }
         },
         forceCleanupTimerToRunNowForTests() {
