@@ -1,6 +1,6 @@
 {
     "name": "mobx-react-lite",
-    "version": "3.0.1",
+    "version": "3.1.0",
     "description": "Lightweight React bindings for MobX based on React 16.8+ and Hooks",
     "main": "lib/index.js",
     "unpkg": "dist/mobxreactlite.umd.production.min.js",
