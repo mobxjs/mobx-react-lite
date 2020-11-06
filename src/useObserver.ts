@@ -3,10 +3,9 @@ import React from "react"
 
 import { printDebugValue } from "./utils/printDebugValue"
 import {
-    createTrackingData,
+    addReactionToTrack,
     IReactionTracking,
-    recordReactionAsCommitted,
-    scheduleCleanupOfReactionIfLeaked
+    recordReactionAsCommitted
 } from "./utils/reactionCleanupTracking"
 import { isUsingStaticRendering } from "./staticRendering"
 import { useForceUpdate } from "./utils/utils"
@@ -15,10 +14,17 @@ function observerComponentNameFor(baseComponentName: string) {
     return `observer${baseComponentName}`
 }
 
+/**
+ * We use class to make it easier to detect in heap snapshots by name
+ */
+class ObjectToBeRetainedByReact {}
+
 export function useObserver<T>(fn: () => T, baseComponentName: string = "observed"): T {
     if (isUsingStaticRendering()) {
         return fn()
     }
+
+    const [objectRetainedByReact] = React.useState(new ObjectToBeRetainedByReact())
 
     const forceUpdate = useForceUpdate()
 
@@ -47,9 +53,11 @@ export function useObserver<T>(fn: () => T, baseComponentName: string = "observe
             }
         })
 
-        const trackingData = createTrackingData(newReaction)
-        reactionTrackingRef.current = trackingData
-        scheduleCleanupOfReactionIfLeaked(reactionTrackingRef)
+        const trackingData = addReactionToTrack(
+            reactionTrackingRef,
+            newReaction,
+            objectRetainedByReact
+        )
     }
 
     const { reaction } = reactionTrackingRef.current!
